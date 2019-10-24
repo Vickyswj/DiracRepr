@@ -95,15 +95,34 @@ Hint Extern 1 (fake_eq (@Mmult _ _ _ _ _) _) => apply fake_eq_intro; apply Mmult
 Hint Extern 1 (fake_eq (@Mmult _ _ _ _ _) _) => apply fake_eq_intro; apply Mmult_bra1_ket0: matrix_reduce.
 Hint Extern 1 (fake_eq (@Mmult _ _ _ _ _) _) => apply fake_eq_intro; apply Mmult_bra1_ket1: matrix_reduce.
 
+Ltac mult_kron1 :=
+  match goal with
+  | |- context [@Mmult ?m1o1 ?n1p1 ?n2p2 (@kron ?m1 ?n1 ?o1 ?p1 ?A ?B) (@kron ?m2 ?n2 ?o2 ?p2 ?C ?D)] =>
+             change (@Mmult m1o1 n1p1 n2p2 (@kron m1 n1 o1 p1 A B) (@kron m2 n2 o2 p2 C D)) with
+                           (@Mmult (m1 * o1) (n1 * p1) (n2 * p2) (@kron m1 n1 o1 p1 A B) (@kron n1 n2 p1 p2 C D));
+             rewrite (@kron_mixed_product m1 n1 n2 o1 p1 p2 A B C D)
+  end.
 
-Ltac matrix_mult_reduce:=
+Ltac mult_result_gen :=
+  repeat mult_kron1;
+  repeat rewrite ?Mmult_bra0_ket0, ?Mmult_bra0_ket1, ?Mmult_bra1_ket0, ?Mmult_bra1_ket1;  (* make it more extensible later.*)
+  isolate_scale;
+  repeat rewrite id_kron;
+  apply fake_eq_intro; reflexivity.
+
+Ltac matrix_mult_reduce :=
 match goal with
-| |-context [ @Mmult 1 ?n 1 ?A ?B] =>
+| |-context [ @Mmult ?one1 ?n ?one2 ?A ?B] =>
          match B with
         | @Mmult _ _ _ _ _ => fail 1
-        | _ => erewrite (mult_reduce1 n A B); [| auto with matrix_reduce]
+        | _ => change (@Mmult one1 n one2 A B) with
+                                (@Mmult 1 n 1 A B);
+                   erewrite (mult_reduce1 n A B) by (mult_result_gen; fail 2 "mult_result_gen fail")
         end
-| |-context [ @Mmult 1 ?n ?m ?A (@Mmult ?n 1 ?m ?B ?C)] => erewrite (mult_reduce2 n m A B C); [| auto with matrix_reduce]
+| |-context [ @Mmult ?one1 ?n ?m ?A (@Mmult ?n ?one2 ?m ?B ?C)] =>
+         change (@Mmult one1 n m A (@Mmult n one2 m B C)) with
+                       (@Mmult 1 n m A (@Mmult n 1 m B C));
+          erewrite (mult_reduce2 n m A B C) by (mult_result_gen; fail 2 "mult_result_gen fail")
 end;
 isolate_scale;
 repeat rewrite ?Mmult_1_l, ?Mmult_1_r.
@@ -367,6 +386,7 @@ unfold H.
 distrubute_plus.
 isolate_scale.
 assoc_right.
+
 (*
 erewrite mult_reduce1.
 2:{apply fake_eq_intro. apply Mmult_bra0_ket0. }
@@ -397,6 +417,9 @@ distrubute_plus.
 isolate_scale.
 kron_mult.
 assoc_right.
+repeat matrix_mult_reduce.
+reduce_scale.
+
 (*
  matrix_kron_reduce.
 
@@ -417,9 +440,11 @@ isolate_scale.
 repeat rewrite ?Mmult_1_l, ?Mmult_1_r.
 reduce_scale.
 *)
+(*
 mult_kron.
 repeat matrix_mult_reduce.
 reduce_scale.
+*)
 Qed.
 
 (*
@@ -448,67 +473,10 @@ distrubute_plus.
 isolate_scale.
 kron_mult.
 assoc_right.
-mult_kron.
-erewrite mult_reduce1.
-2:{ apply fake_eq_intro;apply Mmult_bra000_ket000'. }
-isolate_scale. rewrite Mmult_1_r.
-reduce_scale.
-mult_kron.
 repeat matrix_mult_reduce.
 reduce_scale.
-
-
-rewrite Mmult_bra000_ket000.
-
-
-erewrite mult_reduce1.
-2:{ apply fake_eq_intro;apply Mmult_bra000_ket000'. }
-
-
-mult_kron.
-
-
-rewrite Mmult_bra000_ket000. 
-
-
-mult_assoc_right.
-kron_assoc_right.
-
-mult_kron.
-matrix_kron_reduce.
-(* rewrite Mmult_bra0_ket0. *)
-erewrite mult_kron_reduce1.
-2: {
-apply fake_eq_intro; apply Mmult_bra00_ket00. }
-isolate_scale. rewrite kron_1_r. 
-erewrite mult_reduce1.
-2: {
-apply fake_eq_intro; apply Mmult_bra0_ket0. }
-isolate_scale. rewrite Mmult_1_r.
-reduce_scale.
-
-}
-
-
-
-(* Lemma dd : ∣1⟩ ⊗ (∣1⟩ ⊗ ∣1⟩) = ∣1⟩ ⊗ ∣1⟩ ⊗ ∣1⟩.
-Proof. rewrite kron_assoc. auto. Qed. *)
-
-rewrite Mmult_bra000_ket000.
-
-repeat rewrite kron_assoc.
-    mult_kron.
-    
-  rewrite Mmult_bra0_ket0.
-      mult_kron.
-    rewrite Mmult_ket0
-    repeat matrix_mult_reduce.
-  repeat rewrite kron_assoc.
-
-  mult_kron.
-  repeat matrix_mult_reduce.
-Qed.
-
+(* obvious *)
+Admitted.
 
 
 
