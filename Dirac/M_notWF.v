@@ -573,7 +573,7 @@ Proof.
       rewrite IHr by lia; simpl; lca.
 Qed.
 
-Lemma Mmult_1_l_mat_eq : forall (m n : nat) (A : Matrix m n), I m × A ≡ A.
+Lemma Mmult_1_l : forall (m n : nat) (A : Matrix m n), I m × A ≡ A.
 Proof.
   intros m n A x y.
   destruct x as [x Px], y as [y Py].
@@ -591,7 +591,7 @@ Lemma Mmult_1_r_gen: forall (m n : nat) (A : Matrix m n) (x z k : nat),
   (k <= n)%nat ->
   ((k <= z)%nat -> Csum (fun y : nat => A x y * (I n) y z) k = 0) /\
   ((k > z)%nat -> Csum (fun y : nat => A x y * (I n) y z) k = A x z).
-Proof.  
+Proof.
   intros m n A x z k B.
   induction k.
   simpl. split. reflexivity. lia.
@@ -613,7 +613,7 @@ Proof.
     - rewrite IHr by lia; simpl; lca.
 Qed.
 
-Lemma Mmult_1_r_mat_eq : forall (m n : nat) (A : Matrix m n), A × I n ≡ A.
+Lemma Mmult_1_r : forall (m n : nat) (A : Matrix m n), A × I n ≡ A.
 Proof.
   intros m n A x y.
   destruct x as [x Px], y as [y Py].
@@ -624,7 +624,7 @@ Proof.
   unfold get; simpl.
   apply Hr.
   lia.
-Qed.  
+Qed.
 
 Lemma kron_0_l : forall (m n o p : nat) (A : Matrix o p), 
   @Zero m n ⊗ A = Zero.
@@ -1005,9 +1005,9 @@ Lemma Minv_unique : forall (n : nat) (A B C : Square n),
                       Minv A B -> Minv A C -> B ≡ C.
 Proof.
   intros n A B C [HAB HBA] [HAC HCA].
-  rewrite <- (Mmult_1_r_mat_eq n n B).
+  rewrite <- Mmult_1_r.
   rewrite <- HAC.
-  rewrite <- (Mmult_1_l_mat_eq n n C) at 2.
+  rewrite <- (Mmult_1_l n n C) at 2.
   rewrite <- HBA.
   rewrite Mmult_assoc.
   reflexivity.
@@ -1381,7 +1381,7 @@ Hint Rewrite kron_1_l kron_1_r Mmult_1_l Mmult_1_r id_kron id_adjoint_eq
 *)
 
 (* eauto will cause major choking... *)
-Hint Rewrite  @kron_1_l @kron_1_r @Mmult_1_l_mat_eq @Mmult_1_r_mat_eq @Mscale_1_l 
+Hint Rewrite  @kron_1_l @kron_1_r @Mmult_1_l @Mmult_1_r @Mscale_1_l 
      @id_adjoint_eq @id_transpose_eq using (auto 100 with wf_db) : M_db_light.
 Hint Rewrite @kron_0_l @kron_0_r @Mmult_0_l @Mmult_0_r @Mplus_0_l @Mplus_0_r
      @Mscale_0_l @Mscale_0_r @zero_adjoint_eq @zero_transpose_eq using (auto 100 with wf_db) : M_db_light.

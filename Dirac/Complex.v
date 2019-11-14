@@ -242,6 +242,9 @@ Proof. apply injective_projections ; simpl ; apply Rplus_0_l. Qed.
 Lemma Cplus_opp_r (x : C) : x + -x = 0.
 Proof. apply injective_projections ; simpl ; apply Rplus_opp_r. Qed.
 
+Lemma Cplus_opp_l (x : C) : -x + x = 0.
+Proof. apply injective_projections ; simpl ; apply Rplus_opp_l. Qed.
+
 Lemma Copp_plus_distr (z1 z2 : C) : - (z1 + z2) = (- z1 + - z2).
 Proof. apply injective_projections ; apply Ropp_plus_distr; auto. Qed.
 
@@ -264,6 +267,12 @@ Lemma Cmult_1_r (x : C) : x * 1 = x.
 Proof. apply injective_projections ; simpl ; ring. Qed.
 
 Lemma Cmult_1_l (x : C) : 1 * x = x.
+Proof. apply injective_projections ; simpl ; ring. Qed.
+
+Lemma Cmult_m1_r (x : C) : x * -1 = -x.
+Proof. apply injective_projections ; simpl ; ring. Qed.
+
+Lemma Cmult_m1_l (x : C) : -1 * x = -x.
 Proof. apply injective_projections ; simpl ; ring. Qed.
 
 Lemma Cinv_r (r : C) : r <> 0 -> r * /r = 1.
@@ -303,6 +312,9 @@ Canonical C_AbelianGroup :=
 *)
 
 Lemma Copp_0 : Copp 0 = 0.
+Proof. apply injective_projections; simpl ; ring. Qed.
+
+Lemma Copp_1 : Copp 1 = -1.
 Proof. apply injective_projections; simpl ; ring. Qed.
 
 Lemma Cmod_m1 : Cmod (Copp 1) = 1.
@@ -440,11 +452,10 @@ Lemma Copp_mult_distr_r : forall c1 c2 : C, - (c1 * c2) = c1 * - c2.
 Proof. intros; lca. Qed.
 Lemma Copp_mult_distr_l : forall c1 c2 : C, - (c1 * c2) = - c1 * c2.
 Proof. intros; lca. Qed.
-Lemma Cplus_opp_l : forall c : C, - c + c = 0. Proof. intros; lca. Qed.
 Lemma Cdouble : forall c : C, 2 * c = c + c. Proof. intros; lca. Qed.
 Lemma Copp_involutive: forall c : C, - - c = c. Proof. intros; lca. Qed.
 
-Lemma C0_imp : forall c : C, c <> 0 -> (fst c <> 0 \/ snd c <> 0)%R.  
+Lemma C0_imp : forall c : C, c <> 0 -> (fst c <> 0 \/ snd c <> 0)%R.
 Proof. intros c H. destruct c. simpl.
        destruct (Req_EM_T r 0), (Req_EM_T r0 0); subst; intuition. Qed.
 Lemma C0_fst_neq : forall (c : C), fst c <> 0 -> c <> 0. 
@@ -536,7 +547,7 @@ Proof. intros. eapply c_proj_eq; simpl; try rewrite sqrt_sqrt; lra. Qed.
 Lemma Csqrt2_sqrt : √ 2 * √ 2 = 2.
 Proof. apply Csqrt_sqrt; lra. Qed.
 
-Lemma Cinv_sqrt2_sqrt : /√2 * /√2 = /2. 
+Lemma Cinv_sqrt2_sqrt : /√2 * /√2 = /2.
 Proof. 
   eapply c_proj_eq; simpl; try lra.
   autorewrite with R_db. 
@@ -577,7 +588,7 @@ Proof. rewrite Cmult_comm. apply Csqrt2_sqrt2_inv. Qed.
 
 Lemma Csqrt2_inv_sqrt2_inv : ((√ / 2) * (√ / 2)) = /2.
 Proof. 
-  rewrite Csqrt2_inv. field_simplify. 
+  rewrite Csqrt2_inv. field_simplify.
   rewrite Csqrt2_sqrt. easy. 
   apply RtoC_neq; lra.
   apply RtoC_neq; apply sqrt_neq_0_compat; lra. 
@@ -609,13 +620,13 @@ Ltac nonzero :=
          | |- Rlt _ _ => lra
          end.
 
-Hint Rewrite Cminus_unfold Cdiv_unfold Ci2 Cconj_R Cconj_opp Cconj_rad2 
-     Cinv_sqrt2_sqrt Cplus_div2
-     Cplus_0_l Cplus_0_r Cplus_opp_r Cplus_opp_l Copp_0  Copp_involutive
-     Cmult_0_l Cmult_0_r Cmult_1_l Cmult_1_r : C_db.
+Hint Rewrite Cminus_unfold Cdiv_unfold Ci2 Cconj_R Cconj_opp Cconj_rad2 Cplus_div2
+     Csqrt2_sqrt Cinv_sqrt2_sqrt Csqrt2_sqrt2_inv Csqrt2_inv_sqrt2 Csqrt2_inv_sqrt2_inv
+     Cplus_0_l Cplus_0_r Cplus_opp_r Cplus_opp_l Copp_0 Copp_1 Copp_involutive
+     Cmult_0_l Cmult_0_r Cmult_1_l Cmult_1_r Cmult_m1_l Cmult_m1_r : C_db.
 
 Hint Rewrite <- Copp_mult_distr_l Copp_mult_distr_r Cdouble : C_db.
-Hint Rewrite Csqrt_sqrt using Psatz.lra : C_db.
+Hint Rewrite Csqrt_sqrt Csqrt_sqrt_inv using Psatz.lra : C_db.
 Hint Rewrite Cinv_l Cinv_r using nonzero : C_db.
 (* Previously in the other direction *)
 Hint Rewrite Cinv_mult_distr using nonzero : C_db.
@@ -625,11 +636,10 @@ Hint Rewrite Cplus_0_l Cplus_0_r Cmult_0_l Cmult_0_r Copp_0
              Cconj_R Cmult_1_l Cmult_1_r : C_db_light.
 
 (* Distributing db *)
-Hint Rewrite Cmult_plus_distr_l Cmult_plus_distr_r Copp_plus_distr Copp_mult_distr_l 
+Hint Rewrite Cmult_plus_distr_l Cmult_plus_distr_r Copp_plus_distr Copp_mult_distr_l
               Copp_involutive : Cdist_db.
 
-
-Ltac Csimpl := 
+Ltac Csimpl :=
   repeat match goal with
   | _ => rewrite Cmult_0_l
   | _ => rewrite Cmult_0_r
@@ -680,7 +690,7 @@ Ltac cancel_terms t :=
                                     rewrite (Cmult_comm y z)
   | |- context[(?x * ?y * ?z)%C]   => tryif has_term t x then fail else has_term t y; has_term (/ t)%C z; 
                                     rewrite <- (Cmult_assoc x y z)
-  end.  
+  end.
 
 (****************************)
 (** Complex Exponentiation **)
