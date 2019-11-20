@@ -289,6 +289,60 @@ Proof. autounfold with S_db. matrix_reduce. Qed.
 Lemma Mmult_bran_ket1 : ⟨-∣ × ∣1⟩ = - / √ 2 .* I 1.
 Proof. autounfold with S_db. matrix_reduce. Qed.
 
+(**********************************************************)
+(** Tactics for solving equalities of matrix polymonials. *)
+(** Work for equalities with the same number of terms     *)
+(** between LHS and RHS. Canceling terms with 0-scale is  *)
+(** necessary before applying [cancel_common_factor]      *)
+(** TODO:                                                 *)
+(** group/ring/field tactics should be applicable?        *)
+(**********************************************************)
+Lemma f_equal2_Mplus:
+  forall m n (A A' B B': Matrix m n), A = A' -> B = B' -> A .+ B = A' .+ B'.
+Proof. congruence. Qed.
+
+Lemma f_equal_Mmult:
+  forall m n (A : Matrix m  n) s1 s2,
+    s1 = s2 -> s1 .* A = s2 .* A.
+Proof. congruence. Qed.
+
+Lemma Cmult_opp1_r (x : C) : x * -1 = -x.
+Proof. apply injective_projections ; simpl ; ring. Qed.
+Lemma Cmult_opp1_l (x : C) : -1 * x = -x.
+Proof. apply injective_projections ; simpl ; ring. Qed.
+Lemma Cplus_opp_r : forall c : C,  c + - c = 0. Proof. intros; lca. Qed.
+
+Ltac shift_target_in_RHS x y :=
+  match x with
+  | _ .* ?z =>
+    (* Here we assume factor is of form <scale factor> .* <matrix> *)
+    let target := fresh "target" in
+    remember (x .+ y); remember z as target;
+    (* if target at the end of RHS, i.e. (_ + target) *)
+    try match goal with
+        | |- context[_ .+ _ .* target] => rewrite (Mplus_comm _ _ _ (_ .* target))
+        end;
+    (* otherwise target in the middle of RHS, i.e. (_ + (target + _)); or is the head, in which case we are done *)
+    repeat
+      (rewrite <- (Mplus_assoc _ _ _ (_ .* target ) _);
+       rewrite (Mplus_comm _ _ _ (_ .* target));
+       repeat rewrite Mplus_assoc)
+  end.
+
+Ltac cancel_common_factor :=
+  repeat rewrite Mplus_assoc;
+  match goal with
+  | |- ?x .+ ?y = _ => shift_target_in_RHS x y; subst 
+  end;
+  (* cancel head *) apply f_equal2_Mplus;
+  (* solve scale equality *)
+  auto using f_equal_Mmult, Cmult_comm.
+(*, Cmult_opp1_r, Cmult_opp1_l,
+  Copp_involutive, Cplus_opp_r. *)
+
+Ltac normalize := distrubute_plus; isolate_scale; assoc_right.
+(**********************************************************)
+
 
 Lemma B00 : B0 × ∣0⟩ = ∣0⟩.
 Proof.
@@ -449,6 +503,7 @@ Lemma σXneg : σX × ∣-⟩ = -1 .* ∣-⟩.
 Proof.
 autounfold with G_db B_db S_db.
 matrix_reduce.
+
 Qed.
 
 
@@ -629,16 +684,16 @@ gate_reduce.
 rewrite <- Mplus_assoc;auto.
 Qed.
 
-Lemma step2' :  / 2 .* (∣+⟩ ⊗ (∣0⟩ ⊗ ∣0⟩))  .+ / 2 .* (∣+⟩ ⊗ (∣1⟩ ⊗ ∣1⟩))
-                                .+ / 2 .* (∣-⟩ ⊗ (∣1⟩ ⊗ ∣0⟩))  .+ / 2 .* (∣-⟩ ⊗ (∣0⟩ ⊗ ∣1⟩)) =
-
-                            / 2 .* (∣0⟩ ⊗ ∣0⟩ ⊗ ∣+⟩)  .+ / 2 .*  ∣1⟩ ⊗ ∣1⟩ ⊗ (/√2 .* ∣1⟩ .+ -/√2 .* ∣0⟩)
-                                .+ / 2 .*  ∣1⟩ ⊗ ∣0⟩ ⊗ (/√2 .* ∣0⟩ .+ -/√2 .* ∣1⟩) .+ / 2 .* ∣0⟩ ⊗ ∣1⟩ ⊗ (/√2 .* (∣1⟩ .+ ∣0⟩)).
+Lemma step2' :
+  / 2 .* (∣+⟩ ⊗ (∣0⟩ ⊗ ∣0⟩))  .+ / 2 .* (∣+⟩ ⊗ (∣1⟩ ⊗ ∣1⟩))
+.+ / 2 .* (∣-⟩ ⊗ (∣1⟩ ⊗ ∣0⟩))  .+ / 2 .* (∣-⟩ ⊗ (∣0⟩ ⊗ ∣1⟩))
+=
+/ 2 .* (∣0⟩ ⊗ ∣0⟩ ⊗ ∣+⟩)  .+ / 2 .*  ∣1⟩ ⊗ ∣1⟩ ⊗ (/√2 .* ∣1⟩ .+ (-/√2) .* ∣0⟩)
+.+ / 2 .*  ∣1⟩ ⊗ ∣0⟩ ⊗ (/√2 .* ∣0⟩ .+ (-/√2) .* ∣1⟩) .+ / 2 .* ∣0⟩ ⊗ ∣1⟩ ⊗ (/√2 .* (∣1⟩ .+ ∣0⟩)).
 Proof.
-autounfold with S_db.
-distrubute_plus.
-isolate_scale.
-Admitted.
+  autounfold with S_db; normalize.
+  repeat cancel_common_factor.
+Qed.
 
 Definition φ30 := (M0 ⊗ M0 ⊗ I_2) × φ2.
 Definition φ31 := (M0 ⊗ M1 ⊗ I_2) × φ2.
