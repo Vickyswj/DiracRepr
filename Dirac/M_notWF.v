@@ -3,6 +3,8 @@ Require Import String.
 Require Import Program.
 Require Export Complex.
 Require Import List.
+Require Coq.Setoids.Setoid.
+Require Import Coq.Classes.Morphisms.
 
 
 (* TODO: Use matrix equality everywhere, declare equivalence relation *)
@@ -21,7 +23,6 @@ Local Open Scope nat_scope.
 Definition Matrix (m n : nat) := nat -> nat -> C.
 
 (* Definition Vector (n : nat) := Matrix n 1. *)
-
 
 Notation Vector n := (Matrix n 1).
 
@@ -58,7 +59,6 @@ Proof.
   rewrite H. rewrite H0. auto.
 Qed.
 
-Require Import Equivalence.
 Instance mat_equiv_equiv (m n: nat) : Equivalence (@mat_equiv m n).
 Proof.
 constructor.
@@ -69,9 +69,6 @@ apply mat_equiv_symm; auto.
 hnf; intros.
 eapply mat_equiv_trans; eauto.
 Qed.
-
-Require Coq.Setoids.Setoid.
-Require Import Coq.Classes.Morphisms.
 
 (* Printing *)
 
@@ -217,6 +214,15 @@ Notation "⨂ A" := (big_kron A) (at level 60): matrix_scope.
 Hint Unfold Zero I trace dot Mplus scale Mmult kron mat_equiv transpose 
             adjoint : U_db.
 
+
+(* Lemma mat_equiv_trans2 : forall{m n} (A B C : Matrix m n),
+    A ≡ B -> A ≡ C -> B ≡ C.
+Proof.
+  intros m n A B C HAB HAC.
+  rewrite <- HAB.
+  apply HAC.
+Qed. *)
+
 Ltac destruct_m_1 :=
   match goal with
   | [ |- context[match ?x with 
@@ -226,12 +232,18 @@ Ltac destruct_m_1 :=
   end.
 Ltac destruct_m_eq := repeat (destruct_m_1; simpl).
 
-Ltac lma := 
+Ltac bdestruct_all :=
+  repeat match goal with
+  | |- context[?a <? ?b] => bdestruct (a <? b)
+  | |- context[?a <=? ?b] => bdestruct (a <=? b)
+  | |- context[?a =? ?b] => bdestruct (a =? b)
+  end; try (exfalso; lia).
+
+Ltac lma :=
   autounfold with U_db;
   prep_matrix_equality;
   destruct_m_eq; 
   lca.
-
 
 (******************************)
 (** Proofs about finite sums **)
@@ -255,8 +267,8 @@ Proof.
   induction n.
   - reflexivity.
   - simpl.
-    rewrite IHn, H. 
-    destruct n; lca.    
+    rewrite IHn, H.
+    destruct n; lca.
 Qed.
 
 Lemma Csum_constant : forall c n, Csum (fun x => c) n = INR n * c.
@@ -278,7 +290,7 @@ Proof.
   induction n.
   - reflexivity.
   - simpl.
-    rewrite IHn, H. 
+    rewrite IHn, H.
     lca.
     lia.
     intros.
@@ -500,7 +512,8 @@ Qed.
 
 Lemma trace_plus_dist : forall (n : nat) (A B : Square n), 
     trace (A .+ B) = (trace A + trace B)%C. 
-Proof. 
+Proof.
+ 
   intros.
   unfold trace, Mplus.
   induction n.
@@ -522,7 +535,7 @@ Proof. intros. lma. Qed.
 
 Lemma Mplus_0_r : forall (m n : nat) (A : Matrix m n), A .+ Zero = A.
 Proof. intros. lma. Qed.
-    
+
 Lemma Mmult_0_l : forall (m n o : nat) (A : Matrix n o), @Zero m n × A = Zero.
 Proof.
   intros m n o A. 
@@ -568,7 +581,7 @@ Proof.
     + intros gtSkx.
       simpl in *.
       unfold I in *.
-      bdestruct (x =? k); bdestruct (x <? m); subst; try lia.
+      bdestruct_all; subst; try lia.
       rewrite IHl by lia; simpl; lca.
       rewrite IHr by lia; simpl; lca.
 Qed.
@@ -607,10 +620,9 @@ Proof.
   + intros gtSkz.
     simpl in *.
     unfold I in *.
-    bdestruct (k =? z); subst.
-    - bdestruct (z <? n); try lia.
-      rewrite IHl by lia; lca.
-    - rewrite IHr by lia; simpl; lca.
+      bdestruct_all; subst; try lia.
+      rewrite IHl by lia; simpl; lca.
+      rewrite IHr by lia; simpl; lca.
 Qed.
 
 Lemma Mmult_1_r : forall (m n : nat) (A : Matrix m n), A × I n ≡ A.
@@ -703,19 +715,19 @@ Lemma id_transpose_eq : forall n, (I n)⊤ = (I n).
 Proof.
   intros n. unfold transpose, I.
   prep_matrix_equality.
-  bdestruct (y =? x); bdestruct (x =? y); bdestruct (y <? n); bdestruct (x <? n);
-    trivial; lia.
+  bdestruct_all; reflexivity.
 Qed.
 
 Lemma zero_transpose_eq : forall m n, (@Zero m n)⊤ = @Zero m n.
 Proof. reflexivity. Qed.
+
 
 Lemma id_adjoint_eq : forall n, (I n)† = (I n).
 Proof.
   intros n.
   unfold adjoint, I.
   prep_matrix_equality.
-  bdestruct (y =? x); bdestruct (x =? y); bdestruct (y <? n); bdestruct (x <? n);
+  bdestruct_all;
     try lia; lca.
 Qed.
 
@@ -723,21 +735,10 @@ Lemma zero_adjoint_eq : forall m n, (@Zero m n)† = @Zero n m.
 Proof. unfold adjoint, Zero. rewrite Cconj_0. reflexivity. Qed.
 
 Theorem Mplus_comm : forall (m n : nat) (A B : Matrix m n), A .+ B = B .+ A.
-Proof.
-  unfold Mplus. 
-  intros m n A B.
-  prep_matrix_equality.
-  apply Cplus_comm.
-Qed.
+Proof. intros. lma. Qed.
 
 Theorem Mplus_assoc : forall (m n : nat) (A B C : Matrix m n), A .+ B .+ C = A .+ (B .+ C).
-Proof.
-  unfold Mplus. 
-  intros m n A B C.
-  prep_matrix_equality.
-  rewrite Cplus_assoc.
-  reflexivity.
-Qed.
+Proof. intros. lma. Qed.
 
 
 Theorem Mmult_assoc : forall {m n o p : nat} (A : Matrix m n) (B : Matrix n o) 
@@ -1000,7 +1001,6 @@ Qed.
 
 (* Inverses of square matrices *)
 Definition Minv {n : nat} (A B : Square n) : Prop := A × B ≡ I n /\ B × A ≡ I n.
-
 Lemma Minv_unique : forall (n : nat) (A B C : Square n), 
                       Minv A B -> Minv A C -> B ≡ C.
 Proof.
@@ -1220,537 +1220,3 @@ Proof.
   simpl in *. rewrite KM.
   reflexivity.
 Qed.
-
-(* Useful kron_n identity. *)
-(* Lemma kron_n_assoc :
-  forall n {m1 m2} (A : Matrix m1 m2), WF_Matrix A -> (S n) ⨂ A = A ⊗ (n ⨂ A).
-Proof.
-  intros. induction n.
-  - simpl. 
-    rewrite kron_1_r. 
-    rewrite kron_1_l; try assumption.
-    reflexivity.
-  - simpl.
-    replace (m1 * (m1 ^ n)) with ((m1 ^ n) * m1) by apply Nat.mul_comm.
-    replace (m2 * (m2 ^ n)) with ((m2 ^ n) * m2) by apply Nat.mul_comm.
-    rewrite <- kron_assoc.
-    rewrite <- IHn.
-    reflexivity.
-Qed. *)
-
-(* Note on "using [tactics]": Most generated subgoals will be of the form 
-   WF_Matrix M, where auto with wf_db will work.
-   Occasionally WF_Matrix M will rely on rewriting to match an assumption in the 
-   context, here we recursively autorewrite (which adds time). 
-   kron_1_l requires proofs of (n > 0)%nat, here we use lia. *)
-
-(* *)
-
-(*******************************)
-(* Restoring Matrix Dimensions *)
-(*******************************)
-
-(** Restoring Matrix dimensions *)
-Ltac is_nat n := match type of n with nat => idtac end.
-
-Ltac is_nat_equality :=
-  match goal with 
-  | |- ?A = ?B => is_nat A
-  end.
-
-Ltac unify_matrix_dims tac := 
-  try reflexivity; 
-  repeat (apply f_equal_gen; try reflexivity; 
-          try (is_nat_equality; tac)).
-
-Ltac restore_dims_rec A :=
-   match A with
-(* special cases *)
-  | ?A × I _          => let A' := restore_dims_rec A in 
-                        match type of A' with 
-                        | Matrix ?m' ?n' => constr:(@Mmult m' n' n' A' (I n'))
-                        end
-  | I _ × ?B          => let B' := restore_dims_rec B in 
-                        match type of B' with 
-                        | Matrix ?n' ?o' => constr:(@Mmult n' n' o' (I n')  B')
-                        end
-  | ?A × @Zero ?n ?n  => let A' := restore_dims_rec A in 
-                        match type of A' with 
-                        | Matrix ?m' ?n' => constr:(@Mmult m' n' n' A' (@Zero n' n'))
-                        end
-  | @Zero ?n ?n × ?B  => let B' := restore_dims_rec B in 
-                        match type of B' with 
-                        | Matrix ?n' ?o' => constr:(@Mmult n' n' o' (@Zero n' n') B')
-                        end
-  | ?A × @Zero ?n ?o  => let A' := restore_dims_rec A in 
-                        match type of A' with 
-                        | Matrix ?m' ?n' => constr:(@Mmult m' n' o A' (@Zero n' o))
-                        end
-  | @Zero ?m ?n × ?B  => let B' := restore_dims_rec B in 
-                        match type of B' with 
-                        | Matrix ?n' ?o' => constr:(@Mmult n' n' o' (@Zero m n') B')
-                        end
-  | ?A .+ @Zero ?m ?n => let A' := restore_dims_rec A in 
-                        match type of A' with 
-                        | Matrix ?m' ?n' => constr:(@Mplus m' n' A' (@Zero m' n'))
-                        end
-  | @Zero ?m ?n .+ ?B => let B' := restore_dims_rec B in 
-                        match type of B' with 
-                        | Matrix ?m' ?n' => constr:(@Mplus m' n' (@Zero m' n') B')
-                        end
-(* general cases *)
-  | ?A = ?B  => let A' := restore_dims_rec A in 
-                let B' := restore_dims_rec B in 
-                match type of A' with 
-                | Matrix ?m' ?n' => constr:(@eq (Matrix m' n') A' B')
-                  end
-  | ?A × ?B   => let A' := restore_dims_rec A in 
-                let B' := restore_dims_rec B in 
-                match type of A' with 
-                | Matrix ?m' ?n' =>
-                  match type of B' with 
-                  | Matrix ?n'' ?o' => constr:(@Mmult m' n' o' A' B')
-                  end
-                end 
-  | ?A ⊗ ?B   => let A' := restore_dims_rec A in 
-                let B' := restore_dims_rec B in 
-                match type of A' with 
-                | Matrix ?m' ?n' =>
-                  match type of B' with 
-                  | Matrix ?o' ?p' => constr:(@kron m' n' o' p' A' B')
-                  end
-                end
-  | ?A †      => let A' := restore_dims_rec A in 
-                match type of A' with
-                | Matrix ?m' ?n' => constr:(@adjoint m' n' A')
-                end
-  | ?A .+ ?B => let A' := restore_dims_rec A in 
-               let B' := restore_dims_rec B in 
-               match type of A' with 
-               | Matrix ?m' ?n' =>
-                 match type of B' with 
-                 | Matrix ?m'' ?n'' => constr:(@Mplus m' n' A' B')
-                 end
-               end
-  | ?c .* ?A => let A' := restore_dims_rec A in 
-               match type of A' with
-               | Matrix ?m' ?n' => constr:(@scale m' n' c A')
-               end
-  (* For predicates (eg. WF_Matrix, Mixed_State) on Matrices *)
-  | ?P ?m ?n ?A => match type of P with
-                  | nat -> nat -> Matrix _ _ -> Prop =>
-                    let A' := restore_dims_rec A in 
-                    match type of A' with
-                    | Matrix ?m' ?n' => constr:(P m' n' A')
-                    end
-                  end
-  | ?P ?n ?A => match type of P with
-               | nat -> Matrix _ _ -> Prop =>
-                 let A' := restore_dims_rec A in 
-                 match type of A' with
-                 | Matrix ?m' ?n' => constr:(P m' A')
-                 end
-               end
-  (* Handle functions applied to matrices *)
-  | ?f ?A    => let f' := restore_dims_rec f in 
-               let A' := restore_dims_rec A in 
-               constr:(f' A')
-  (* default *)
-  | ?A       => A
-   end.
-
-Ltac restore_dims tac := 
-  match goal with
-  | |- ?A      => let A' := restore_dims_rec A in 
-                replace A with A' by unify_matrix_dims tac
-  end.
-
-Tactic Notation "restore_dims" tactic(tac) := restore_dims tac.
-
-Tactic Notation "restore_dims" := restore_dims (try ring; unify_pows_two; simpl; lia).
-
-(*************************)
-(* Matrix Simplification *)
-(*************************)
-
-(* Old: 
-Hint Rewrite kron_1_l kron_1_r Mmult_1_l Mmult_1_r id_kron id_adjoint_eq
-     @Mmult_adjoint Mplus_adjoint @kron_adjoint @kron_mixed_product
-     id_adjoint_eq adjoint_involutive using 
-     (auto 100 with wf_db; autorewrite with M_db; auto 100 with wf_db; lia) : M_db.
-*)
-
-(* eauto will cause major choking... *)
-Hint Rewrite  @kron_1_l @kron_1_r @Mmult_1_l @Mmult_1_r @Mscale_1_l 
-     @id_adjoint_eq @id_transpose_eq using (auto 100 with wf_db) : M_db_light.
-Hint Rewrite @kron_0_l @kron_0_r @Mmult_0_l @Mmult_0_r @Mplus_0_l @Mplus_0_r
-     @Mscale_0_l @Mscale_0_r @zero_adjoint_eq @zero_transpose_eq using (auto 100 with wf_db) : M_db_light.
-
-(* I don't like always doing restore_dims first, but otherwise sometimes leaves 
-   unsolvable WF_Matrix goals. *)
-Ltac Msimpl_light := try restore_dims; autorewrite with M_db_light.
-
-Hint Rewrite @Mmult_adjoint @Mplus_adjoint @kron_adjoint @kron_mixed_product
-     @adjoint_involutive using (auto 100 with wf_db) : M_db.
-
-Ltac Msimpl := try restore_dims; autorewrite with M_db_light M_db.
-
-(** Distribute addition to the outside of matrix expressions. *)
-
-Ltac distribute_plus :=
-  repeat match goal with 
-  | |- context [?a × (?b .+ ?c)] => rewrite (Mmult_plus_distr_l _ _ _ a b c)
-  | |- context [(?a .+ ?b) × ?c] => rewrite (Mmult_plus_distr_r _ _ _ a b c)
-  | |- context [?a ⊗ (?b .+ ?c)] => rewrite (kron_plus_distr_l _ _ _ _ a b c)
-  | |- context [(?a .+ ?b) ⊗ ?c] => rewrite (kron_plus_distr_r _ _ _ _ a b c)
-  end.
-
-(** Distribute scaling to the outside of matrix expressions *)
-
-Ltac distribute_scale := 
-  repeat
-   match goal with
-   | |- context [ (?c .* ?A) × ?B   ] => rewrite (Mscale_mult_dist_l _ _ _ c A B)
-   | |- context [ ?A × (?c .* ?B)   ] => rewrite (Mscale_mult_dist_r _ _ _ c A B)
-   | |- context [ (?c .* ?A) ⊗ ?B   ] => rewrite (Mscale_kron_dist_l _ _ _ _ c A B)
-   | |- context [ ?A ⊗ (?c .* ?B)   ] => rewrite (Mscale_kron_dist_r _ _ _ _ c A B)
-   | |- context [ ?c .* (?c' .* ?A) ] => rewrite (Mscale_assoc _ _ c c' A)
-   end.
-
-
-(*********************************************************)
-(** Tactics for solving computational matrix equalities **)
-(*********************************************************)
-
-
-(* Construct matrices full of evars *)
-Ltac mk_evar t T := match goal with _ => evar (t : T) end.
-
-Ltac evar_list n := 
-  match n with 
-  | O => constr:(@nil C)
-  | S ?n' => let e := fresh "e" in
-            let none := mk_evar e C in 
-            let ls := evar_list n' in 
-            constr:(e :: ls)
-            
-  end.
-
-Ltac evar_list_2d m n := 
-  match m with 
-  | O => constr:(@nil (list C))
-  | S ?m' => let ls := evar_list n in 
-            let ls2d := evar_list_2d m' n in  
-            constr:(ls :: ls2d)
-  end.
-
-Ltac evar_matrix m n := let ls2d := (evar_list_2d m n) 
-                        in constr:(list2D_to_matrix ls2d).   
-
-(* Tactic version of Nat.lt *)
-Ltac tac_lt m n := 
-  match n with 
-  | S ?n' => match m with 
-            | O => idtac
-            | S ?m' => tac_lt m' n'
-            end
-  end.
-
-(* Possible TODO: We could have the tactic below use restore_dims instead of 
-   simplifying before rewriting. *)
-(* Reassociate matrices so that smallest dimensions are multiplied first:
-For (m x n) × (n x o) × (o x p):
-If m or o is the smallest, associate left
-If n or p is the smallest, associate right
-(The actual time for left is (m * o * n) + (m * p * o) = mo(n+p) 
-                      versus (n * p * o) + (m * p * n) = np(m+o) for right. 
-We find our heuristic to be pretty accurate, though.)
-*)
-Ltac assoc_least := 
-  repeat (simpl; match goal with
-  | [|- context[@Mmult ?m ?o ?p (@Mmult ?m ?n ?o ?A ?B) ?C]] => tac_lt p o; tac_lt p m; 
-       let H := fresh "H" in 
-       specialize (Mmult_assoc A B C) as H; simpl in H; rewrite H; clear H
-  | [|- context[@Mmult ?m ?o ?p (@Mmult ?m ?n ?o ?A ?B) ?C]] => tac_lt n o; tac_lt n m; 
-       let H := fresh "H" in 
-       specialize (Mmult_assoc  A B C) as H; simpl in H; rewrite H; clear H
-  | [|- context[@Mmult ?m ?n ?p ?A (@Mmult ?n ?o ?p ?B ?C)]] => tac_lt m n; tac_lt m p; 
-       let H := fresh "H" in 
-       specialize (Mmult_assoc A B C) as H; simpl in H; rewrite <- H; clear H
-  | [|- context[@Mmult ?m ?n ?p ?A (@Mmult ?n ?o ?p ?B ?C)]] => tac_lt o n; tac_lt o p; 
-       let H := fresh "H" in 
-       specialize (Mmult_assoc A B C) as H; simpl in H; rewrite <- H; clear H
-  end).
-
-Lemma divmod_eq : forall x y n z, 
-  fst (Nat.divmod x y n z) = (n + fst (Nat.divmod x y 0 z))%nat.
-Proof.
-  induction x.
-  + intros. simpl. lia.
-  + intros. simpl. 
-    destruct z.
-    rewrite IHx.
-    rewrite IHx with (n:=1%nat).
-    lia.
-    rewrite IHx.
-    reflexivity.
-Qed.
-
-Lemma divmod_S : forall x y n z, 
-  fst (Nat.divmod x y (S n) z) = (S n + fst (Nat.divmod x y 0 z))%nat.
-Proof. intros. apply divmod_eq. Qed.
-
-Ltac destruct_m_1' :=
-  match goal with
-  | [ |- context[match ?x with 
-                 | 0   => _
-                 | S _ => _
-                 end] ] => is_var x; destruct x
-  | [ |- context[match fst (Nat.divmod ?x _ _ _) with 
-                 | 0   => _
-                 | S _ => _
-                 end] ] => is_var x; destruct x
-  end.
-
-Lemma divmod_0q0 : forall x q, fst (Nat.divmod x 0 q 0) = (x + q)%nat. 
-Proof.
-  induction x.
-  - intros. simpl. reflexivity.
-  - intros. simpl. rewrite IHx. lia.
-Qed.
-
-Lemma divmod_0 : forall x, fst (Nat.divmod x 0 0 0) = x. 
-Proof. intros. rewrite divmod_0q0. lia. Qed.
-
-Ltac destruct_m_eq' := repeat 
-  (progress (try destruct_m_1'; try rewrite divmod_0; try rewrite divmod_S; simpl)).
-
-(* Unify A × B with list (list (evars)) *)
-(* We convert the matrices back to functional representation for 
-   unification. Simply comparing the matrices may be more efficient,
-   however. *)
-
-Ltac crunch_matrix := 
-                    match goal with 
-                      | [|- ?G ] => idtac "Crunching:" G
-                      end;
-                      repeat match goal with
-                             | [ c : C |- _ ] => cbv [c]; clear c (* 'unfold' hangs *)
-                             end; 
-                      simpl;
-                      unfold list2D_to_matrix;    
-                      autounfold with U_db;
-                      prep_matrix_equality;
-                      simpl;
-                      destruct_m_eq';
-                      simpl;
-                      Csimpl; (* basic rewrites only *) 
-                      try reflexivity.
-
-
-Ltac compound M := 
-  match M with
-  | ?A × ?B  => idtac
-  | ?A .+ ?B => idtac 
-  | ?A †     => compound A
-  end.
-
-(* Reduce inner matrices first *)
-Ltac reduce_aux M := 
-  match M with 
-  | ?A .+ ?B     => compound A; reduce_aux A
-  | ?A .+ ?B     => compound B; reduce_aux B
-  | ?A × ?B      => compound A; reduce_aux A
-  | ?A × ?B      => compound B; reduce_aux B
-  | @Mmult ?m ?n ?o ?A ?B      => let M' := evar_matrix m o in
-                                 replace M with M';
-                                 [| crunch_matrix ] 
-  | @Mplus ?m ?n ?A ?B         => let M' := evar_matrix m n in
-                                 replace M with M';
-                                 [| crunch_matrix ] 
-  end.
-
-Ltac reduce_matrix := match goal with 
-                       | [ |- ?M = _] => reduce_aux M
-                       | [ |- _ = ?M] => reduce_aux M
-                       end;
-                       repeat match goal with 
-                              | [ |- context[?c :: _ ]] => cbv [c]; clear c
-                              end.
-
-(* Reduces matrices anywhere they appear *)
-Ltac reduce_matrices := assoc_least;
-                        match goal with 
-                        | [ |- context[?M]] => reduce_aux M
-                        end;
-                        repeat match goal with 
-                               | [ |- context[?c :: _ ]] => cbv [c]; clear c
-                               end.
-
-
-Ltac solve_matrix := assoc_least;
-                     repeat reduce_matrix; try crunch_matrix;
-                     (* handle out-of-bounds *)
-                     unfold Nat.ltb; simpl; try rewrite andb_false_r; 
-                     (* try to solve complex equalities *)
-                     autorewrite with C_db; try lca.
-
-(*********************************************************)
-(**                         Gridify                     **)
-(*********************************************************)
-
-(** Gridify: Turns an matrix expression into a normal form with 
-    plus on the outside, then tensor, then matrix multiplication.
-    Eg: ((..×..×..)⊗(..×..×..)⊗(..×..×..)) .+ ((..×..)⊗(..×..))
-*)
-
-Local Open Scope nat_scope.
-
-Lemma repad_lemma1_l : forall (a b d : nat),
-  a < b -> d = (b - a - 1) -> b = a + 1 + d.
-Proof. intros. subst. lia. Qed. 
-
-Lemma repad_lemma1_r : forall (a b d : nat),
-  a < b -> d = (b - a - 1) -> b = d + 1 + a.
-Proof. intros. subst. lia. Qed.
-
-Lemma repad_lemma2 : forall (a b d : nat),
-  a <= b -> d = (b - a) -> b = a + d.
-Proof. intros. subst. lia. Qed.
-
-Lemma le_ex_diff_l : forall a b, a <= b -> exists d, b = d + a. 
-Proof. intros. exists (b - a). lia. Qed.
-
-Lemma le_ex_diff_r : forall a b, a <= b -> exists d, b = a + d. 
-Proof. intros. exists (b - a). lia. Qed.  
-
-Lemma lt_ex_diff_l : forall a b, a < b -> exists d, b = d + 1 + a. 
-Proof. intros. exists (b - a - 1). lia. Qed.
-
-Lemma lt_ex_diff_r : forall a b, a < b -> exists d, b = a + 1 + d. 
-Proof. intros. exists (b - a - 1). lia. Qed.
-
-Ltac bdestruct_all :=
-  repeat match goal with
-  | |- context[?a <? ?b] => bdestruct (a <? b)
-  | |- context[?a <=? ?b] => bdestruct (a <=? b)                                       
-  | |- context[?a =? ?b] => bdestruct (a =? b)
-  end; try (exfalso; lia).
-
-(* Remove _ < _ from hyps, remove _ - _  from goal *)
-Ltac remember_differences :=
-  repeat match goal with
-  | H : ?a < ?b |- context[?b - ?a - 1] => 
-    let d := fresh "d" in
-    let R := fresh "R" in
-    remember (b - a - 1) as d eqn:R ;
-    apply (repad_lemma1_l a b d) in H; trivial;
-    clear R;
-    try rewrite H in *;
-    try clear b H
-  | H:?a <= ?b  |- context [ ?b - ?a ] =>
-    let d := fresh "d" in
-    let R := fresh "R" in
-    remember (b - a) as d eqn:R ;
-    apply (repad_lemma2 a b d) in H; trivial;
-    clear R;
-    try rewrite H in *;
-    try clear b H
-  end.
-
-(* gets the exponents of the dimensions of the given matrix expression *)
-(* assumes all matrices are square *)
-Ltac get_dimensions M :=
-  match M with
-  | ?A ⊗ ?B  => let a := get_dimensions A in
-               let b := get_dimensions B in
-               constr:(a + b)
-  | ?A .+ ?B => get_dimensions A
-  | _        => match type of M with
-               | Matrix 2 2 => constr:(1)
-               | Matrix 4 4 => constr:(2)
-               | Matrix (2^?a) (2^?a) => constr:(a)
-(*             | Matrix ?a ?b => idtac "bad dims";
-                                idtac M;
-                                constr:(a) *)
-               end
-  end.
-
-(* not necessary in this instance - produced hypothesis is H1 *)
-(* This is probably fragile and should be rewritten *)
-(*
-Ltac hypothesize_dims :=
-  match goal with
-  | |- ?A × ?B = _ => let a := get_dimensions A in
-                    let b := get_dimensions B in
-                    assert(a = b) by lia
-  | |- _ = ?A × ?B => let a := get_dimensions A in
-                    let b := get_dimensions B in
-                    assert(a = b) by lia
-  end.
-*)
-
-(* Hopefully always grabs the outermost product. *)
-Ltac hypothesize_dims :=
-  match goal with
-  | |- context[?A × ?B] => let a := get_dimensions A in
-                         let b := get_dimensions B in
-                         assert(a = b) by lia
-  end.
-
-(* Unifies an equation of the form `a + 1 + b + 1 + c = a' + 1 + b' + 1 + c'`
-   (exact symmetry isn't required) by filling in the holes *) 
-Ltac fill_differences :=
-  repeat match goal with 
-  | R : _ < _ |- _           => let d := fresh "d" in
-                              destruct (lt_ex_diff_r _ _ R);
-                              clear R; subst
-  | H : _ = _ |- _           => rewrite <- plus_assoc in H
-  | H : ?a + _ = ?a + _ |- _ => apply Nat.add_cancel_l in H; subst
-  | H : ?a + _ = ?b + _ |- _ => destruct (lt_eq_lt_dec a b) as [[?|?]|?]; subst
-  end; try lia.
-
-Ltac repad := 
-  (* remove boolean comparisons *)
-  bdestruct_all; Msimpl_light; try reflexivity;
-  (* remove minus signs *) 
-  remember_differences;
-  (* put dimensions in hypothesis [will sometimes exist] *)
-  try hypothesize_dims; clear_dups;
-  (* where a < b, replace b with a + 1 + fresh *)
-  fill_differences.
-
-Ltac gridify :=
-  (* remove boolean comparisons *)
-  bdestruct_all; Msimpl_light; try reflexivity;
-  (* remove minus signs *) 
-  remember_differences;
-  (* put dimensions in hypothesis [will sometimes exist] *)
-  try hypothesize_dims; clear_dups;
-  (* where a < b, replace b with a + 1 + fresh *)
-  fill_differences;
-  (* distribute *)  
-  restore_dims; distribute_plus;
-  repeat rewrite Nat.pow_add_r;
-  repeat rewrite <- id_kron; simpl;
-  repeat rewrite mult_assoc;
-  restore_dims; repeat rewrite <- kron_assoc;
-  restore_dims; repeat rewrite kron_mixed_product;
-  (* simplify *)
-  Msimpl_light.
-
-(**************************************)
-(* Tactics to show implicit arguments *)
-(**************************************)
-
-Definition kron' := @kron.      
-Lemma kron_shadow : @kron = kron'. Proof. reflexivity. Qed.
-
-Definition Mmult' := @Mmult.
-Lemma Mmult_shadow : @Mmult = Mmult'. Proof. reflexivity. Qed.
-
-Ltac show_dimensions := try rewrite kron_shadow in *; 
-                        try rewrite Mmult_shadow in *.
-Ltac hide_dimensions := try rewrite <- kron_shadow in *; 
-                        try rewrite <- Mmult_shadow in *.
-

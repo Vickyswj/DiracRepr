@@ -19,7 +19,6 @@ This version modified to work without SSReflect,
 or any other dependencies, as part of the QWIRE project
 by Robert Rand and Jennifer Paykin (June 2017).
 *)
-
 Require Export Prelim.
 Require Export RealAux.
 
@@ -242,9 +241,6 @@ Proof. apply injective_projections ; simpl ; apply Rplus_0_l. Qed.
 Lemma Cplus_opp_r (x : C) : x + -x = 0.
 Proof. apply injective_projections ; simpl ; apply Rplus_opp_r. Qed.
 
-Lemma Cplus_opp_l (x : C) : -x + x = 0.
-Proof. apply injective_projections ; simpl ; apply Rplus_opp_l. Qed.
-
 Lemma Copp_plus_distr (z1 z2 : C) : - (z1 + z2) = (- z1 + - z2).
 Proof. apply injective_projections ; apply Ropp_plus_distr; auto. Qed.
 
@@ -307,8 +303,21 @@ Qed.
 (* I'll be leaving out mixins and Canonical Structures :
 Definition C_AbelianGroup_mixin :=
   AbelianGroup.Mixin _ _ _ _ Cplus_comm Cplus_assoc Cplus_0_r Cplus_opp_r.
+
 Canonical C_AbelianGroup :=
   AbelianGroup.Pack C C_AbelianGroup_mixin C.
+
+Definition C_Ring_mixin :=
+  Ring.Mixin _ _ _ Cmult_assoc Cmult_1_r Cmult_1_l Cmult_plus_distr_r Cmult_plus_distr_l.
+
+Canonical C_Ring :=
+  Ring.Pack C (Ring.Class _ _ C_Ring_mixin) C.
+
+Definition C_AbsRing_mixin :=
+  AbsRing.Mixin _ _ Cmod_0 Cmod_m1 Cmod_triangle (fun x y => Req_le _ _ (Cmod_mult x y)) Cmod_eq_0.
+
+Canonical C_AbsRing :=
+  AbsRing.Pack C (AbsRing.Class _ _ C_AbsRing_mixin) C.
 *)
 
 Lemma Copp_0 : Copp 0 = 0.
@@ -348,6 +357,17 @@ Proof.
   apply Rle_not_lt, Req_le.
   rewrite Hx, Cmod_0; auto.
 Qed.
+
+(* Lemma Cmod_norm :
+  forall x : C, Cmod x = (@norm R_AbsRing _ x).
+Proof.
+intros [u v].
+unfold Cmod.
+simpl.
+apply (f_equal2 (fun x y => sqrt (x + y))) ;
+  rewrite /norm /= !Rmult_1_r ;
+  apply Rsqr_abs.
+Qed. *)
 
 Lemma Cmod_R : forall x : R, Cmod x = Rabs x.
 Proof.
@@ -452,6 +472,7 @@ Lemma Copp_mult_distr_r : forall c1 c2 : C, - (c1 * c2) = c1 * - c2.
 Proof. intros; lca. Qed.
 Lemma Copp_mult_distr_l : forall c1 c2 : C, - (c1 * c2) = - c1 * c2.
 Proof. intros; lca. Qed.
+Lemma Cplus_opp_l : forall c : C, - c + c = 0. Proof. intros; lca. Qed.
 Lemma Cdouble : forall c : C, 2 * c = c + c. Proof. intros; lca. Qed.
 Lemma Copp_involutive: forall c : C, - - c = c. Proof. intros; lca. Qed.
 
@@ -531,7 +552,7 @@ Lemma Cpow_nonzero : forall (r : R) (n : nat), (r <> 0 -> r ^ n <> C0)%C.
 Proof.
   intros.
   rewrite RtoC_pow. 
-  apply C0_fst_neq. 
+  apply C0_fst_neq.
   apply pow_nonzero. 
   lra.
 Qed.
@@ -548,7 +569,7 @@ Lemma Csqrt2_sqrt : √ 2 * √ 2 = 2.
 Proof. apply Csqrt_sqrt; lra. Qed.
 
 Lemma Cinv_sqrt2_sqrt : /√2 * /√2 = /2.
-Proof. 
+Proof.
   eapply c_proj_eq; simpl; try lra.
   autorewrite with R_db. 
   rewrite Rmult_assoc.
@@ -851,6 +872,58 @@ Proof.
   repeat rewrite Rmult_plus_distr_r.
   replace (- (8) * PI * / 4)%R with (-(2 * PI))%R by lra.
   rewrite Cexp_add, Cexp_neg, Cexp_2PI.
+  lca.
+Qed.
+
+Lemma Cexp_2nPI : forall (k : Z), Cexp (IZR (2 * k) * PI) = 1.
+Proof.
+  induction k using Z.peano_ind.
+  - simpl. rewrite Rmult_0_l. apply Cexp_0.
+  - rewrite Z.mul_succ_r.
+    rewrite plus_IZR.
+    rewrite Rmult_plus_distr_r.
+    rewrite Cexp_add, Cexp_2PI.
+    rewrite IHk.
+    lca.
+  - rewrite Z.mul_pred_r.
+    rewrite minus_IZR.
+    unfold Rminus.
+    rewrite Rmult_plus_distr_r.
+    rewrite <- Ropp_mult_distr_l.
+    rewrite Cexp_add, Cexp_neg, Cexp_2PI.
+    rewrite IHk.
+    lca.
+Qed.
+
+Lemma Cexp_mod_2PI : forall (k : Z), Cexp (IZR k * PI) = Cexp (IZR (k mod 2) * PI). 
+Proof.
+  intros.
+  rewrite (Z.div_mod k 2) at 1 by lia.
+  remember (k/2)%Z as k'.
+  rewrite plus_IZR.
+  rewrite Rmult_plus_distr_r.
+  rewrite Cexp_add.
+  rewrite Cexp_2nPI.
+  lca.
+Qed.  
+
+Lemma Cexp_mod_2PI_scaled : forall (k sc : Z), 
+  (sc <> 0)%Z ->
+  Cexp (IZR k * PI / IZR sc) = Cexp (IZR (k mod (2 * sc)) * PI / IZR sc). 
+Proof.
+  intros k sc H.
+  rewrite (Z.div_mod k (2 * sc)) at 1 by lia.
+  repeat rewrite plus_IZR.
+  unfold Rdiv.
+  repeat rewrite Rmult_plus_distr_r.
+  rewrite Cexp_add.
+  replace (IZR (2 * sc * (k / (2 * sc))) * PI * Rinv (IZR sc))%R with
+      (IZR (2 * (k / (2 * sc))) * PI)%R.
+  2:{ repeat rewrite mult_IZR. 
+      R_field_simplify.
+      reflexivity. 
+      apply not_0_IZR; assumption. }
+  rewrite Cexp_2nPI.
   lca.
 Qed.
 
