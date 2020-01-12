@@ -86,39 +86,6 @@ Fixpoint print_rows {m n} i j (A : Matrix m n) : string :=
 Definition print_matrix {m n} (A : Matrix m n) : string :=
   print_rows m n A.
 
-(* 2D List Representation *)
-    
-Definition list2D_to_matrix (l : list (list C)) : 
-  Matrix (length l) (length (hd [] l)) :=
-  (fun x y => nth y (nth x l []) 0%R).
-
-
-(* Example *)
-Definition M23 : Matrix 2 3 :=
-  fun x y => 
-  match (x, y) with
-  | (0, 0) => 1%R
-  | (0, 1) => 2%R
-  | (0, 2) => 3%R
-  | (1, 0) => 4%R
-  | (1, 1) => 5%R
-  | (1, 2) => 6%R
-  | _ => C0
-  end.
-
-Definition M23' : Matrix 2 3 := 
-  list2D_to_matrix
-  ([[RtoC 1; RtoC 2; RtoC 3];
-    [RtoC 4; RtoC 5; RtoC 6]]).
-
-Lemma M23eq : M23 = M23'.
-Proof.
-  unfold M23'.
-  compute.
-  prep_matrix_equality.
-  do 4 (try destruct x; try destruct y; simpl; trivial).
-Qed.
-
 (*****************************)
 (** Operands and Operations **)
 (*****************************)
@@ -189,7 +156,7 @@ Definition outer_product {n} (u v : Vector n) : Square n :=
 Fixpoint kron_n n {m1 m2} (A : Matrix m1 m2) : Matrix (m1^n) (m2^n) :=
   match n with
   | 0    => I 1
-  | S n' => kron (kron_n n' A) A
+  | S n' => kron A (kron_n n' A)
   end.
 
 (* Kronecker product of a list *)
@@ -498,13 +465,6 @@ Qed.
 Lemma Zero_Zero :forall (A : Matrix 0%nat 0%nat), A ≡ Zero.
 Proof.
   intros n A.
-  unfold mat_equiv,Zero,get.
-  intros.
-  destruct y. exfalso. lia.
-Qed.
-
-Lemma I0_Zero : I 0 ≡ Zero.
-Proof.
   unfold mat_equiv,Zero,get.
   intros.
   destruct y. exfalso. lia.
@@ -858,7 +818,10 @@ Qed.
 Lemma Mscale_plus_distr_l : forall (m n : nat) (x y : C) (A : Matrix m n),
   (x + y) .* A = x .* A .+ y .* A.
 Proof.
-  intros. unfold Mplus, scale. prep_matrix_equality. apply Cmult_plus_distr_r.
+  intros. unfold Mplus, scale.
+(*   unfold mat_equiv.
+  intros .apply Cmult_plus_distr_r *)
+  prep_matrix_equality. apply Cmult_plus_distr_r.
 Qed.
 
 Lemma Mscale_plus_distr_r : forall (m n : nat) (x : C) (A B : Matrix m n),
