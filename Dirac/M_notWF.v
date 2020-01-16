@@ -904,7 +904,7 @@ intros. rewrite H1,H2. reflexivity.
 Qed. 
 
 Search mat_equiv_refl.
-Instance Mplus_proper(m n o p:nat): Proper (mat_equiv ==> mat_equiv ==> mat_equiv) (@Mplus m n).
+Instance Mplus_proper(m n:nat): Proper (mat_equiv ==> mat_equiv ==> mat_equiv) (@Mplus m n).
 Proof.
 hnf;intros A C H1.
 hnf;intros B D H2.
@@ -936,7 +936,7 @@ Qed.
 
 
 
-Instance kron_proper(m n o p:nat): Proper (mat_equiv ==> mat_equiv ==> mat_equiv) (@kron m n o p).
+Instance kron_proper(m n o p:nat): Proper (mat_equiv ==> mat_equiv ==> mat_equiv) (@kron m n o p ).
 Proof.
 hnf;intros A C H1.
 hnf;intros B D H2.
@@ -960,6 +960,13 @@ rewrite H1.
 rewrite H2.
 auto.
 Qed.
+
+Instance adjoint_proper(m n:nat) : Proper (mat_equiv ==> mat_equiv) (@adjoint m n).
+Proof.
+hnf;intros A C H1.
+unfold mat_equiv,adjoint,get in *.
+intros. rewrite H1. reflexivity.
+Qed. 
 
 
 (* Inverses of square matrices *)
@@ -1000,41 +1007,6 @@ Qed.
 
 Local Open Scope nat_scope.
 
-(*
-Lemma div_mod : forall (x y z : nat), (x / y) mod z = (x mod (y * z)) / y.
-Admitted.
-
-Lemma mod_product : forall x y z, y <> 0 -> z <> 0 -> x mod (y * z) mod z = x mod z.
-Proof.
-  intros x y z H H0.
-  repeat rewrite Nat.mod_eq; trivial.
-  2: apply Nat.neq_mul_0; easy.
-  rewrite <- Nat.sub_add_distr.
-  apply f_equal2; trivial.
-  remember (y * z) as yz.
-Admitted.
-
-Lemma kron_assoc : forall {m n p q r s : nat}
-  (A : Matrix m n) (B : Matrix p q) (C : Matrix r s),
-  p <> 0 -> q <> 0 -> r <> 0 -> s <> 0 -> 
-  (A ⊗ B ⊗ C) = A ⊗ (B ⊗ C).                                
-Proof.
-  intros m n p q r s A B C Hp Hq Hr Hs.
-  remember (A ⊗ B ⊗ C) as LHS.
-  prep_matrix_equality.
-  rename x into i, y into j.
-  unfold kron.  
-  rewrite (mult_comm p r) at 1 2.
-  rewrite (mult_comm q s) at 1 2.
-  rewrite <- 2 Nat.div_div by assumption.
-  rewrite <- 2 div_mod.
-  rewrite 2 mod_product by assumption.
-  rewrite Cmult_assoc.
-  subst.
-  reflexivity.
-Qed.  
-*)
-  
 Axiom kron_assoc : forall {m n p q r s : nat}
   (A : Matrix m n) (B : Matrix p q) (C : Matrix r s),
   (A ⊗ B ⊗ C) = A ⊗ (B ⊗ C).
