@@ -1,10 +1,9 @@
 Require Export Dirac.
 
 
-(*Step-by-step*)
+(* Step-by-step *)
 
-(*Vector*)
-
+(* Vector *)
 Definition state0 := ∣0⟩ ⊗ ∣0⟩.
 Definition state1 := (H ⊗ I_2) × state0.
 Definition state2 := CX × state1.
@@ -15,12 +14,12 @@ unfold state2,state1,state0,bell00.
 operate_reduce.
 Qed.
 
-
 Definition φ0 := ∣+⟩ ⊗ bell00.
 Definition φ1 := (CX ⊗ I_2) × φ0.
 Definition φ2 := (H ⊗ I_2 ⊗ I_2) × φ1.
 
-Lemma step1 : φ1 ≡ /2 .*  (∣0⟩ ⊗ ∣0⟩ ⊗ ∣0⟩) .+ /2 .*  (∣0⟩ ⊗ ∣1⟩ ⊗ ∣1⟩) .+ /2 .*  (∣1⟩ ⊗ ∣1⟩ ⊗ ∣0⟩) .+ /2 .*  (∣1⟩ ⊗ ∣0⟩ ⊗ ∣1⟩).
+Lemma step1 : φ1 ≡ /2 .*  (∣0⟩ ⊗ ∣0⟩ ⊗ ∣0⟩) .+ /2 .*  (∣0⟩ ⊗ ∣1⟩ ⊗ ∣1⟩)
+                                 .+ /2 .*  (∣1⟩ ⊗ ∣1⟩ ⊗ ∣0⟩) .+ /2 .*  (∣1⟩ ⊗ ∣0⟩ ⊗ ∣1⟩).
 Proof.
 unfold φ1,φ0,bell00.
 operate_reduce.
@@ -38,8 +37,7 @@ Qed.
 Lemma step2' : φ2 ≡ / 2 .* (∣+⟩ ⊗ (∣0⟩ ⊗ ∣0⟩))  .+ / 2 .* (∣+⟩ ⊗ (∣1⟩ ⊗ ∣1⟩))
                                 .+ / 2 .* (∣-⟩ ⊗ (∣1⟩ ⊗ ∣0⟩))  .+ / 2 .* (∣-⟩ ⊗ (∣0⟩ ⊗ ∣1⟩)) .
 Proof.
-unfold φ2,φ1,φ0.
-unfold CX,bell00.
+unfold φ2,φ1,φ0,bell00.
 operate_reduce.
 Qed.
 
@@ -95,7 +93,6 @@ Proof.
 unfold φ41.
 rewrite step31.
 operate_reduce.
-unified_base.
 Qed.
 
 Lemma step42 : φ42 ≡ / 2  .* (∣1⟩ ⊗ ∣0⟩ ⊗ ∣+⟩).
@@ -103,7 +100,6 @@ Proof.
 unfold φ42.
 rewrite step32.
 operate_reduce.
-unified_base.
 Qed.
 
 Definition φ43 := (I_2 ⊗ I_2 ⊗ σZ) × (I_2 ⊗ I_2 ⊗ σX) × φ33.
@@ -112,7 +108,6 @@ Proof.
 unfold φ43.
 rewrite step33.
 operate_reduce.
-unified_base.
 Qed.
 
 Definition φ431 := (I_2 ⊗ I_2 ⊗ σX) × φ33.
@@ -129,31 +124,22 @@ Proof.
 unfold φ432.
 rewrite step431.
 operate_reduce.
-unified_base.
 Qed.
 
 
-(*Density*)
 
+(* Density *)
 Definition s0 := ∣0⟩ ⊗ ∣0⟩.
 Definition s1 := (H ⊗ I_2) × s0.
 Definition s2 := CX × s1.
 
 
-Lemma pre_bell00' :  super (H ⊗ I_2) ((∣0⟩ ⊗ ∣0⟩) × (∣0⟩ ⊗ ∣0⟩)†) ≡ (∣+⟩ ⊗ ∣0⟩) × (∣+⟩ ⊗ ∣0⟩)†.
-Proof.
-unfold  super,bell00.
-super_reduce.
-Qed.
-
 Lemma pre_bell00'' :  super CX ((∣+⟩ ⊗ ∣0⟩) × (∣+⟩ ⊗ ∣0⟩)†) ≡ bell00 × bell00†.
 Proof.
-unfold  super,bell00.
+unfold super,bell00.
 super_reduce.
 Qed.
 
-
-(*Density matrix*)
 
 Definition ρ0 := φ0 × φ0†.
 Definition ρ1 := super (CX ⊗ I_2) ρ0.
@@ -259,64 +245,57 @@ super_reduce.
 Qed.
 
 
-(*One-time*)
 
-Definition φ40' := (M0 ⊗ M0 ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × (CX ⊗ I_2) × φ0.
-Lemma tele0 : φ40' ≡ / 2  .* (∣0⟩ ⊗ ∣0⟩ ⊗ ∣+⟩).
+(* One-time *)
+
+(* Definition φ40' := (M0 ⊗ M0 ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × (CX ⊗ I_2) × φ0.
+Lemma tele0 : φ40' ≡ / 2  .* (∣0⟩ ⊗ ∣0⟩ ⊗ ∣+⟩). *)
+Lemma tele0 : (M0 ⊗ M0 ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × (CX ⊗ I_2) × φ0 ≡ / 2  .* (∣0⟩ ⊗ ∣0⟩ ⊗ ∣+⟩).
+
 Proof.
-unfold φ40',φ0,bell00.
+unfold φ0,bell00.
 operate_reduce.
-unified_base.
 Qed.
 
-Definition φ41' := (I_2 ⊗ I_2 ⊗ σX) × (M0 ⊗ M1 ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × (CX ⊗ I_2) × φ0.
-Lemma tele1 : φ41' ≡ / 2  .* (∣0⟩ ⊗ ∣1⟩ ⊗ ∣+⟩).
+Lemma tele1 : (I_2 ⊗ I_2 ⊗ σX) × (M0 ⊗ M1 ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × (CX ⊗ I_2) × φ0 ≡ / 2  .* (∣0⟩ ⊗ ∣1⟩ ⊗ ∣+⟩).
 Proof.
-unfold φ41',φ0,bell00.
+unfold φ0,bell00.
 operate_reduce.
-unified_base.
-rewrite Mplus_comm;reflexivity.
 Qed.
 
-Definition φ42' := (I_2 ⊗ I_2 ⊗ σZ) × (M1 ⊗ M0 ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × (CX ⊗ I_2) × φ0.
-Lemma tele2 : φ42' ≡ / 2  .* (∣1⟩ ⊗ ∣0⟩ ⊗ ∣+⟩).
+Lemma tele2 :  (I_2 ⊗ I_2 ⊗ σZ) × (M1 ⊗ M0 ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × (CX ⊗ I_2) × φ0 ≡ / 2  .* (∣1⟩ ⊗ ∣0⟩ ⊗ ∣+⟩).
 Proof.
-unfold φ42',φ0,bell00.
+unfold φ0,bell00.
 operate_reduce.
-unified_base.
 Qed.
 
-Definition φ43' := (I_2 ⊗ I_2 ⊗ σZ) × (I_2 ⊗ I_2 ⊗ σX) × (M1 ⊗ M1 ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × (CX ⊗ I_2) × φ0.
-Lemma tele3 : φ43' ≡ / 2  .* (∣1⟩ ⊗ ∣1⟩ ⊗ ∣+⟩).
+Lemma tele3 : (I_2 ⊗ I_2 ⊗ σZ) × (I_2 ⊗ I_2 ⊗ σX) × (M1 ⊗ M1 ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × (CX ⊗ I_2) × φ0 ≡ / 2  .* (∣1⟩ ⊗ ∣1⟩ ⊗ ∣+⟩).
 Proof.
-unfold φ43',φ0,bell00.
+unfold φ0,bell00.
 operate_reduce.
-unified_base.
-rewrite Mplus_comm;reflexivity.
 Qed.
 
-
-Lemma Dtele0 : super ((M0 ⊗ M0 ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × (CX ⊗ I_2)) ρ0 ≡ φ40' × φ40'†.
+Lemma Dtele0 : super ((M0 ⊗ M0 ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × (CX ⊗ I_2)) ρ0 ≡ (/ 2  .* (∣0⟩ ⊗ ∣0⟩ ⊗ ∣+⟩)) × (/ 2  .* (∣0⟩ ⊗ ∣0⟩ ⊗ ∣+⟩))†.
 Proof.
-unfold ρ0,super.
+unfold ρ0,φ0,bell00,super.
 super_reduce.
 Qed.
 
-Lemma Dtele1 : super ((I_2 ⊗ I_2 ⊗ σX) × (M0 ⊗ M1 ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × (CX ⊗ I_2)) ρ0 ≡ φ41' × φ41'†.
+Lemma Dtele1 : super ((I_2 ⊗ I_2 ⊗ σX) × (M0 ⊗ M1 ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × (CX ⊗ I_2)) ρ0 ≡ (/ 2  .* (∣0⟩ ⊗ ∣1⟩ ⊗ ∣+⟩)) × (/ 2  .* (∣0⟩ ⊗ ∣1⟩ ⊗ ∣+⟩))†.
 Proof.
-unfold ρ0,super.
+unfold ρ0,φ0,bell00,super.
 super_reduce.
 Qed.
 
-Lemma Dtele2 : super ((I_2 ⊗ I_2 ⊗ σZ) × (M1 ⊗ M0 ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × (CX ⊗ I_2)) ρ0 ≡ φ42' × φ42'†.
+Lemma Dtele2 : super ((I_2 ⊗ I_2 ⊗ σZ) × (M1 ⊗ M0 ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × (CX ⊗ I_2)) ρ0 ≡ (/ 2  .* (∣1⟩ ⊗ ∣0⟩ ⊗ ∣+⟩)) × (/ 2  .* (∣1⟩ ⊗ ∣0⟩ ⊗ ∣+⟩))†.
 Proof.
-unfold ρ0, super.
+unfold ρ0,φ0,bell00,super.
 super_reduce.
 Qed.
 
-Lemma Dtele3 : super ((I_2 ⊗ I_2 ⊗ σZ) × (I_2 ⊗ I_2 ⊗ σX) × (M1 ⊗ M1 ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × (CX ⊗ I_2)) ρ0 ≡ φ43' × φ43'†.
+Lemma Dtele3 : super ((I_2 ⊗ I_2 ⊗ σZ) × (I_2 ⊗ I_2 ⊗ σX) × (M1 ⊗ M1 ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × (CX ⊗ I_2)) ρ0 ≡ (/ 2  .* (∣1⟩ ⊗ ∣1⟩ ⊗ ∣+⟩)) × (/ 2  .* (∣1⟩ ⊗ ∣1⟩ ⊗ ∣+⟩))†.
 Proof.
-unfold ρ0,super.
+unfold ρ0,φ0,bell00,super.
 super_reduce.
 Qed.
 
@@ -336,7 +315,6 @@ Lemma tele0' :  forall (a b : C),
 Proof.
 intros. unfold bell00,φ.
 operate_reduce.
-rewrite Cmult_comm.
 repeat rewrite coefficient.
 reflexivity.
 Qed.

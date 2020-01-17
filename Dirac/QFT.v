@@ -51,6 +51,9 @@ induction n.
  Qed.
 
 
+(*Step-by-step*)
+
+(*Vector*)
 Definition φ0 := ∣0⟩ ⊗ ∣0⟩ ⊗ ∣0⟩.
 Definition φ1 := (I_2 ⊗ I_2 ⊗ H) × φ0.
 Definition φ2 := (I_2 ⊗ CS) × φ1.
@@ -68,17 +71,15 @@ Qed.
 
 Lemma step2 : φ2 ≡ ∣0⟩ ⊗ ∣0⟩ ⊗ ∣+⟩.
 Proof.
-unfold φ2.
+unfold φ2,CS.
 rewrite step1.
-unfold CS.
 operate_reduce.
 Qed.
 
 Lemma step3 : φ3 ≡ ∣0⟩ ⊗ ∣0⟩ ⊗ ∣+⟩.
 Proof.
-unfold φ3.
+unfold φ3,CIT.
 rewrite step2.
-unfold CIT.
 operate_reduce.
 Qed.
 
@@ -91,9 +92,8 @@ Qed.
 
 Lemma step5 : φ5 ≡ ∣0⟩ ⊗ ∣+⟩ ⊗ ∣+⟩.
 Proof.
-unfold φ5.
+unfold φ5,CS.
 rewrite step4.
-unfold CS.
 operate_reduce.
 Qed.
 
@@ -105,14 +105,7 @@ operate_reduce.
 Qed.
 
 
-Definition φ6' := (H ⊗ I_2 ⊗ I_2) × (CS ⊗ I_2) × (I_2 ⊗ H ⊗ I_2) × CIT ×  (I_2 ⊗ CS) × (I_2 ⊗ I_2 ⊗ H) × φ0.
-Lemma QFT_ket0_3 : φ6' ≡ ∣+⟩ ⊗ ∣+⟩ ⊗ ∣+⟩.
-Proof.
-unfold φ6',φ0,CS,CIT.
-operate_reduce.
-Qed.
-
-
+(*Density*)
 Definition ρ0 := φ0 × φ0†.
 Definition ρ1 := super (I_2 ⊗ I_2 ⊗ H) ρ0.
 Definition ρ2 := super (I_2 ⊗ CS) ρ1.
@@ -162,9 +155,20 @@ rewrite Dstep5.
 super_reduce.
 Qed.
 
-Lemma DQFT_ket0_3 : super ((H ⊗ I_2 ⊗ I_2) × (CS ⊗ I_2) × (I_2 ⊗ H ⊗ I_2) × CIT ×  (I_2 ⊗ CS) × (I_2 ⊗ I_2 ⊗ H)) ρ0 ≡ φ6' × φ6'†.
+
+
+(* One-time *)
+
+Lemma QFT_ket0_3 : (H ⊗ I_2 ⊗ I_2) × (CS ⊗ I_2) × (I_2 ⊗ H ⊗ I_2) × CIT ×  (I_2 ⊗ CS) × (I_2 ⊗ I_2 ⊗ H) × φ0 ≡ ∣+⟩ ⊗ ∣+⟩ ⊗ ∣+⟩.
 Proof.
-unfold ρ0,super.
+unfold φ0,CS,CIT.
+operate_reduce.
+Qed.
+
+
+Lemma DQFT_ket0_3 : super ((H ⊗ I_2 ⊗ I_2) × (CS ⊗ I_2) × (I_2 ⊗ H ⊗ I_2) × CIT ×  (I_2 ⊗ CS) × (I_2 ⊗ I_2 ⊗ H)) ρ0 ≡ (∣+⟩ ⊗ ∣+⟩ ⊗ ∣+⟩) × (∣+⟩ ⊗ ∣+⟩ ⊗ ∣+⟩)†.
+Proof.
+unfold ρ0,φ0,CS,CIT,super.
 super_reduce.
 Qed.
 

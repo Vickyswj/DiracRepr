@@ -532,6 +532,7 @@ Lemma Cconj_0 : 0^* = 0.                  Proof. lca. Qed.
 Lemma Cconj_opp : forall C, (- C)^* = - (C^*). Proof. reflexivity. Qed.
 Lemma Cconj_rad2 : (/ √2)^* = / √2.       Proof. lca. Qed.
 Lemma Cplus_div2 : /2 + /2 = 1.           Proof. lca. Qed.
+Lemma Cplus_opp : 1 + -1 = 0.    Proof. lca. Qed.
 Lemma Cconj_involutive : forall c, (c^*)^* = c. Proof. intros; lca. Qed.
 Lemma Cconj_plus_distr : forall (x y : C), (x + y)^* = x^* + y^*. Proof. intros; lca. Qed.
 Lemma Cconj_mult_distr : forall (x y : C), (x * y)^* = x^* * y^*. Proof. intros; lca. Qed.
@@ -578,6 +579,16 @@ Proof.
   rewrite sqrt_def; lra.
 Qed.
 
+Lemma C2_sqrt2_inv : 2 * / √ 2 = √ 2 .
+Proof.
+ eapply c_proj_eq; simpl; try lra.
+ autorewrite with R_db. 
+  rewrite <- Rmult_assoc. 
+  rewrite Rmult_comm.
+  rewrite <- Rmult_assoc.
+  lra.
+Qed.
+
 Lemma Csqrt_inv : forall (r : R), 0 < r -> RtoC (√ (/ r)) = (/ √ r).
 Proof.
   intros r H.
@@ -591,6 +602,12 @@ Qed.
 
 Lemma Csqrt2_inv : RtoC (√ (/ 2)) = (/ √ 2).
 Proof. apply Csqrt_inv; lra. Qed.  
+
+Lemma mm : 2 * / √ 2 = √ 2 .
+Proof.
+
+Qed.
+
 
 Lemma Csqrt_sqrt_inv : forall (r : R), 0 < r -> (√ r * √ / r) = 1.
 Proof. 
@@ -641,7 +658,7 @@ Ltac nonzero :=
          | |- Rlt _ _ => lra
          end.
 
-Hint Rewrite Cminus_unfold Cdiv_unfold Ci2 Cconj_R Cconj_opp Cconj_rad2 Cplus_div2
+Hint Rewrite Cminus_unfold Cdiv_unfold Ci2 Cconj_R Cconj_opp Cconj_rad2 Cplus_div2 Cplus_opp
      Csqrt2_sqrt Cinv_sqrt2_sqrt Csqrt2_sqrt2_inv Csqrt2_inv_sqrt2 Csqrt2_inv_sqrt2_inv
      Cplus_0_l Cplus_0_r Cplus_opp_r Cplus_opp_l Copp_0 Copp_1 Copp_involutive
      Cmult_0_l Cmult_0_r Cmult_1_l Cmult_1_r Cmult_m1_l Cmult_m1_r : C_db.
