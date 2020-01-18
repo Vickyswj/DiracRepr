@@ -532,6 +532,7 @@ Lemma Cconj_0 : 0^* = 0.                  Proof. lca. Qed.
 Lemma Cconj_opp : forall C, (- C)^* = - (C^*). Proof. reflexivity. Qed.
 Lemma Cconj_rad2 : (/ √2)^* = / √2.       Proof. lca. Qed.
 Lemma Cplus_div2 : /2 + /2 = 1.           Proof. lca. Qed.
+Lemma Cconj_inv2 :  (/ 2)^* = / 2.         Proof. lca. Qed.
 Lemma Cplus_opp : 1 + -1 = 0.    Proof. lca. Qed.
 Lemma Cconj_involutive : forall c, (c^*)^* = c. Proof. intros; lca. Qed.
 Lemma Cconj_plus_distr : forall (x y : C), (x + y)^* = x^* + y^*. Proof. intros; lca. Qed.

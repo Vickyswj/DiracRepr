@@ -69,7 +69,6 @@ super_reduce.
 Qed.
 
 
-
 (* f(0) =  f(1) = 1 *)
 
 (*Step-by-step*)
