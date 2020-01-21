@@ -602,13 +602,7 @@ Proof.
 Qed.
 
 Lemma Csqrt2_inv : RtoC (√ (/ 2)) = (/ √ 2).
-Proof. apply Csqrt_inv; lra. Qed.  
-
-Lemma mm : 2 * / √ 2 = √ 2 .
-Proof.
-
-Qed.
-
+Proof. apply Csqrt_inv; lra. Qed.
 
 Lemma Csqrt_sqrt_inv : forall (r : R), 0 < r -> (√ r * √ / r) = 1.
 Proof. 
@@ -660,7 +654,7 @@ Ltac nonzero :=
          end.
 
 Hint Rewrite Cminus_unfold Cdiv_unfold Ci2 Cconj_R Cconj_opp Cconj_rad2 Cplus_div2 Cplus_opp
-     Csqrt2_sqrt Cinv_sqrt2_sqrt Csqrt2_sqrt2_inv Csqrt2_inv_sqrt2 Csqrt2_inv_sqrt2_inv
+     Csqrt2_sqrt Cinv_sqrt2_sqrt Csqrt2_sqrt2_inv Csqrt2_inv_sqrt2 Csqrt2_inv_sqrt2_inv Cconj_inv2
      Cplus_0_l Cplus_0_r Cplus_opp_r Cplus_opp_l Copp_0 Copp_1 Copp_involutive
      Cmult_0_l Cmult_0_r Cmult_1_l Cmult_1_r Cmult_m1_l Cmult_m1_r : C_db.
 
