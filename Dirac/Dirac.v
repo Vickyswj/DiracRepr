@@ -22,10 +22,9 @@ Notation "∣1⟩" := ket1.
 Notation "⟨0∣" := ∣0⟩†.
 Notation "⟨1∣" := ∣1⟩†.
 Notation "∣0⟩⟨0∣" := (∣0⟩×⟨0∣).
-Notation "∣1⟩⟨1∣" := (∣1⟩×⟨1∣).
-Notation "∣1⟩⟨0∣" := (∣1⟩×⟨0∣).
 Notation "∣0⟩⟨1∣" := (∣0⟩×⟨1∣).
-
+Notation "∣1⟩⟨0∣" := (∣1⟩×⟨0∣).
+Notation "∣1⟩⟨1∣" := (∣1⟩×⟨1∣).
 
 
 (* Define and signify  the other orthogonal  basis ∣+⟩ and ∣-⟩ *)
@@ -40,27 +39,28 @@ Notation "⟨+∣" := brap.
 Notation "⟨-∣" := bran.
 
 
-(* Define the bell states *)
-Definition bell00 := /√2 .* (∣0⟩ ⊗ ∣0⟩) .+ /√2 .* (∣1⟩ ⊗ ∣1⟩).
-Definition bell01 := /√2 .* (∣0⟩ ⊗ ∣1⟩) .+ /√2 .* (∣1⟩ ⊗ ∣0⟩).
-Definition bell10 := /√2 .* (∣0⟩ ⊗ ∣0⟩) .+ (-/√2) .* (∣1⟩ ⊗ ∣1⟩).
-Definition bell11 := /√2 .* (∣0⟩ ⊗ ∣1⟩) .+ (-/√2) .* (∣1⟩ ⊗ ∣0⟩).
-
-
-(* Recursively define the n qubits of 'ket0'*)
-Definition ket0_n' (n : nat) := kron_n n ket0.
+(* Recursively define the n qubits of 'ket0' and 'ket1' *)
 Fixpoint ket0_n (n : nat) : Matrix (2^n) 1 :=
 match n with
 | 0 => I 1
 | S n' => ket0 ⊗ ket0_n n'
 end.
+Definition ket0_n' (n : nat) := kron_n n ket0.
+
+Fixpoint ket1_n (n : nat) : Matrix (2^n) 1 :=
+match n with
+| 0 => I 1
+| S n' => ket1 ⊗ ket1_n n'
+end.
+Definition ket1_n' (n : nat) := kron_n n ket1.
 
 Hint Unfold ket0 ket1 : U_db.
-Hint Unfold ketp ketn brap bran ket0_n : S_db.
+Hint Unfold ketp ketn brap bran ket0_n ket1_n : S_db.
+
 
 
 Ltac orthogonal_reduce :=
-  autounfold with S_db;
+  (* autounfold with S_db; *)
   autounfold with U_db;
   prep_matrix_equality;
   destruct_m_eq; autorewrite with C_db;auto;
@@ -69,13 +69,14 @@ Ltac orthogonal_reduce :=
   try lca.
 
 
-Lemma Mmult_bra0_ket0 : ⟨0∣ × ∣0⟩ = 1 .* I 1.
+(* Proof orthogonal lemma between ⟨0∣, ⟨1∣, ∣0⟩ and ∣1⟩ *)
+Lemma Mmult_bra0_ket0 : ⟨0∣ × ∣0⟩ = I 1. (*  1 .* I 1  *)
 Proof. orthogonal_reduce. Qed.
-Lemma Mmult_bra0_ket1 : ⟨0∣ × ∣1⟩ = 0 .* I 1. (* /Zero *)
+Lemma Mmult_bra0_ket1 : ⟨0∣ × ∣1⟩ = Zero. (*  0 .* I 1  *)
 Proof. orthogonal_reduce. Qed.
-Lemma Mmult_bra1_ket0 : ⟨1∣ × ∣0⟩ = 0 .* I 1.
+Lemma Mmult_bra1_ket0 : ⟨1∣ × ∣0⟩ = Zero.
 Proof. orthogonal_reduce. Qed.
-Lemma Mmult_bra1_ket1 : ⟨1∣ × ∣1⟩ = 1 .* I 1.
+Lemma Mmult_bra1_ket1 : ⟨1∣ × ∣1⟩ = I 1.
 Proof. orthogonal_reduce. Qed.
 
 Lemma Mplus01 : ∣0⟩⟨0∣ .+ ∣1⟩⟨1∣ = I 2.
@@ -83,8 +84,8 @@ Proof. orthogonal_reduce. Qed.
 Lemma Mplus10 : ∣1⟩⟨1∣ .+ ∣0⟩⟨0∣ = I 2.
 Proof. orthogonal_reduce. Qed.
 
-
 Hint Rewrite Mmult_bra0_ket0 Mmult_bra0_ket1 Mmult_bra1_ket0 Mmult_bra1_ket1 : S_db.
+
 
 
 (* U Operators *)
@@ -122,16 +123,15 @@ Qed.
 (*H Operators*)
 Definition H := /√2 .* B0 .+ /√2 .* B1  .+ /√2 .* B2 .+ (-/√2) .* B3.
 
-Definition H_n' (n : nat) := kron_n n H.
 Fixpoint H_n (n : nat) : Matrix (2^n) (2^n):= 
   match n with
   | 0 => I 1
   | S n' => H ⊗ H_n n'
   end.
+Definition H_n' (n : nat) := kron_n n H.
 
 
 (*Phase Operators*)
-
 Definition PS := B0 .+ Ci .* B3.
 Definition PT := B0 .+ (/√2 + /√2 * Ci) .* B3.
 
@@ -168,24 +168,30 @@ rewrite Copp_1.
 auto.
 Qed.
 
+
 (*Measure Operators*)
 Definition M0 := B0.
 Definition M1 := B3.
 
 
 (*Control Operators*)
-Definition Cg_1 {n} (A : Matrix n n) := B0 ⊗ I_2 .+ B3 ⊗ A.
-Definition CX' :=  Cg_1 σX.
-Definition CZ' :=  Cg_1 σZ.
-Definition CS' :=  Cg_1 PS.
-Definition CT' :=  Cg_1 PT.
-
 Definition CX :=  B0 ⊗ I_2 .+ B3 ⊗ σX.
 Definition CZ :=  B0 ⊗ I_2 .+ B3 ⊗ σZ.
 Definition CS :=  B0 ⊗ I_2 .+ B3 ⊗ PS.
 Definition CT :=  B0 ⊗ I_2 .+ B3 ⊗ PT.
 
-Definition XC :=  B0 ⊗ σX .+ B3 ⊗ I_2.
+Definition XC :=  σX ⊗ B3 .+ I_2 ⊗ B0.
+Definition ZC :=  σZ ⊗ B3 .+ I_2 ⊗ B0.
+Definition PC :=  PS ⊗ B3 .+ I_2 ⊗ B0.
+Definition TC :=  PT ⊗ B3 .+ I_2 ⊗ B0.
+
+Definition Cg_1 {n} (A : Matrix n n) := B0 ⊗ I_2 .+ B3 ⊗ A.
+Definition gC_1 {n} (A : Matrix n n) := A ⊗ B3 .+ I_2 ⊗ B0.
+Definition CX' :=  Cg_1 σX.
+Definition CZ' :=  Cg_1 σZ.
+Definition CS' :=  Cg_1 PS.
+Definition CT' :=  Cg_1 PT.
+
 
 Lemma CX_eq : CX' = CX .
 Proof. unfold CX',CX,Cg_1. auto. Qed.
@@ -201,7 +207,7 @@ Definition SWAP :=  B0 ⊗ B0 .+ B1 ⊗ B2 .+ B2 ⊗ B1 .+ B3 ⊗ B3.
 
 
 Hint Unfold  σX σY σZ I_2 H M0 M1 : G1_db.
-Hint Unfold  CZ CX CS CT XC : G2_db.
+Hint Unfold  CZ CX CS CT XC ZC PC TC SWAP : G2_db.
 
 
 
@@ -247,7 +253,6 @@ Hint Rewrite I_sa H_sa σX_sa σY_sa σZ_sa CX_sa
 
 
 (* Unitary *)
-
 Lemma MmultII : I_2 × I_2 = I_2.
 Proof. lma. Qed.
 Lemma MmultXII' : I_2† × I_2 = I 2.
@@ -295,19 +300,23 @@ Qed.
 
 
 
-
+(* Preliminary strategy *)
 Ltac distribute_plus:=
 repeat rewrite ?Mmult_plus_distr_r, ?Mmult_plus_distr_l,?Mscale_plus_distr_r,?kron_plus_distr_r,?kron_plus_distr_l;
 try repeat rewrite<- Mplus_assoc.
 
+
 Ltac isolate_scale:=
 repeat rewrite ?Mscale_mult_dist_l,?Mscale_mult_dist_r,?Mscale_kron_dist_r,?Mscale_kron_dist_l,?Mscale_assoc.
+
 
 Ltac kron_mult:=
 repeat rewrite <- kron_mixed_product.
 
+
 Ltac assoc_right:=
 repeat rewrite ?Mmult_assoc, ?kron_assoc.
+
 
 Inductive fake_eq {n m}: Matrix n m -> Matrix n m -> Prop :=
 | fake_eq_intro: forall A B, A = B -> fake_eq A B.
@@ -353,12 +362,6 @@ Ltac Mmult_1 :=
              rewrite (@Mmult_1_l  n1 o1 A)
   end.
 
-
-(* Lemma Mmult_1_l' : forall (m n : nat) (A : Matrix m n), I m × A = A.
-Admitted.
-Lemma Mmult_1_r' : forall (m n : nat) (A : Matrix m n),  A × I n = A.
-Admitted. *)
-
 Ltac mult_reduce :=
 match goal with
 | |-context [ @Mmult ?one1 ?n ?one2 ?A ?B] =>
@@ -377,8 +380,6 @@ match goal with
 end;
 isolate_scale;
 repeat Mmult_1.
-(* repeat rewrite ?Mmult_1_l', ?Mmult_1_r'. *)
-
 
 
 Ltac kron_0 :=
@@ -399,11 +400,12 @@ Ltac Mmult_0 :=
              change  (@Mmult m1 n1 o1 A (@Zero n2 o2))  with
                            (@Mmult m1 n1 o1 A (@Zero n1 o1));
              rewrite (@Mmult_0_r m1 n1 o1 A)
-  | |- context  [@Mmult ?m1 ?n1 ?o1 ?p1 (@Zero ?m2 ?n2) ?A] =>
-             change  (@Mmult m1 n1 o1 p1 (@Zero m2 n2) A)  with
-                           (@Mmult m1 n1 o1 p1 (@Zero m1 n1) A);
-             rewrite (@Mmult_0_l  m1 n1 o1 p1 A)
+  | |- context  [@Mmult ?m1 ?n1 ?o1 (@Zero ?m2 ?n2) ?A] =>
+             change  (@Mmult m1 n1 o1 (@Zero m2 n2) A)  with
+                           (@Mmult m1 n1 o1 (@Zero m1 n1) A);
+             rewrite (@Mmult_0_l  m1 n1 o1 A)
   end.
+
 
 Ltac Mplus_0 :=
   match goal with
@@ -576,8 +578,6 @@ autorewrite with C_db;
 repeat rewrite ?Mscale_0_l,?Mscale_1_l;
 repeat cancel_0;
 try linear_solver;
-(* try rewrite Cmult_comm;
-repeat cancel_common_factor; *)
 try reflexivity.
 
 Ltac unified_base :=
@@ -586,6 +586,9 @@ distribute_plus;
 isolate_scale;
 reduce_scale.
 
+
+
+(* Symbolic Reasoning Strategy of Base Operate *)
 Ltac base_reduce :=
 autounfold with B_db S_db;
 distribute_plus;
@@ -594,13 +597,17 @@ assoc_right;
 repeat mult_reduce;
 reduce_scale.
 
+Lemma test1 : ∣0⟩ ≡ ∣0⟩. .
+Proof.
 
-(*BaseOperators_reduce *)
+Qed.
+
+
+(*Base-Operators_reduce *)
 Lemma Mmult_B00 : B0 × ∣0⟩ ≡ ∣0⟩.
 Proof. base_reduce. Qed.
 Lemma Mmult_0B0 : ⟨0∣ × B0 ≡ ⟨0∣.
 Proof. base_reduce. Qed.
-
 
 Lemma Mmult_B01 : B0 × ∣1⟩ ≡ Zero.
 Proof. base_reduce. Qed.
@@ -678,7 +685,6 @@ Proof. base_reduce. Qed.
 Lemma Mmult_negB3 : ⟨-∣ × B3 ≡ - / √ 2 .* ⟨1∣.
 Proof. base_reduce. Qed.
 
-(* Hint Rewrite Mmult_B01 Mmult_B10 Mmult_B21 Mmult_B30 : B0_db. *)
 Hint Rewrite Mmult_B00 Mmult_B01 Mmult_B0pos Mmult_B0neg
                          Mmult_B10 Mmult_B11 Mmult_B1pos Mmult_B1neg
                          Mmult_B20 Mmult_B21 Mmult_B2pos Mmult_B2neg
@@ -690,16 +696,17 @@ Hint Rewrite Mmult_B00 Mmult_B01 Mmult_B0pos Mmult_B0neg
 
 
 
+(* Symbolic Reasoning Strategy of Pauli and H operate *)
 Ltac gate_reduce :=
 autounfold with G1_db;
 distribute_plus;
 isolate_scale;
 assoc_right;
 autorewrite with B_db;
-unified_base;
-reduce_scale.
+reduce_scale;
+unified_base.
 
-
+(*Pauli-Operators_reduce *)
 Lemma Mmult_I0 : I_2 × ∣0⟩ ≡ ∣0⟩.
 Proof. gate_reduce. Qed.
 Lemma Mmult_0I : ⟨0∣ × I_2 ≡ ⟨0∣.
@@ -781,6 +788,7 @@ Lemma Mmult_negσY : ⟨-∣ × σY ≡ -Ci .* ⟨+∣.
 Proof. gate_reduce. Qed.
 
 
+(*H-Operators_reduce *)
 Lemma Mmult_H0 : H × ∣0⟩ ≡ ∣+⟩.
 Proof. gate_reduce. Qed.
 
@@ -797,7 +805,6 @@ Proof. gate_reduce. Qed.
 Lemma Mmult_posH : ⟨+∣ × H ≡ ⟨0∣.
 Proof. gate_reduce. Qed.
 
-
 Lemma Mmult_Hneg : H × ∣-⟩ ≡ ∣1⟩.
 Proof. gate_reduce. Qed.
 Lemma Mmult_negH : ⟨-∣ × H ≡ ⟨1∣.
@@ -808,7 +815,6 @@ Proof. gate_reduce. Qed.
 Lemma Mmult_0M0 : ⟨0∣ × M0 ≡ ⟨0∣.
 Proof. gate_reduce. Qed.
 
-(* Lemma Mmult_M01 : M0 × ∣1⟩ ≡ @Zero 2 1. *)
 Lemma Mmult_M01 : M0 × ∣1⟩ ≡ Zero.
 Proof. gate_reduce. Qed.
 Lemma Mmult_1M0 : ⟨1∣ × M0 ≡ Zero.
@@ -824,24 +830,20 @@ Proof. gate_reduce. Qed.
 Lemma Mmult_negM0 : ⟨-∣ × M0 ≡ / √ 2 .* ⟨0∣.
 Proof. gate_reduce. Qed.
 
-
 Lemma Mmult_M10 : M1× ∣0⟩ ≡ Zero.
 Proof. gate_reduce. Qed.
 Lemma Mmult_0M1 : ⟨0∣ × M1 ≡ Zero.
 Proof. gate_reduce. Qed.
-
 
 Lemma Mmult_M11 : M1 × ∣1⟩ ≡ ∣1⟩.
 Proof. gate_reduce. Qed.
 Lemma Mmult_1M1 : ⟨1∣ × M1 ≡ ⟨1∣.
 Proof. gate_reduce. Qed.
 
-
 Lemma Mmult_M1pos : M1 × ∣+⟩ ≡ / √ 2 .* ∣1⟩.
 Proof. gate_reduce. Qed.
 Lemma Mmult_posM1 : ⟨+∣ × M1 ≡ / √ 2 .* ⟨1∣.
 Proof. gate_reduce. Qed.
-
 
 Lemma Mmult_M1neg : M1 × ∣-⟩ ≡ -/ √ 2 .* ∣1⟩.
 Proof. gate_reduce. Qed.
@@ -855,13 +857,6 @@ Hint Rewrite Mmult_I0 Mmult_I1 Mmult_Ipos Mmult_Ineg
                          Mmult_H0 Mmult_H1 Mmult_Hpos Mmult_Hneg
                          Mmult_M00 Mmult_M01 Mmult_M0pos Mmult_M0neg
                          Mmult_M10 Mmult_M11 Mmult_M1pos Mmult_M1neg
-(*                      Mmult_0I Mmult_1I Mmult_posI Mmult_negI
-                         Mmult_0σX Mmult_1σX Mmult_posσX Mmult_negσX
-                         Mmult_0σZ Mmult_1σZ Mmult_posσZ Mmult_negσZ
-                         Mmult_0σY Mmult_1σY Mmult_posσY Mmult_negσY
-                         Mmult_0H Mmult_1H Mmult_Hpos Mmult_negH
-                         Mmult_0M0 Mmult_1M0 Mmult_posM0 Mmult_negM0
-                         Mmult_0M1 Mmult_1M1 Mmult_posM1 Mmult_negM1 *)
                          Mmult_B00 Mmult_B01 Mmult_B0pos Mmult_B0neg
                          Mmult_B10 Mmult_B11 Mmult_B1pos Mmult_B1neg
                          Mmult_B20 Mmult_B21 Mmult_B2pos Mmult_B2neg
@@ -872,6 +867,9 @@ Hint Rewrite Mmult_I0 Mmult_I1 Mmult_Ipos Mmult_Ineg
                          Mmult_0B3 Mmult_1B3 Mmult_posB3 Mmult_negB3
                        : G1_db.
 
+
+
+(* Symbolic Reasoning Strategy of states in the vector form *)
 Ltac operate_reduce :=
 autounfold with G2_db;
 distribute_plus;
@@ -884,32 +882,41 @@ reduce_scale;
 unified_base.
 
 
-Lemma CX00 : CX × (∣0⟩ ⊗ ∣0⟩) ≡ ∣0⟩ ⊗ ∣0⟩.
+(* Notation for kron of ∣0⟩ and ∣1⟩ *)
+Definition bra (x : nat) : Matrix 1 2 := if x =? 0 then ⟨0∣ else ⟨1∣.
+Definition ket (x : nat) : Matrix 2 1 := if x =? 0 then ∣0⟩ else ∣1⟩.
+Notation "'∣' x '⟩'" := (ket x).
+Notation "'⟨' x '∣'" := (bra x).
+
+Notation "∣ x , y , .. , z ⟩" := (kron .. (kron ∣x⟩ ∣y⟩) .. ∣z⟩) (at level 0).
+
+
+Lemma CX00 : CX × ∣0,0⟩ ≡ ∣0,0⟩.
 Proof. operate_reduce. Qed.
 
-Lemma CX01 : CX × (∣0⟩ ⊗ ∣1⟩) ≡ ∣0⟩ ⊗ ∣1⟩.
+Lemma CX01 : CX × ∣0,1⟩ ≡ ∣0,1⟩.
 Proof. operate_reduce. Qed.
 
-Lemma CX10 : CX × (∣1⟩ ⊗ ∣0⟩) ≡ ∣1⟩ ⊗ ∣1⟩.
+Lemma CX10 : CX × ∣1,0⟩ ≡ ∣1,1⟩.
 Proof. operate_reduce. Qed.
 
-Lemma CX11 : CX × (∣1⟩ ⊗ ∣1⟩) ≡ ∣1⟩ ⊗ ∣0⟩.
+Lemma CX11 : CX × ∣1,1⟩ ≡ ∣1,0⟩.
 Proof. operate_reduce. Qed.
 
-Lemma CXp0 : CX × (∣+⟩ ⊗ ∣0⟩) ≡ /√2 .* ∣0⟩ ⊗ ∣0⟩ .+ /√2 .* ∣1⟩ ⊗ ∣1⟩.
+Lemma CXp0 : CX × (∣+⟩ ⊗ ∣0⟩) ≡ /√2 .* ∣0,0⟩ .+ /√2 .* ∣1,1⟩.
 Proof. operate_reduce. Qed.
 
-Lemma CXp1 : CX × (∣+⟩ ⊗ ∣1⟩) ≡ /√2 .* (∣0⟩ ⊗ ∣1⟩) .+ /√2 .* (∣1⟩ ⊗ ∣0⟩).
+Lemma CXp1 : CX × (∣+⟩ ⊗ ∣1⟩) ≡ /√2 .* ∣0,1⟩ .+ /√2 .* ∣1,0⟩.
 Proof. operate_reduce. Qed.
 
-Lemma CXn0 : CX × (∣-⟩ ⊗ ∣0⟩) ≡ /√2 .* (∣0⟩ ⊗ ∣0⟩) .+ - /√2 .* (∣1⟩ ⊗ ∣1⟩).
+Lemma CXn0 : CX × (∣-⟩ ⊗ ∣0⟩) ≡ /√2 .* ∣0,0⟩ .+ - /√2 .* ∣1,1⟩.
 Proof. operate_reduce. Qed.
 
-Lemma CXn1 : CX × (∣-⟩ ⊗ ∣1⟩) ≡ /√2 .* (∣0⟩ ⊗ ∣1⟩) .+ - /√2 .* (∣1⟩ ⊗ ∣0⟩).
+Lemma CXn1 : CX × (∣-⟩ ⊗ ∣1⟩) ≡ /√2 .* ∣0,1⟩ .+ - /√2 .* ∣1,0⟩.
 Proof. operate_reduce. Qed.
 
-(* Lemma CX0p : CX × (∣0⟩ ⊗ ∣+⟩) ≡ /√2 .* ∣0⟩ ⊗ ∣0⟩ .+ /√2 .* ∣0⟩ ⊗ ∣1⟩. *)
-Lemma CX0p : CX × (∣0⟩ ⊗ ∣+⟩) ≡ ∣0⟩ ⊗ ∣+⟩.
+Lemma CX0p : CX × (∣0⟩ ⊗ ∣+⟩) ≡ /√2 .* ∣0,0⟩ .+ /√2 .* ∣0,1⟩.
+(* Lemma CX0p : CX × (∣0⟩ ⊗ ∣+⟩) ≡ ∣0⟩ ⊗ ∣+⟩. *)
 Proof. operate_reduce. Qed.
 
 
@@ -946,20 +953,28 @@ Hint Rewrite CX00 CX01 CX10 CX11
                          CXpp CXpn CXnp CXnn : G2_db.
 
 
-Lemma test_operate :  (I_2 ⊗ I_2 ⊗ σZ) × (I_2 ⊗ I_2 ⊗ σX) × (M1 ⊗ M1 ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × (CX ⊗ I_2) × (∣+⟩ ⊗ bell00) ≡ / 2  .* (∣1⟩ ⊗ ∣1⟩ ⊗ ∣+⟩).
+Lemma GHZ_ket0_3 : /√2 .* ∣0,0,0⟩ .+ /√2 .* ∣1,1,1⟩ ≡  (I_2 ⊗ CX) × (CX ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × ∣0,0,0⟩.
 Proof.
-unfold bell00.
-operate_reduce.
+autounfold with G2_db.
+distribute_plus.
+isolate_scale.
+assoc_right.
+repeat mult_kron.
+repeat (autorewrite with G1_db;
+isolate_scale).
+reduce_scale.
 Qed.
 
 
-(* Definition Superoperator m n := Density m -> Density n. *)
 
+(* Symbolic Reasoning Strategy of states in the density matrix form *)
 Notation Density n := (Matrix n n) (only parsing).
+Definition density {n} (φ : Matrix n 1) : Density n := φ × φ†.
 Definition super {m n} (M : Matrix m n) : Density m -> Density n := fun ρ => 
   M × ρ × M†.
 
 Ltac super_reduce:=
+unfold super,density;
 match goal with
 | |-context [ @Mmult ?n ?m ?n (@Mmult ?n ?m ?m ?A ?B) (@adjoint ?n ?m ?A)] =>
      match B with
@@ -980,10 +995,15 @@ end;
 [try reflexivity; try operate_reduce |
 repeat rewrite Hs; reflexivity].
 
-Definition ρ0 := (∣0⟩ ⊗ ∣0⟩) × (∣0⟩ ⊗ ∣0⟩)†.
-Lemma test_super : super (CX × (H ⊗ H) )  ρ0 ≡ (/ √ 2 .* ∣0⟩ ⊗ ∣+⟩ .+ / √ 2 .* ∣1⟩ ⊗ ∣+⟩) × (/ √ 2 .* ∣0⟩ ⊗ ∣+⟩ .+ / √ 2 .* ∣1⟩ ⊗ ∣+⟩)†.
+
+Definition φ := ∣0⟩ ⊗ ∣0⟩.
+Definition ρ := (∣0⟩ ⊗ ∣0⟩) × (∣0⟩ ⊗ ∣0⟩)†.
+Lemma test_density : ρ = density φ.
+Proof. unfold density. auto. Qed.
+
+
+Lemma test_super : super (CX × (H ⊗ H) )  (density φ) ≡ density (/ √ 2 .* ∣0⟩ ⊗ ∣+⟩ .+ / √ 2 .* ∣1⟩ ⊗ ∣+⟩).
 Proof.
-unfold super,ρ0.
+unfold φ.
 super_reduce.
 Qed.
-
