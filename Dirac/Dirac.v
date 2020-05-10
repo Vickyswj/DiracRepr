@@ -60,7 +60,7 @@ Hint Unfold ketp ketn brap bran ket0_n ket1_n : S_db.
 
 
 Ltac orthogonal_reduce :=
-  (* autounfold with S_db; *)
+  autounfold with S_db;
   autounfold with U_db;
   prep_matrix_equality;
   destruct_m_eq; autorewrite with C_db;auto;
@@ -79,12 +79,46 @@ Proof. orthogonal_reduce. Qed.
 Lemma Mmult_bra1_ket1 : ⟨1∣ × ∣1⟩ = I 1.
 Proof. orthogonal_reduce. Qed.
 
+
+(* For more efficiency *)
+(* other 'orthogonal' lemma *)
+Lemma Mmult_brap_ketp : ⟨+∣ × ∣+⟩ = 1 .* I 1.
+Proof. orthogonal_reduce. Qed.
+Lemma Mmult_brap_ketn : ⟨+∣ × ∣-⟩ = Zero.
+Proof. orthogonal_reduce. Qed.
+Lemma Mmult_bran_ketp : ⟨-∣ × ∣+⟩ = Zero.
+Proof. orthogonal_reduce. Qed.
+Lemma Mmult_bran_ketn : ⟨-∣ × ∣-⟩ = 1 .* I 1.
+Proof. orthogonal_reduce. Qed.
+
+Lemma Mmult_bra0_ketp : ⟨0∣ × ∣+⟩ = / √ 2 .* I 1.
+Proof. orthogonal_reduce. Qed.
+Lemma Mmult_bra0_ketn : ⟨0∣ × ∣-⟩ = / √ 2 .* I 1.
+Proof. orthogonal_reduce. Qed.
+Lemma Mmult_bra1_ketp : ⟨1∣ × ∣+⟩ = / √ 2 .* I 1.
+Proof. orthogonal_reduce. Qed.
+Lemma Mmult_bra1_ketn : ⟨1∣ × ∣-⟩ = - / √ 2 .* I 1.
+Proof. orthogonal_reduce. Qed.
+
+Lemma Mmult_brap_ket0 : ⟨+∣ × ∣0⟩ = / √ 2 .* I 1.
+Proof. orthogonal_reduce. Qed.
+Lemma Mmult_brap_ket1 : ⟨+∣ × ∣1⟩ = / √ 2 .* I 1.
+Proof. orthogonal_reduce. Qed.
+Lemma Mmult_bran_ket0 : ⟨-∣ × ∣0⟩ = / √ 2 .* I 1.
+Proof. orthogonal_reduce. Qed.
+Lemma Mmult_bran_ket1 : ⟨-∣ × ∣1⟩ = - / √ 2 .* I 1.
+Proof. orthogonal_reduce. Qed.
+
 Lemma Mplus01 : ∣0⟩⟨0∣ .+ ∣1⟩⟨1∣ = I 2.
 Proof. orthogonal_reduce. Qed.
 Lemma Mplus10 : ∣1⟩⟨1∣ .+ ∣0⟩⟨0∣ = I 2.
 Proof. orthogonal_reduce. Qed.
 
-Hint Rewrite Mmult_bra0_ket0 Mmult_bra0_ket1 Mmult_bra1_ket0 Mmult_bra1_ket1 : S_db.
+Hint Rewrite Mmult_bra0_ket0 Mmult_bra0_ket1 Mmult_bra1_ket0 Mmult_bra1_ket1
+(*                          Mmult_brap_ketp Mmult_brap_ketn Mmult_bran_ketp Mmult_bran_ketn
+                         Mmult_bra0_ketp Mmult_bra1_ketp Mmult_bra0_ketn Mmult_bra1_ketn
+                         Mmult_brap_ket0 Mmult_brap_ket1 Mmult_bran_ket0 Mmult_bran_ket1 *) : S_db.
+
 
 
 
@@ -169,6 +203,13 @@ auto.
 Qed.
 
 
+Lemma PS_sa : (PS†) = B0 .+ - Ci .* B3.
+Proof. lma. Qed.
+
+Lemma PT_sa : (PT†) = B0 .+ (/√2 + (-/√2) * Ci) .* B3.
+Proof. lma. Qed.
+
+
 (*Measure Operators*)
 Definition M0 := B0.
 Definition M1 := B3.
@@ -180,10 +221,12 @@ Definition CZ :=  B0 ⊗ I_2 .+ B3 ⊗ σZ.
 Definition CS :=  B0 ⊗ I_2 .+ B3 ⊗ PS.
 Definition CT :=  B0 ⊗ I_2 .+ B3 ⊗ PT.
 
-Definition XC :=  σX ⊗ B3 .+ I_2 ⊗ B0.
-Definition ZC :=  σZ ⊗ B3 .+ I_2 ⊗ B0.
-Definition PC :=  PS ⊗ B3 .+ I_2 ⊗ B0.
-Definition TC :=  PT ⊗ B3 .+ I_2 ⊗ B0.
+Definition XC :=  I_2 ⊗ B0 .+ σX ⊗ B3.
+Definition ZC :=  I_2 ⊗ B0 .+ σZ ⊗ B3.
+Definition PC :=  I_2 ⊗ B0 .+ PS ⊗ B3.
+Definition TC :=  I_2 ⊗ B0 .+ PT ⊗ B3.
+
+Definition not_CX := B0 ⊗ σX .+ B3 ⊗ I_2.
 
 Definition Cg_1 {n} (A : Matrix n n) := B0 ⊗ I_2 .+ B3 ⊗ A.
 Definition gC_1 {n} (A : Matrix n n) := A ⊗ B3 .+ I_2 ⊗ B0.
@@ -207,7 +250,7 @@ Definition SWAP :=  B0 ⊗ B0 .+ B1 ⊗ B2 .+ B2 ⊗ B1 .+ B3 ⊗ B3.
 
 
 Hint Unfold  σX σY σZ I_2 H M0 M1 : G1_db.
-Hint Unfold  CZ CX CS CT XC ZC PC TC SWAP : G2_db.
+Hint Unfold  CZ CX CS CT XC ZC PC TC SWAP not_CX : G2_db.
 
 
 
@@ -318,6 +361,11 @@ Ltac assoc_right:=
 repeat rewrite ?Mmult_assoc, ?kron_assoc.
 
 
+Ltac distribute_adjoint:=
+repeat rewrite ?adjoint_involutive, ?id_adjoint_eq,?zero_adjoint_eq,
+                          ?Mscale_adj,?Mplus_adjoint,?Mmult_adjoint,?kron_adjoint.
+
+
 Inductive fake_eq {n m}: Matrix n m -> Matrix n m -> Prop :=
 | fake_eq_intro: forall A B, A = B -> fake_eq A B.
 
@@ -350,37 +398,6 @@ Ltac mult_result :=
   repeat rewrite id_kron;
   apply fake_eq_intro; reflexivity.
 
-Ltac Mmult_1 :=
-  match goal with
-  | |- context  [@Mmult ?m1 ?n1 ?o1 ?A (@I ?p1)] =>
-             change  (@Mmult m1 n1 o1 A (@I p1))  with
-                           (@Mmult m1 n1 n1 A (@I n1));
-             rewrite (@Mmult_1_r m1 n1 A)
-  | |- context  [@Mmult ?m1 ?n1 ?o1 (@I ?p1) ?A] =>
-             change  (@Mmult m1 n1 o1 (@I p1) A)  with
-                           (@Mmult n1 n1 o1 (@I n1) A);
-             rewrite (@Mmult_1_l  n1 o1 A)
-  end.
-
-Ltac mult_reduce :=
-match goal with
-| |-context [ @Mmult ?one1 ?n ?one2 ?A ?B] =>
-         match B with
-        | @Mmult _ _ _ _ _ => fail 1
-        | _ => change (@Mmult one1 n one2 A B) with
-                                (@Mmult 1 n 1 A B);
-                   unify one1 1%nat;
-                   unify one2 1%nat;
-                   erewrite (mult_reduce1 n A B) by (mult_result; fail 2 "mult_result_gen fail")
-        end
-| |-context [ @Mmult ?one1 ?n ?m ?A (@Mmult ?n ?one2 ?m ?B ?C)] =>
-         change (@Mmult one1 n m A (@Mmult n one2 m B C)) with
-                       (@Mmult 1 n m A (@Mmult n 1 m B C));
-          erewrite (mult_reduce2 n m A B C) by (mult_result; fail 2 "mult_result_gen fail")
-end;
-isolate_scale;
-repeat Mmult_1.
-
 
 Ltac kron_0 :=
   match goal with
@@ -406,7 +423,6 @@ Ltac Mmult_0 :=
              rewrite (@Mmult_0_l  m1 n1 o1 A)
   end.
 
-
 Ltac Mplus_0 :=
   match goal with
   | |- context  [@Mplus ?m1 ?n1 ?A (@Zero ?m2 ?n2)] =>
@@ -429,6 +445,40 @@ Ltac scale_0 :=
 
 Ltac cancel_0 :=
  try kron_0; try Mmult_0; try Mplus_0; try scale_0.
+
+Ltac Mmult_1 :=
+  match goal with
+  | |- context  [@Mmult ?m1 ?n1 ?o1 ?A (@I ?p1)] =>
+             change  (@Mmult m1 n1 o1 A (@I p1))  with
+                           (@Mmult m1 n1 n1 A (@I n1));
+             rewrite (@Mmult_1_r m1 n1 A)
+  | |- context  [@Mmult ?m1 ?n1 ?o1 (@I ?p1) ?A] =>
+             change  (@Mmult m1 n1 o1 (@I p1) A)  with
+                           (@Mmult n1 n1 o1 (@I n1) A);
+             rewrite (@Mmult_1_l  n1 o1 A)
+  end.
+
+
+Ltac mult_reduce :=
+match goal with
+| |-context [ @Mmult ?one1 ?n ?one2 ?A ?B] =>
+         match B with
+        | @Mmult _ _ _ _ _ => fail 1
+        | _ => change (@Mmult one1 n one2 A B) with
+                                (@Mmult 1 n 1 A B);
+                   unify one1 1%nat;
+                   unify one2 1%nat;
+                   erewrite (mult_reduce1 n A B) by (mult_result; fail 2 "mult_result_gen fail")
+        end
+| |-context [ @Mmult ?one1 ?n ?m ?A (@Mmult ?n ?one2 ?m ?B ?C)] =>
+         change (@Mmult one1 n m A (@Mmult n one2 m B C)) with
+                       (@Mmult 1 n m A (@Mmult n 1 m B C));
+          erewrite (mult_reduce2 n m A B C) by (mult_result; fail 2 "mult_result_gen fail")
+end;
+isolate_scale;
+repeat Mmult_1;
+repeat cancel_0.
+
 
 
 (**********************************************************)
@@ -548,7 +598,7 @@ Proof.
 Qed.
 
 Lemma finish_one_stage: forall n m (X Y Z: Matrix n m) (k: C),
-  k = 0 ->  
+  k = 0 ->
   Y ≡ Z ->
   k .* X .+ Y ≡ Z.
 Proof.
@@ -575,6 +625,7 @@ Ltac linear_solver :=
 
 Ltac reduce_scale:=
 autorewrite with C_db;
+repeat group_radicals;
 repeat rewrite ?Mscale_0_l,?Mscale_1_l;
 repeat cancel_0;
 try linear_solver;
@@ -596,11 +647,6 @@ isolate_scale;
 assoc_right;
 repeat mult_reduce;
 reduce_scale.
-
-Lemma test1 : ∣0⟩ ≡ ∣0⟩. .
-Proof.
-
-Qed.
 
 
 (*Base-Operators_reduce *)
@@ -686,13 +732,13 @@ Lemma Mmult_negB3 : ⟨-∣ × B3 ≡ - / √ 2 .* ⟨1∣.
 Proof. base_reduce. Qed.
 
 Hint Rewrite Mmult_B00 Mmult_B01 Mmult_B0pos Mmult_B0neg
-                         Mmult_B10 Mmult_B11 Mmult_B1pos Mmult_B1neg
-                         Mmult_B20 Mmult_B21 Mmult_B2pos Mmult_B2neg
-                         Mmult_B30 Mmult_B31 Mmult_B3pos Mmult_B3neg
-                         Mmult_0B0 Mmult_1B0 Mmult_posB0 Mmult_negB0
-                         Mmult_0B1 Mmult_1B1 Mmult_posB1 Mmult_negB1
-                         Mmult_0B2 Mmult_1B2 Mmult_posB2 Mmult_negB2
-                         Mmult_0B3 Mmult_1B3 Mmult_posB3 Mmult_negB3 : B_db.
+                              Mmult_B10 Mmult_B11 Mmult_B1pos Mmult_B1neg
+                              Mmult_B20 Mmult_B21 Mmult_B2pos Mmult_B2neg
+                              Mmult_B30 Mmult_B31 Mmult_B3pos Mmult_B3neg
+                              Mmult_0B0 Mmult_1B0 Mmult_posB0 Mmult_negB0
+                              Mmult_0B1 Mmult_1B1 Mmult_posB1 Mmult_negB1
+                              Mmult_0B2 Mmult_1B2 Mmult_posB2 Mmult_negB2
+                              Mmult_0B3 Mmult_1B3 Mmult_posB3 Mmult_negB3 : B_db.
 
 
 
@@ -851,21 +897,20 @@ Lemma Mmult_negM1 : ⟨-∣ × M1 ≡ -/ √ 2 .* ⟨1∣.
 Proof. gate_reduce. Qed.
 
 Hint Rewrite Mmult_I0 Mmult_I1 Mmult_Ipos Mmult_Ineg
-                         Mmult_σX0 Mmult_σX1 Mmult_σXpos Mmult_σXneg
-                         Mmult_σZ0 Mmult_σZ1 Mmult_σZpos Mmult_σZneg
-                         Mmult_σY0 Mmult_σY1 Mmult_σYpos Mmult_σYneg
-                         Mmult_H0 Mmult_H1 Mmult_Hpos Mmult_Hneg
-                         Mmult_M00 Mmult_M01 Mmult_M0pos Mmult_M0neg
-                         Mmult_M10 Mmult_M11 Mmult_M1pos Mmult_M1neg
-                         Mmult_B00 Mmult_B01 Mmult_B0pos Mmult_B0neg
-                         Mmult_B10 Mmult_B11 Mmult_B1pos Mmult_B1neg
-                         Mmult_B20 Mmult_B21 Mmult_B2pos Mmult_B2neg
-                         Mmult_B30 Mmult_B31 Mmult_B3pos Mmult_B3neg
-                         Mmult_0B0 Mmult_1B0 Mmult_posB0 Mmult_negB0
-                         Mmult_0B1 Mmult_1B1 Mmult_posB1 Mmult_negB1
-                         Mmult_0B2 Mmult_1B2 Mmult_posB2 Mmult_negB2
-                         Mmult_0B3 Mmult_1B3 Mmult_posB3 Mmult_negB3
-                       : G1_db.
+                              Mmult_σX0 Mmult_σX1 Mmult_σXpos Mmult_σXneg
+                              Mmult_σZ0 Mmult_σZ1 Mmult_σZpos Mmult_σZneg
+                              Mmult_σY0 Mmult_σY1 Mmult_σYpos Mmult_σYneg
+                              Mmult_H0 Mmult_H1 Mmult_Hpos Mmult_Hneg
+                              Mmult_M00 Mmult_M01 Mmult_M0pos Mmult_M0neg
+                              Mmult_M10 Mmult_M11 Mmult_M1pos Mmult_M1neg
+                              Mmult_B00 Mmult_B01 Mmult_B0pos Mmult_B0neg
+                              Mmult_B10 Mmult_B11 Mmult_B1pos Mmult_B1neg
+                              Mmult_B20 Mmult_B21 Mmult_B2pos Mmult_B2neg
+                              Mmult_B30 Mmult_B31 Mmult_B3pos Mmult_B3neg
+                              Mmult_0B0 Mmult_1B0 Mmult_posB0 Mmult_negB0
+                              Mmult_0B1 Mmult_1B1 Mmult_posB1 Mmult_negB1
+                              Mmult_0B2 Mmult_1B2 Mmult_posB2 Mmult_negB2
+                              Mmult_0B3 Mmult_1B3 Mmult_posB3 Mmult_negB3  : G1_db.
 
 
 
@@ -948,9 +993,9 @@ Proof. operate_reduce. Qed.
 
 
 Hint Rewrite CX00 CX01 CX10 CX11
-                         CX0p CX1p CX1n CX0n
-                         CXp0 CXp1 CXn0 CXn1
-                         CXpp CXpn CXnp CXnn : G2_db.
+                              CX0p CX1p CX1n CX0n
+                              CXp0 CXp1 CXn0 CXn1
+                             CXpp CXpn CXnp CXnn : G2_db.
 
 
 Lemma GHZ_ket0_3 : /√2 .* ∣0,0,0⟩ .+ /√2 .* ∣1,1,1⟩ ≡  (I_2 ⊗ CX) × (CX ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × ∣0,0,0⟩.
@@ -966,44 +1011,90 @@ reduce_scale.
 Qed.
 
 
-
 (* Symbolic Reasoning Strategy of states in the density matrix form *)
 Notation Density n := (Matrix n n) (only parsing).
 Definition density {n} (φ : Matrix n 1) : Density n := φ × φ†.
-Definition super {m n} (M : Matrix m n) : Density m -> Density n := fun ρ => 
+Definition super {m n} (M : Matrix m n) : Density n -> Density m := fun ρ => 
   M × ρ × M†.
 
 Ltac super_reduce:=
-unfold super,density;
-match goal with
-| |-context [ @Mmult ?n ?m ?n (@Mmult ?n ?m ?m ?A ?B) (@adjoint ?n ?m ?A)] =>
+unfold super,density;                                                                   (* expand super and density *)
+match goal with                                                                              (* match the pattern of the target *)
+| |-context [ @Mmult ?n ?m ?n                                                  (*  if likes U × φ × φ† × U† *)
+                       (@Mmult ?n ?m ?m ?A ?B)
+                        (@adjoint ?n ?m ?A)] =>
      match B with
-    | @Mmult ?m ?one ?m ?C (@adjoint ?m ?one ?C) => 
-         transitivity (@Mmult n one n (@Mmult n m one A C) (@Mmult one m m (@adjoint m one C) (@adjoint n m A)))
+    | @Mmult ?m ?one ?m ?C 
+     (@adjoint ?m ?one ?C) => 
+           transitivity (@Mmult n one n                                        (* cast uniform types *)
+          (@Mmult n m one A C) (@Mmult one m m 
+          (@adjoint m one C) (@adjoint n m A)))
      end
 end;
-[repeat rewrite <- Mmult_assoc; reflexivity| ..];
-rewrite <- Mmult_adjoint;
+  [repeat rewrite <- Mmult_assoc; reflexivity| ..];
+rewrite <- Mmult_adjoint;                                                         (* extract adjoint to become U × φ × (U × φ) *)
 let Hs := fresh "Hs" in
 match goal with
-| |-context [ @Mmult ?n ?o ?n (@Mmult ?n ?m ?o ?A ?B) (@adjoint ?m ?o ?C ) ≡ @Mmult  ?n ?p ?n ?D (@adjoint ?n ?p ?D)] =>
-    match C with
-    | @Mmult ?n ?m ?o ?A ?B=>
-     assert (@Mmult n m o A B ≡ D) as Hs
-    end
+| |-context [ @Mmult ?n ?o ?n 
+(@Mmult ?n ?m ?o ?A ?B) (@adjoint ?m ?o ?C ) ≡ 
+  @Mmult  ?n ?p ?n ?D (@adjoint ?n ?p ?D)] =>
+      match C with
+      | @Mmult ?n ?m ?o ?A ?B=>
+       assert (@Mmult n m o A B ≡ D) as Hs
+      end
 end;
-[try reflexivity; try operate_reduce |
-repeat rewrite Hs; reflexivity].
+  [try reflexivity; try operate_reduce |                                   (* use operate_reduce to proof vector form states *)
+    repeat rewrite Hs; reflexivity].                                            (*  rewrite it back in density matrix form*)
 
 
-Definition φ := ∣0⟩ ⊗ ∣0⟩.
-Definition ρ := (∣0⟩ ⊗ ∣0⟩) × (∣0⟩ ⊗ ∣0⟩)†.
+Definition φ := ∣0,0⟩.
+Definition ρ := (∣0,0⟩) × (∣0,0⟩)†.
 Lemma test_density : ρ = density φ.
 Proof. unfold density. auto. Qed.
-
 
 Lemma test_super : super (CX × (H ⊗ H) )  (density φ) ≡ density (/ √ 2 .* ∣0⟩ ⊗ ∣+⟩ .+ / √ 2 .* ∣1⟩ ⊗ ∣+⟩).
 Proof.
 unfold φ.
 super_reduce.
+Qed.
+
+
+Definition sta_equiv {m n : nat} (A B : Matrix m n) : Prop := 
+  exists c : C, Cmod c = R1 /\  c .* A ≡ B.
+
+Infix "≈" := sta_equiv (at level 70) : matrix_scope.
+
+Ltac sta_yes :=
+unfold sta_equiv;
+exists 1;
+split;
+autorewrite with C_db;auto;
+rewrite Mscale_1_l.
+
+Ltac sta_m1 :=
+unfold sta_equiv;
+exists (-(1));
+split;
+autorewrite with C_db;auto.
+
+Definition operator_apply {m} (A: Matrix m m)(B: Vector m) : Vector m:=
+Mmult A B.
+
+Require Import Morphisms.
+Instance sta_proper m : Proper (sta_equiv ==> sta_equiv ==>sta_equiv) (@operator_apply m).
+Proof.
+hnf;intros A C H1.
+hnf;intros B D H2.
+unfold sta_equiv,operator_apply,get in * .
+inversion H1. inversion H0.
+inversion H2. inversion H5.
+exists (x0*x).
+rewrite <- Mscale_mult_dist_l.
+rewrite <- Mscale_assoc.
+rewrite Mscale_mult_dist_l.
+rewrite <- Mscale_mult_dist_r.
+rewrite H7,H4.
+split.
+ rewrite Cmod_mult. rewrite H3,H6. lra.
+ reflexivity.
 Qed.

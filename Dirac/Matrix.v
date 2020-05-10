@@ -12,7 +12,7 @@ Require Import List.
 (** Matrix Definitions and Infrastructure **)
 (*******************************************)
 
-(* Declare Scope matrix_scope.*)
+Declare Scope matrix_scope.
 Delimit Scope matrix_scope with M.
 Open Scope matrix_scope.
 
@@ -47,8 +47,8 @@ Lemma mat_equiv_refl : forall m n (A : Matrix m n), mat_equiv A A.
 Proof. unfold mat_equiv; reflexivity. Qed.
 
 Lemma mat_equiv_eq : forall {m n : nat} (A B : Matrix m n),
-  WF_Matrix A -> 
-  WF_Matrix B -> 
+  WF_Matrix A ->
+  WF_Matrix B ->
   mat_equiv A B ->
   A = B.
 Proof.
@@ -1723,7 +1723,7 @@ Ltac crunch_matrix :=
                              | [ c : C |- _ ] => cbv [c]; clear c (* 'unfold' hangs *)
                              end; 
                       simpl;
-                      unfold list2D_to_matrix;    
+                      unfold list2D_to_matrix;
                       autounfold with U_db;
                       prep_matrix_equality;
                       simpl;
@@ -1731,7 +1731,7 @@ Ltac crunch_matrix :=
                       simpl;
                       Csimpl; (* basic rewrites only *) 
                       try reflexivity;
-                      try solve_out_of_bounds. 
+                      try solve_out_of_bounds.
 
 Ltac compound M := 
   match M with

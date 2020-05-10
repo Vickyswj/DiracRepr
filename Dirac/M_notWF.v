@@ -14,13 +14,14 @@ Require Import Coq.Classes.Morphisms.
 (** Matrix Definitions and Infrastructure **)
 (*******************************************)
 
-(* 8.10: Declare Scope matrix_scope. *)
+Declare Scope matrix_scope.
 Delimit Scope matrix_scope with M.
 Open Scope matrix_scope.
 
 Local Open Scope nat_scope.
 
 Definition Matrix (m n : nat) := nat -> nat -> C.
+
 
 (* Definition Vector (n : nat) := Matrix n 1. *)
 
@@ -180,7 +181,6 @@ Notation "n ⨂ A" := (kron_n n A) (at level 30, no associativity) : matrix_scop
 Notation "⨂ A" := (big_kron A) (at level 60): matrix_scope.
 Hint Unfold Zero I trace dot Mplus scale Mmult kron mat_equiv transpose 
             adjoint : U_db.
-
 
 (* Lemma mat_equiv_trans2 : forall{m n} (A B C : Matrix m n),
     A ≡ B -> A ≡ C -> B ≡ C.
@@ -903,7 +903,6 @@ unfold mat_equiv,scale,get in *.
 intros. rewrite H1,H2. reflexivity.
 Qed. 
 
-Search mat_equiv_refl.
 Instance Mplus_proper(m n:nat): Proper (mat_equiv ==> mat_equiv ==> mat_equiv) (@Mplus m n).
 Proof.
 hnf;intros A C H1.

@@ -34,7 +34,7 @@ complete space. *)
 
 Definition C := (R * R)%type.
 
-(* 8.10: Declare Scope C_scope. *)
+Declare Scope C_scope.
 Delimit Scope C_scope with C.
 
 Open Scope nat_scope.
@@ -129,6 +129,13 @@ simpl.
 intros x.
 apply f_equal.
 ring.
+Qed.
+
+Lemma Cmod_n1 : Cmod (-(1)) = R1.
+Proof.
+rewrite Cmod_opp.
+rewrite Cmod_1.
+easy.
 Qed.
 
 Lemma Cmod_triangle : forall x y, Cmod (x + y) <= Cmod x + Cmod y.
@@ -475,6 +482,7 @@ Proof. intros; lca. Qed.
 Lemma Cplus_opp_l : forall c : C, - c + c = 0. Proof. intros; lca. Qed.
 Lemma Cdouble : forall c : C, 2 * c = c + c. Proof. intros; lca. Qed.
 Lemma Copp_involutive: forall c : C, - - c = c. Proof. intros; lca. Qed.
+Lemma Copp_involutive': forall c : R, - - c = - - (c). Proof. intros; lca. Qed.
 
 Lemma C0_imp : forall c : C, c <> 0 -> (fst c <> 0 \/ snd c <> 0)%R.
 Proof. intros c H. destruct c. simpl.
@@ -529,6 +537,7 @@ Qed.
 
 Lemma Cconj_R : forall r : R, r^* = r.         Proof. intros; lca. Qed.
 Lemma Cconj_0 : 0^* = 0.                  Proof. lca. Qed.
+Lemma Cconj_Ci : Ci^* = -Ci.                  Proof. lca. Qed.
 Lemma Cconj_opp : forall C, (- C)^* = - (C^*). Proof. reflexivity. Qed.
 Lemma Cconj_rad2 : (/ √2)^* = / √2.       Proof. lca. Qed.
 Lemma Cplus_div2 : /2 + /2 = 1.           Proof. lca. Qed.
@@ -653,10 +662,12 @@ Ltac nonzero :=
          | |- Rlt _ _ => lra
          end.
 
-Hint Rewrite Cminus_unfold Cdiv_unfold Ci2 Cconj_R Cconj_opp Cconj_rad2 Cplus_div2 Cplus_opp
-     Csqrt2_sqrt Cinv_sqrt2_sqrt Csqrt2_sqrt2_inv Csqrt2_inv_sqrt2 Csqrt2_inv_sqrt2_inv Cconj_inv2
-     Cplus_0_l Cplus_0_r Cplus_opp_r Cplus_opp_l Copp_0 Copp_1 Copp_involutive
+Hint Rewrite Cminus_unfold Cdiv_unfold Ci2 Cconj_R Cconj_0 Cconj_Ci Cconj_opp Cconj_rad2 Cplus_div2 Cconj_inv2 Cplus_opp
+     Csqrt2_sqrt Cinv_sqrt2_sqrt Csqrt2_sqrt2_inv Csqrt2_inv_sqrt2 Csqrt2_inv_sqrt2_inv
+     Cplus_0_l Cplus_0_r Cplus_opp_r Cplus_opp_l Copp_0 Copp_1 Copp_involutive Cconj_involutive Cconj_plus_distr Cconj_mult_distr
      Cmult_0_l Cmult_0_r Cmult_1_l Cmult_1_r Cmult_m1_l Cmult_m1_r : C_db.
+
+Hint Rewrite  Cmod_0 Cmod_1 Cmod_opp Cmod_mult Cmod_m1  : C_db.
 
 Hint Rewrite <- Copp_mult_distr_l Copp_mult_distr_r Cdouble : C_db.
 Hint Rewrite Csqrt_sqrt Csqrt_sqrt_inv using Psatz.lra : C_db.
@@ -844,6 +855,7 @@ Lemma Cexp_5PI4 : Cexp (5 * PI / 4) = -/√2 - /√2 * Ci.
 Proof.
   unfold Cexp.
   rewrite <- Rmult_div_assoc.
+
   rewrite cos_5PI4, sin_5PI4.
   eapply c_proj_eq; simpl.
   R_field_simplify; nonzero. 
@@ -943,7 +955,6 @@ Qed.
 Hint Rewrite Cexp_0 Cexp_PI Cexp_PI2 Cexp_2PI Cexp_PI4 Cexp_PIm4
   Cexp_1PI4 Cexp_2PI4 Cexp_3PI4 Cexp_4PI4 Cexp_5PI4 Cexp_6PI4 Cexp_7PI4 Cexp_8PI4
   Cexp_add Cexp_neg : Cexp_db.
-
 
 (*
 Definition Cexp' (θ : R) : C := cos θ + Ci * (sin θ).
