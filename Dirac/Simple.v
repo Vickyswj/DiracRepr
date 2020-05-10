@@ -322,7 +322,7 @@ destruct x,y.
   + exfalso. lia.
 Qed.
 
-Lemma unit_X' : forall v : Vector 2, σX × σX × v  ≡  v.
+Lemma unit_X'' : forall v : Vector 2, σX × σX × v  ≡  v.
 Proof.
 intros.
 pose proof vq1 v.

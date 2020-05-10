@@ -64,6 +64,13 @@ unfold bell00.
 solve_matrix.
 Qed.
 
+Lemma rr : super ((M0 ⊗ M0 ⊗ I 2) × (hadamard ⊗ I 2 ⊗ I 2) × (cnot ⊗ I 2)) ((∣+⟩ ⊗ bell00) × (∣+⟩ ⊗ bell00)†) = (/ 2  .* (∣0⟩ ⊗ ∣0⟩ ⊗ ∣+⟩)) × (/ 2  .* (∣0⟩ ⊗ ∣0⟩ ⊗ ∣+⟩))†.
+Proof.
+unfold bell00,super.
+solve_matrix.
+Qed.
+
+
 Lemma Dtele0 : super (M0 ⊗ M0 ⊗ I 2) (super (hadamard ⊗ I 2 ⊗ I 2) (super (cnot ⊗ I 2) ((∣+⟩ ⊗ bell00) × (∣+⟩ ⊗ bell00)†))) = (/ 2  .* (∣0⟩ ⊗ ∣0⟩ ⊗ ∣+⟩)) × (/ 2  .* (∣0⟩ ⊗ ∣0⟩ ⊗ ∣+⟩))†.
 Proof.
 unfold bell00,super.

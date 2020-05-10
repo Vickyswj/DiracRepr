@@ -1,20 +1,19 @@
 Require Export Dirac.
 
-(*Search space 4 and query for 4 *)
-
 (*Step-by-step*)
 
+(*Search space 4 and query for 3 *)
+
 (*Vector*)
+Definition TOF := B0 ⊗ I_2 ⊗ I_2 .+ B3 ⊗ CX.
 Definition ORA := (B0 ⊗ B0 ⊗ I_2) .+ (B1 ⊗ B1 ⊗ I_2) .+ (B2 ⊗ B2 ⊗ I_2) .+ (B3 ⊗ B3 ⊗ σX).
-Definition GPS := 2 .* B0 .+ (-1) .* I_2.
+Definition MI := (B0 .+ B1 .+ B2 .+ B3)⊗ (B0 .+ B1 .+ B2 .+ B3).
 
-Definition φ0 := ∣0⟩ ⊗ ∣0⟩ ⊗ ∣1⟩.
+Definition φ0 := ∣0,0,1⟩.
 Definition φ1 := (H ⊗ H ⊗ H) × φ0.
-Definition φ2 := ORA × φ1.
-Definition φ3 := (H ⊗ H ⊗ I_2) × φ2.
-Definition φ4 := (GPS ⊗ GPS ⊗ I_2) × φ3.
-Definition φ5 := (H ⊗ H ⊗ H) × φ4.
-
+Definition φ2 := TOF × φ1.
+Definition φ3 := (((/2 .* MI) .+ (-1) .* (I_2 ⊗ I_2)) ⊗ I_2) × φ2.
+Definition φ4 := (I_2 ⊗ I_2 ⊗ H) × φ3.
 
 Lemma step1 : φ1 ≡ ∣+⟩ ⊗ ∣+⟩ ⊗ ∣-⟩.
 Proof.
@@ -22,116 +21,344 @@ unfold φ1,φ0.
 operate_reduce.
 Qed.
 
-Lemma step2 : φ2 ≡ ∣0⟩ ⊗ ∣0⟩ ⊗ ∣-⟩.
+Lemma step2 : φ2 ≡ / √ 2 .* (∣+⟩ ⊗ ∣0⟩ .+ ∣-⟩ ⊗ ∣1⟩) ⊗ ∣-⟩.
 Proof.
-unfold φ2,ORA.
+unfold φ2,TOF.
 rewrite step1.
 operate_reduce.
 Qed.
 
-Lemma step3 : φ3 ≡ ∣+⟩ ⊗ ∣+⟩ ⊗ ∣-⟩.
+Lemma step3 : φ3 ≡ ∣1⟩ ⊗ ∣1⟩ ⊗ ∣-⟩.
 Proof.
-unfold φ3.
+unfold φ3,MI.
 rewrite step2.
 operate_reduce.
 Qed.
 
-Lemma coefficient : forall a: C, / √ 2 * a * / √ 2 = a */2 .
-Proof.
-intros.
-rewrite Cmult_comm.
-rewrite Cmult_assoc.
-autorewrite with C_db.
-rewrite Cmult_comm. auto.
-Qed.
-
-
-Lemma C2 : 2 * 2 * / √ 2 * / √ 2 = 2.
-Proof.
-rewrite <- Cmult_assoc.
-autorewrite with C_db.
-lca.
-Qed.
-
-Lemma C1 : 2 * / √ 2 * / √ 2 * / √ 2 = / √ 2 .
-Proof.
-rewrite <- Cmult_assoc;autorewrite with C_db.
-rewrite Cmult_comm. rewrite Cmult_assoc. autorewrite with C_db. auto.
-Qed.
-
-Hint Rewrite C1 C2 : C_db.
-
-
-Lemma step4 : φ4 ≡ ∣-⟩ ⊗ ∣-⟩ ⊗ ∣-⟩.
+Lemma step4 : φ4 ≡ (∣1⟩ ⊗ ∣1⟩ ⊗ ∣1⟩).
 Proof.
 unfold φ4.
 rewrite step3.
-unfold GPS.
-operate_reduce.
-Qed.
-
-Lemma step5 : φ5 ≡ ∣1⟩ ⊗ ∣1⟩ ⊗ ∣1⟩.
-Proof.
-unfold φ5.
-rewrite step4.
 operate_reduce.
 Qed.
 
 
 (*Density*)
-Definition ρ0 := φ0 × φ0†.
+Definition ρ0 := density φ0.
 Definition ρ1 := super (H ⊗ H ⊗ H) ρ0.
-Definition ρ2 := super ORA ρ1.
-Definition ρ3 := super  (H ⊗ H ⊗ I_2) ρ2.
-Definition ρ4 := super  (GPS ⊗ GPS ⊗ I_2) ρ3.
-Definition ρ5 := super  (H ⊗ H ⊗ H) ρ4.
+Definition ρ2 := super TOF ρ1.
+Definition ρ3 := super  (((/2 .* MI) .+ (-1) .* (I_2 ⊗ I_2)) ⊗ I_2) ρ2.
+Definition ρ4 := super  (I_2 ⊗ I_2 ⊗ H) ρ3.
 
-Lemma Dstep1 : ρ1 ≡ φ1 × φ1†.
+Lemma Dstep1 : ρ1 ≡ density φ1.
 Proof.
 unfold ρ1,ρ0,super.
 super_reduce.
 Qed.
 
-Lemma Dstep2 : ρ2 ≡ φ2 × φ2†.
+Lemma Dstep2 : ρ2 ≡ density φ2.
 Proof.
 unfold ρ2,super.
 rewrite Dstep1.
 super_reduce.
 Qed.
 
-Lemma Dstep3 : ρ3 ≡ φ3 × φ3†.
+Lemma Dstep3 : ρ3 ≡ density φ3.
 Proof.
 unfold ρ3,super.
 rewrite Dstep2.
 super_reduce.
 Qed.
 
-Lemma Dstep4 : ρ4 ≡ φ4 × φ4†.
+Lemma Dstep4 : ρ4 ≡ density φ4.
 Proof.
 unfold ρ4,super.
 rewrite Dstep3.
 super_reduce.
 Qed.
 
-Lemma Dstep5 : ρ5 ≡ φ5 × φ5†.
+
+
+
+(*Search space 4 and query for 0 *)
+
+(*Vector*)
+Definition not_CX := B0 ⊗ σX .+ B3 ⊗ I_2 .
+Definition ORA0 := B0 ⊗ not_CX .+ B3 ⊗ I_2 ⊗ I_2.
+
+Definition φ00 := ∣0,0,1⟩.
+Definition φ01 := (H ⊗ H ⊗ H) × φ00.
+Definition φ02 := ORA0 × φ01.
+Definition φ03 := (((/2 .* MI) .+ (-1) .* (I_2 ⊗ I_2)) ⊗ I_2) × φ02.
+Definition φ04 := (I_2 ⊗ I_2 ⊗ H) × φ03.
+
+Lemma step01 : φ01 ≡ ∣+⟩ ⊗ ∣+⟩ ⊗ ∣-⟩.
 Proof.
-unfold ρ5,super.
-rewrite Dstep4.
+unfold φ01,φ00.
+operate_reduce.
+Qed.
+
+Lemma step02 : φ02 ≡ / √ 2 .* (∣+⟩ ⊗ ∣1⟩ .+ - 1 .* ∣-⟩ ⊗ ∣0⟩) ⊗ ∣-⟩.
+Proof.
+unfold φ02,ORA0,not_CX.
+rewrite step01.
+operate_reduce.
+Qed.
+
+Lemma step03 : φ03 ≡ ∣0⟩ ⊗ ∣0⟩ ⊗ ∣-⟩.
+Proof.
+unfold φ03,MI.
+rewrite step02.
+operate_reduce.
+Qed.
+
+Lemma step04 : φ04 ≡ (∣0⟩ ⊗ ∣0⟩ ⊗ ∣1⟩).
+Proof.
+unfold φ04.
+rewrite step03.
+operate_reduce.
+Qed.
+
+
+(*Density*)
+Definition ρ00 := density φ00.
+Definition ρ01 := super (H ⊗ H ⊗ H) ρ00.
+Definition ρ02 := super ORA0 ρ01.
+Definition ρ03 := super  (((/2 .* MI) .+ (-1) .* (I_2 ⊗ I_2)) ⊗ I_2) ρ02.
+Definition ρ04 := super  (I_2 ⊗ I_2 ⊗ H) ρ03.
+
+Lemma Dstep01 : ρ01 ≡ density φ01.
+Proof.
+unfold ρ01,ρ00.
+super_reduce.
+Qed.
+
+Lemma Dstep02 : ρ02 ≡ density φ02.
+Proof.
+unfold ρ02,super.
+rewrite Dstep01.
+super_reduce.
+Qed.
+
+Lemma Dstep03 : ρ03 ≡ density φ03.
+Proof.
+unfold ρ03,super.
+rewrite Dstep02.
+super_reduce.
+Qed.
+
+Lemma Dstep04 : ρ04 ≡ density φ04.
+Proof.
+unfold ρ04,super.
+rewrite Dstep03.
 super_reduce.
 Qed.
 
 
-(* One-time *)
 
-Lemma Grover_2_4 : (H ⊗ H ⊗ H) × (GPS ⊗ GPS ⊗ I_2) ×  (H ⊗ H ⊗ I_2) × ORA × (H ⊗ H ⊗ H) × (∣0⟩ ⊗ ∣0⟩ ⊗ ∣1⟩) ≡ ∣1⟩ ⊗ ∣1⟩ ⊗ ∣1⟩.
+
+(*Search space 4 and query for 1 *)
+
+(*Vector*)
+Definition ORA1 := B0 ⊗ CX .+ B3 ⊗ I_2 ⊗ I_2.
+
+Definition φ10 := ∣0,0,1⟩.
+Definition φ11 := (H ⊗ H ⊗ H) × φ10.
+Definition φ12 := ORA1 × φ11.
+Definition φ13 := (((/2 .* MI) .+ (-1) .* (I_2 ⊗ I_2)) ⊗ I_2) × φ12.
+Definition φ14 := (I_2 ⊗ I_2 ⊗ H) × φ13.
+
+Lemma step11 : φ11 ≡ ∣+⟩ ⊗ ∣+⟩ ⊗ ∣-⟩.
 Proof.
-unfold ORA,GPS.
+unfold φ11,φ10.
 operate_reduce.
 Qed.
 
-Lemma DGrover_2_4 : super ((H ⊗ H ⊗ H) × (GPS ⊗ GPS ⊗ I_2) ×  (H ⊗ H ⊗ I_2) × ORA × (H ⊗ H ⊗ H)) ρ0 ≡ (∣1⟩ ⊗ ∣1⟩ ⊗ ∣1⟩) × (∣1⟩ ⊗ ∣1⟩ ⊗ ∣1⟩)†.
+Lemma step12 : φ12 ≡ / √ 2 .* (∣0⟩ ⊗ ∣-⟩ .+ ∣1⟩ ⊗ ∣+⟩) ⊗ ∣-⟩.
 Proof.
-unfold ρ0,φ0,ORA,GPS,super.
+unfold φ12,ORA1.
+rewrite step11.
+operate_reduce.
+Qed.
+
+Lemma step13 : φ13 ≡ ∣0⟩ ⊗ ∣1⟩ ⊗ ∣-⟩.
+Proof.
+unfold φ13,MI.
+rewrite step12.
+operate_reduce.
+Qed.
+
+Lemma step14 : φ14 ≡ (∣0⟩ ⊗ ∣1⟩ ⊗ ∣1⟩).
+Proof.
+unfold φ14.
+rewrite step13.
+operate_reduce.
+Qed.
+
+
+(*Density*)
+Definition ρ10 := density φ10.
+Definition ρ11 := super (H ⊗ H ⊗ H) ρ10.
+Definition ρ12 := super ORA1 ρ11.
+Definition ρ13 := super  (((/2 .* MI) .+ (-1) .* (I_2 ⊗ I_2)) ⊗ I_2) ρ12.
+Definition ρ14 := super  (I_2 ⊗ I_2 ⊗ H) ρ13.
+
+Lemma Dstep11 : ρ11 ≡ density φ11.
+Proof.
+unfold ρ11,ρ10.
+super_reduce.
+Qed.
+
+Lemma Dstep12 : ρ12 ≡ density φ12.
+Proof.
+unfold ρ12,super.
+rewrite Dstep11.
+super_reduce.
+Qed.
+
+Lemma Dstep13 : ρ13 ≡ density φ13.
+Proof.
+unfold ρ13,super.
+rewrite Dstep12.
+super_reduce.
+Qed.
+
+Lemma Dstep14 : ρ14 ≡ density φ14.
+Proof.
+unfold ρ14,super.
+rewrite Dstep13.
+super_reduce.
+Qed.
+
+
+
+
+(*Search space 4 and query for 2 *)
+
+(*Vector*)
+Definition ORA2 := B0 ⊗ I_2 ⊗ I_2 .+ B3 ⊗ not_CX.
+
+Definition φ20 := ∣0,0,1⟩.
+Definition φ21 := (H ⊗ H ⊗ H) × φ20.
+Definition φ22 := ORA2× φ21.
+Definition φ23 := (((/2 .* MI) .+ (-1) .* (I_2 ⊗ I_2)) ⊗ I_2) × φ22.
+Definition φ24 := (I_2 ⊗ I_2 ⊗ H) × φ23.
+
+Lemma step21 : φ21 ≡ ∣+⟩ ⊗ ∣+⟩ ⊗ ∣-⟩.
+Proof.
+unfold φ21,φ20.
+operate_reduce.
+Qed.
+
+Lemma step22 : φ22 ≡ / √ 2 .* (∣0⟩ ⊗ ∣+⟩ .+ -  1 .* ∣1⟩ ⊗ ∣-⟩) ⊗ ∣-⟩.
+Proof.
+unfold φ22,ORA2,not_CX.
+rewrite step21.
+operate_reduce.
+Qed.
+
+Lemma step23 : φ23 ≡ ∣1⟩ ⊗ ∣0⟩ ⊗ ∣-⟩.
+Proof.
+unfold φ23,MI.
+rewrite step22.
+operate_reduce.
+Qed.
+
+Lemma step24 : φ24 ≡ (∣1⟩ ⊗ ∣0⟩ ⊗ ∣1⟩).
+Proof.
+unfold φ24.
+rewrite step23.
+operate_reduce.
+Qed.
+
+
+(*Density*)
+Definition ρ20 := density φ20.
+Definition ρ21 := super (H ⊗ H ⊗ H) ρ20.
+Definition ρ22 := super ORA2 ρ21.
+Definition ρ23 := super  (((/2 .* MI) .+ (-1) .* (I_2 ⊗ I_2)) ⊗ I_2) ρ22.
+Definition ρ24 := super  (I_2 ⊗ I_2 ⊗ H) ρ23.
+
+Lemma Dstep21 : ρ21 ≡ density φ21.
+Proof.
+unfold ρ21,ρ20.
+super_reduce.
+Qed.
+
+Lemma Dstep22 : ρ22 ≡ density φ22.
+Proof.
+unfold ρ22,super.
+rewrite Dstep21.
+super_reduce.
+Qed.
+
+Lemma Dstep23 : ρ23 ≡ density φ23.
+Proof.
+unfold ρ23,super.
+rewrite Dstep22.
+super_reduce.
+Qed.
+
+Lemma Dstep24 : ρ24 ≡ density φ24.
+Proof.
+unfold ρ24,super.
+rewrite Dstep23.
+super_reduce.
+Qed.
+
+
+
+
+(* One-time *)
+
+Lemma Grover_2_0 : (I_2 ⊗ I_2 ⊗ H) ×  (((/2 .* MI) .+ (-1) .* (I_2 ⊗ I_2)) ⊗ I_2) × ORA0× (H ⊗ H ⊗ H) × ∣0,0,1⟩ ≡ ∣0,0,1⟩.
+Proof.
+unfold ORA0,MI,not_CX.
+operate_reduce.
+Qed.
+
+Lemma DGrover_2_0 : super ((I_2 ⊗ I_2 ⊗ H) ×  (((/2 .* MI) .+ (-1) .* (I_2 ⊗ I_2)) ⊗ I_2) × ORA0 × (H ⊗ H ⊗ H)) ρ0 ≡ density (∣0,0,1⟩).
+Proof.
+unfold ρ0,φ0,ORA0,MI,not_CX.
+super_reduce.
+Qed.
+
+
+Lemma Grover_2_1 : (I_2 ⊗ I_2 ⊗ H) ×  (((/2 .* MI) .+ (-1) .* (I_2 ⊗ I_2)) ⊗ I_2) × ORA1 × (H ⊗ H ⊗ H) × ∣0,0,1⟩ ≡ ∣0,1,1⟩.
+Proof.
+unfold ORA1,MI.
+operate_reduce.
+Qed.
+
+Lemma DGrover_2_1 : super ((I_2 ⊗ I_2 ⊗ H) ×  (((/2 .* MI) .+ (-1) .* (I_2 ⊗ I_2)) ⊗ I_2) × ORA1 × (H ⊗ H ⊗ H)) ρ0 ≡ density (∣0,1,1⟩).
+Proof.
+unfold ρ0,φ0,ORA1,MI.
+super_reduce.
+Qed.
+
+
+Lemma Grover_2_2 : (I_2 ⊗ I_2 ⊗ H) ×  (((/2 .* MI) .+ (-1) .* (I_2 ⊗ I_2)) ⊗ I_2) × ORA2 × (H ⊗ H ⊗ H) × ∣0,0,1⟩ ≡ ∣1,0,1⟩.
+Proof.
+unfold ORA2,MI,not_CX.
+operate_reduce.
+Qed.
+
+Lemma DGrover_2_2 : super ((I_2 ⊗ I_2 ⊗ H) ×  (((/2 .* MI) .+ (-1) .* (I_2 ⊗ I_2)) ⊗ I_2) × ORA2 × (H ⊗ H ⊗ H)) ρ0 ≡ density (∣1,0,1⟩).
+Proof.
+unfold ρ0,φ0,ORA2,MI,not_CX.
+super_reduce.
+Qed.
+
+
+Lemma Grover_2_3 : (I_2 ⊗ I_2 ⊗ H) ×  (((/2 .* MI) .+ (-1) .* (I_2 ⊗ I_2)) ⊗ I_2) × TOF × (H ⊗ H ⊗ H) × ∣0,0,1⟩ ≡ ∣1,1,1⟩.
+Proof.
+unfold TOF,MI.
+operate_reduce.
+Qed.
+
+Lemma DGrover_2_3 : super ((I_2 ⊗ I_2 ⊗ H) ×  (((/2 .* MI) .+ (-1) .* (I_2 ⊗ I_2)) ⊗ I_2) × TOF × (H ⊗ H ⊗ H)) ρ0 ≡ density (∣1,1,1⟩).
+Proof.
+unfold ρ0,φ0,TOF,MI.
 super_reduce.
 Qed.
 

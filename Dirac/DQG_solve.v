@@ -180,9 +180,102 @@ Lemma Grover_2_4 : (hadamard ⊗ hadamard ⊗ hadamard) × (GPS ⊗ GPS ⊗ I 2)
 Proof. solve_matrix. Qed.
 
 
+Lemma DGrover_2_4_test1 : super (hadamard ⊗ hadamard ⊗ hadamard) ((∣0⟩ ⊗ ∣0⟩ ⊗ ∣1⟩) × (∣0⟩ ⊗ ∣0⟩ ⊗ ∣1⟩)†) = (∣+⟩ ⊗ ∣+⟩ ⊗ ∣-⟩) × (∣+⟩ ⊗ ∣+⟩ ⊗ ∣-⟩)†.
+Proof.
+unfold ORA,GPS,hadamard,I,super.
+solve_matrix.
+(*   autounfold with U_db.
+      prep_matrix_equality.
+      simpl.
+      destruct_m_eq'.
+      simpl.
+      Csimpl. (* basic rewrites only *) 
+      try reflexivity.
+      try solve_out_of_bounds. *)
+Qed.
+
+Lemma Cconj_inv2 :  (/ 2)^* = / 2.         Proof. lca. Qed.
+Lemma Cconj_rad2 : (/ √2)^* = / √2.       Proof. lca. Qed.
+Lemma Cconj_invrad2 : (/ 2 * / √ 2) ^* = (/ 2 * / √ 2) .
+Proof.
+rewrite Cconj_mult_distr.
+rewrite Cconj_inv2,Cconj_rad2.
+auto.
+Qed.
+
+Lemma pu1 : 2 * (2 * (/ 2 * / √ 2 * (/ 2 * / √ 2) ^*)) = / 2 .
+Proof.
+rewrite Cconj_mult_distr.
+rewrite Cconj_inv2,Cconj_rad2.
+rewrite (Cmult_assoc 2 (/ 2 * / √ 2)  (/ 2 * / √ 2)).
+rewrite (Cmult_assoc 2 (/ 2)  (/ √ 2)).
+autorewrite with C_db.
+rewrite (Cmult_comm (/ 2) (/√ 2)).
+rewrite (Cmult_assoc (/ √ 2) (/ √ 2) (/ 2)).
+autorewrite with C_db.
+rewrite Cmult_assoc.
+autorewrite with C_db.
+auto.
+Qed.
+Hint Rewrite pu1 : C_db.
+
+Lemma DGrover_2_4_test2 : super ORA (super (hadamard ⊗ hadamard ⊗ hadamard) ((∣0⟩ ⊗ ∣0⟩ ⊗ ∣1⟩) × (∣0⟩ ⊗ ∣0⟩ ⊗ ∣1⟩)†)) = (∣0⟩ ⊗ ∣0⟩ ⊗ ∣-⟩) × (∣0⟩ ⊗ ∣0⟩ ⊗ ∣-⟩)†.
+Proof.
+unfold ORA,GPS,hadamard,I,super.
+solve_matrix.
+(* assoc_least;
+    repeat reduce_matrix; try crunch_matrix.
+    (* handle out-of-bounds *)
+    unfold Nat.ltb; simpl; try rewrite andb_false_r.
+    (* try to solve complex equalities *)
+    autorewrite with C_db; try lca. *)
+Qed.
+
+Lemma DGrover_2_4_test3' : super (hadamard ⊗ hadamard ⊗ I 2)  ((∣0⟩ ⊗ ∣0⟩ ⊗ ∣-⟩) × (∣0⟩ ⊗ ∣0⟩ ⊗ ∣-⟩)†) = (∣+⟩ ⊗ ∣+⟩ ⊗ ∣-⟩) × (∣+⟩ ⊗ ∣+⟩ ⊗ ∣-⟩)†.
+Proof.
+unfold ORA,GPS,hadamard,I,super.
+solve_matrix.
+Qed.
+
+Lemma DGrover_2_4_test3'' : super (hadamard ⊗ hadamard ⊗ I 2) (super ORA (super (hadamard ⊗ hadamard ⊗ hadamard) ((∣0⟩ ⊗ ∣0⟩ ⊗ ∣1⟩) × (∣0⟩ ⊗ ∣0⟩ ⊗ ∣1⟩)†))) = (∣+⟩ ⊗ ∣+⟩ ⊗ ∣-⟩) × (∣+⟩ ⊗ ∣+⟩ ⊗ ∣-⟩)†.
+Proof.
+rewrite DGrover_2_4_test2.
+apply DGrover_2_4_test3'.
+Qed.
+
+Lemma pu2 :/ 2 * / 2 * (/ 2) ^* = / 2 * / √ 2 * (/ 2 * / √ 2) ^*.
+Proof.
+rewrite Cconj_inv2,Cconj_invrad2.
+rewrite (Cmult_comm (/ 2) (/√ 2)) at 2.
+rewrite <- Cmult_assoc. rewrite <- Cmult_assoc. rewrite Cmult_assoc.
+rewrite (Cmult_assoc (/ √ 2) (/ √ 2) (/ 2)).
+autorewrite with C_db. rewrite Cmult_assoc.
+auto.
+Qed.
+Hint Rewrite pu2 : C_db.
+
+Lemma DGrover_2_4_test3 : super (hadamard ⊗ hadamard ⊗ I 2) (super ORA (super (hadamard ⊗ hadamard ⊗ hadamard) ((∣0⟩ ⊗ ∣0⟩ ⊗ ∣1⟩) × (∣0⟩ ⊗ ∣0⟩ ⊗ ∣1⟩)†))) = (∣+⟩ ⊗ ∣+⟩ ⊗ ∣-⟩) × (∣+⟩ ⊗ ∣+⟩ ⊗ ∣-⟩)†.
+Proof.
+unfold ORA,GPS,hadamard,I,super.
+solve_matrix.
+Qed.
+Lemma DGrover_2_4_test4 : super (GPS ⊗ GPS ⊗ I 2) (super (hadamard ⊗ hadamard ⊗ I 2) (super ORA (super (hadamard ⊗ hadamard ⊗ hadamard) ((∣0⟩ ⊗ ∣0⟩ ⊗ ∣1⟩) × (∣0⟩ ⊗ ∣0⟩ ⊗ ∣1⟩)†)))) = (∣-⟩ ⊗ ∣-⟩ ⊗ ∣-⟩) × (∣-⟩ ⊗ ∣-⟩ ⊗ ∣-⟩)†.
+Proof.
+unfold ORA,GPS,hadamard,I,super.
+   assoc_least;
+    repeat reduce_matrix; try crunch_matrix.
+    (* handle out-of-bounds *)
+    unfold Nat.ltb; simpl; try rewrite andb_false_r.
+    (* try to solve complex equalities *)
+    autorewrite with C_db; try lca. 
+
 Lemma DGrover_2_4 : super (hadamard ⊗ hadamard ⊗ hadamard) (super (GPS ⊗ GPS ⊗ I 2) (super (hadamard ⊗ hadamard ⊗ I 2) (super ORA (super (hadamard ⊗ hadamard ⊗ hadamard) ((∣0⟩ ⊗ ∣0⟩ ⊗ ∣1⟩) × (∣0⟩ ⊗ ∣0⟩ ⊗ ∣1⟩)†))))) = (∣1⟩ ⊗ ∣1⟩ ⊗ ∣1⟩) × (∣1⟩ ⊗ ∣1⟩ ⊗ ∣1⟩)†.
 Proof.
 unfold ORA,GPS,hadamard,I,super .
 solve_matrix.
 Qed.
-
+Lemma DGrover_2_4_test : super (hadamard ⊗ hadamard ⊗ hadamard) (super (GPS ⊗ GPS ⊗ I 2) (super (hadamard ⊗ hadamard ⊗ I 2) (super ORA (super (hadamard ⊗ hadamard ⊗ hadamard) ((∣0⟩ ⊗ ∣0⟩ ⊗ ∣1⟩) × (∣0⟩ ⊗ ∣0⟩ ⊗ ∣1⟩)†))))) = (∣1⟩ ⊗ ∣1⟩ ⊗ ∣1⟩) × (∣1⟩ ⊗ ∣1⟩ ⊗ ∣1⟩)†.
+Proof.
+unfold ORA,GPS,hadamard,I,super .
+solve_matrix.
+Qed.
