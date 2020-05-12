@@ -47,25 +47,25 @@ Qed.
 
 
 (*Density*)
-Definition ρ00 := φ00 × φ00†.
+Definition ρ00 := density φ00.
 Definition ρ01 := super (H ⊗ H) ρ00.
 Definition ρ02 := super (I_2 ⊗ I_2) ρ01.
 Definition ρ03 := super (H ⊗ I_2) ρ02.
 
-Lemma Dstep01 : ρ01 ≡ φ01 × φ01†.
+Lemma Dstep01 : ρ01 ≡ density φ01.
 Proof.
-unfold ρ01,ρ00,super.
+unfold ρ01,ρ00.
 super_reduce.
 Qed.
 
-Lemma Dstep02 : ρ02 ≡ φ02 × φ02†.
+Lemma Dstep02 : ρ02 ≡ density φ02.
 Proof.
 unfold ρ02,super.
 rewrite Dstep01.
 super_reduce.
 Qed.
 
-Lemma Dstep03 : ρ03 ≡ φ03 × φ03†.
+Lemma Dstep03 : ρ03 ≡ density φ03.
 Proof.
 unfold ρ03,super.
 rewrite Dstep02.
@@ -77,11 +77,8 @@ Qed.
 Lemma deutsch0 : (H ⊗ I_2) × (I_2 ⊗ I_2) × (H ⊗ H) × (∣0⟩ ⊗ ∣1⟩) ≡ ∣0⟩ ⊗ ∣-⟩ .
 Proof. operate_reduce. Qed.
 
-Lemma Ddeutsch0 : super ((H ⊗ I_2) × (I_2 ⊗ I_2) × (H ⊗ H)) ρ00 ≡ (∣0⟩ ⊗ ∣-⟩) × (∣0⟩ ⊗ ∣-⟩ )†.
-Proof.
-unfold ρ00,φ00,super.
-super_reduce.
-Qed.
+Lemma Ddeutsch0 : super ((H ⊗ I_2) × (I_2 ⊗ I_2) × (H ⊗ H)) (density (∣0⟩ ⊗ ∣1⟩)) ≡ density  (∣0⟩ ⊗ ∣-⟩).
+Proof. super_reduce. Qed.
 
 
 (* f(0) =  f(1) = 1 *)
@@ -123,25 +120,25 @@ Qed.
 
 
 (*Density*)
-Definition ρ10 := φ10 × φ10†.
+Definition ρ10 := density φ10.
 Definition ρ11 := super (H ⊗ H) ρ10.
 Definition ρ12 := super (I_2 ⊗ σX) ρ11.
 Definition ρ13 := super (H ⊗ I_2) ρ12.
 
-Lemma Dstep11 : ρ11 ≡ φ11 × φ11†.
+Lemma Dstep11 : ρ11 ≡ density φ11.
 Proof.
 unfold ρ11,ρ10,super.
 super_reduce.
 Qed.
 
-Lemma Dstep12 : ρ12 ≡ φ12 × φ12†.
+Lemma Dstep12 : ρ12 ≡ density φ12.
 Proof.
 unfold ρ12,super.
 rewrite Dstep11.
 super_reduce.
 Qed.
 
-Lemma Dstep13 : ρ13 ≡ φ13 × φ13†.
+Lemma Dstep13 : ρ13 ≡ density φ13.
 Proof.
 unfold ρ13,super.
 rewrite Dstep12.
@@ -159,16 +156,14 @@ sta_m1.
 operate_reduce.
 Qed.
 
-Lemma Ddeutsch1 : super ((H ⊗ I_2) × (I_2 ⊗ σX) × (H ⊗ H)) ρ10 ≡ (-1 .* (∣0⟩ ⊗ ∣-⟩)) × (-1 .* (∣0⟩ ⊗ ∣-⟩))†.
-Proof.
-unfold ρ10,φ10,super.
-super_reduce.
-Qed.
+Lemma Ddeutsch1 : super ((H ⊗ I_2) × (I_2 ⊗ σX) × (H ⊗ H)) (density (∣0⟩ ⊗ ∣1⟩))  ≡ density (-1 .* (∣0⟩ ⊗ ∣-⟩)).
+Proof. super_reduce. Qed.
 
-Lemma Ddeutsch1' : super ((H ⊗ I_2) × (I_2 ⊗ σX) × (H ⊗ H)) ρ10 ≈ (∣0⟩ ⊗ ∣-⟩) × (∣0⟩ ⊗ ∣-⟩ )†.
+Lemma Ddeutsch1' : super ((H ⊗ I_2) × (I_2 ⊗ σX) × (H ⊗ H)) (density (∣0⟩ ⊗ ∣1⟩)) ≈ density (∣0⟩ ⊗ ∣-⟩).
 Proof.
 sta_yes.
 rewrite Ddeutsch1.
+unfold density.
 rewrite Mscale_adj.
 isolate_scale.
 reduce_scale.
@@ -207,25 +202,25 @@ Qed.
 
 
 (*Density*)
-Definition ρ20 := φ20 × φ20†.
+Definition ρ20 := density φ20.
 Definition ρ21 := super (H ⊗ H) ρ20.
 Definition ρ22 := super CX ρ21.
 Definition ρ23 := super (H ⊗ I_2) ρ22.
 
-Lemma Dstep21 : ρ21 ≡ φ21 × φ21†.
+Lemma Dstep21 : ρ21 ≡ density φ21.
 Proof.
 unfold ρ21,ρ20,super.
 super_reduce.
 Qed.
 
-Lemma Dstep22 : ρ22 ≡ φ22 × φ22†.
+Lemma Dstep22 : ρ22 ≡ density φ22.
 Proof.
 unfold ρ22,super.
 rewrite Dstep21.
 super_reduce.
 Qed.
 
-Lemma Dstep23 : ρ23 ≡ φ23 × φ23†.
+Lemma Dstep23 : ρ23 ≡ density φ23.
 Proof.
 unfold ρ23,super.
 rewrite Dstep22.
@@ -237,11 +232,8 @@ Qed.
 Lemma deutsch2 : (H ⊗ I_2) × CX × (H ⊗ H) × (∣0⟩ ⊗ ∣1⟩) ≡ ∣1⟩ ⊗ ∣-⟩ .
 Proof. operate_reduce. Qed.
 
-Lemma Ddeutsch2 : super ((H ⊗ I_2) × CX × (H ⊗ H)) ρ20 ≡ (∣1⟩ ⊗ ∣-⟩) × (∣1⟩ ⊗ ∣-⟩ )†.
-Proof.
-unfold ρ20,φ20,super.
-super_reduce.
-Qed.
+Lemma Ddeutsch2 : super ((H ⊗ I_2) × CX × (H ⊗ H)) (density (∣0⟩ ⊗ ∣1⟩)) ≡ density (∣1⟩ ⊗ ∣-⟩).
+Proof. super_reduce. Qed.
 
 
 (* f(0) = 1, f(1) = 0 *)
@@ -285,25 +277,25 @@ Qed.
 
 
 (*Density*)
-Definition ρ30 := φ30 × φ30†.
+Definition ρ30 := density φ30.
 Definition ρ31 := super (H ⊗ H) ρ30.
 Definition ρ32 := super not_CX ρ31.
 Definition ρ33 := super (H ⊗ I_2) ρ32.
 
-Lemma Dstep31 : ρ31 ≡ φ31 × φ31†.
+Lemma Dstep31 : ρ31 ≡ density  φ31.
 Proof.
 unfold ρ31,ρ30,super.
 super_reduce.
 Qed.
 
-Lemma Dstep32 : ρ32 ≡ φ32 × φ32†.
+Lemma Dstep32 : ρ32 ≡ density φ32.
 Proof.
 unfold ρ32,super.
 rewrite Dstep31.
 super_reduce.
 Qed.
 
-Lemma Dstep33 : ρ33 ≡ φ33 × φ33†.
+Lemma Dstep33 : ρ33 ≡ density φ33.
 Proof.
 unfold ρ33,super.
 rewrite Dstep32.
@@ -320,15 +312,14 @@ sta_m1.
 operate_reduce.
 Qed.
 
-Lemma Ddeutsch3 : super ((H ⊗ I_2) × not_CX × (H ⊗ H)) ρ30 ≡ (-1 .* (∣1⟩ ⊗ ∣-⟩)) × (-1 .* (∣1⟩ ⊗ ∣-⟩))†.
-Proof.
-unfold ρ30,φ30,super.
-super_reduce.
-Qed.
-Lemma Ddeutsch3' : super ((H ⊗ I_2) × not_CX × (H ⊗ H)) ρ30 ≈ (∣1⟩ ⊗ ∣-⟩) × (∣1⟩ ⊗ ∣-⟩ )†.
+Lemma Ddeutsch3 : super ((H ⊗ I_2) × not_CX × (H ⊗ H)) (density(∣0⟩ ⊗ ∣1⟩)) ≡ density (-1 .* (∣1⟩ ⊗ ∣-⟩)).
+Proof. super_reduce. Qed.
+
+Lemma Ddeutsch3' : super ((H ⊗ I_2) × not_CX × (H ⊗ H)) (density(∣0⟩ ⊗ ∣1⟩)) ≈ density (∣1⟩ ⊗ ∣-⟩).
 Proof.
 sta_yes.
 rewrite Ddeutsch3.
+unfold density.
 rewrite Mscale_adj.
 isolate_scale.
 reduce_scale.

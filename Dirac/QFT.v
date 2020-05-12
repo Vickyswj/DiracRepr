@@ -166,10 +166,32 @@ operate_reduce.
 Qed.
 
 
-Lemma DQFT_ket0_3 : super ((H ⊗ I_2 ⊗ I_2) × (CS ⊗ I_2) × (I_2 ⊗ H ⊗ I_2) × CIT ×  (I_2 ⊗ CS) × (I_2 ⊗ I_2 ⊗ H)) ρ0 ≡ (∣+⟩ ⊗ ∣+⟩ ⊗ ∣+⟩) × (∣+⟩ ⊗ ∣+⟩ ⊗ ∣+⟩)†.
+Lemma DQFT_ket0_3 : super ((H ⊗ I_2 ⊗ I_2) × (CS ⊗ I_2) × (I_2 ⊗ H ⊗ I_2) × CIT ×  (I_2 ⊗ CS) × (I_2 ⊗ I_2 ⊗ H)) ρ0 ≡ density (∣+⟩ ⊗ ∣+⟩ ⊗ ∣+⟩).
 Proof.
 unfold ρ0,φ0,CS,CIT,super.
 super_reduce.
 Qed.
 
+Lemma QFT_ket0_2 : (H ⊗ I_2) × CS × (I_2 ⊗ H) × (∣0,0⟩) ≡ ∣+⟩ ⊗ ∣+⟩.
+Proof.
+unfold CS.
+operate_reduce.
+Qed.
+
+Lemma DQFT_ket0_2 : super ((H ⊗ I_2) × CS × (I_2 ⊗ H)) (density ∣0⟩ ⊗ ∣0⟩) ≡ density  ∣+⟩ ⊗ ∣+⟩ ⊗ ∣+⟩ .
+Proof.
+unfold CS,super.
+super_reduce.
+Qed.
+
+
+Definition PK := B0 .+ Cexp (PI/8)  .* B3.
+Definition CIS :=  B0 ⊗ I_2 ⊗ I_2 .+ B3 ⊗ I_2 ⊗ PS.
+Definition CIIK :=  B0 ⊗ I_2 ⊗ I_2 ⊗ I_2 .+ B3 ⊗ I_2 ⊗ I_2 ⊗ PK.
+Lemma QFT_ket0_4 : (H ⊗ I_2 ⊗ I_2 ⊗ I_2) × (CS ⊗ I_2 ⊗ I_2) × (I_2 ⊗ H ⊗ I_2 ⊗ I_2) × (CIT ⊗ I_2) × (I_2 ⊗ CS ⊗ I_2) × (I_2 ⊗ I_2 ⊗ H ⊗ I_2) ×
+                                     CIIK ×  (I_2 ⊗ CIT) × (I_2 ⊗ I_2 ⊗ CS) × (I_2 ⊗ I_2 ⊗ I_2 ⊗ H) × ∣0,0,0,0⟩ ≡ ∣+⟩ ⊗ ∣+⟩ ⊗ ∣+⟩ ⊗ ∣+⟩.
+Proof.
+unfold CIT,CIIK,PK,CS.
+operate_reduce.
+Qed.
 
