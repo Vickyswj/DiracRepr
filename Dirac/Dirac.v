@@ -1081,7 +1081,8 @@ Definition operator_apply {m} (A: Matrix m m)(B: Vector m) : Vector m:=
 Mmult A B.
 
 Require Import Morphisms.
-Instance sta_proper m : Proper (sta_equiv ==> sta_equiv ==>sta_equiv) (@operator_apply m).
+
+Instance Mmult_sta_proper m n o: Proper (sta_equiv ==> sta_equiv ==>sta_equiv) (@Mmult m n o).
 Proof.
 hnf;intros A C H1.
 hnf;intros B D H2.
@@ -1098,3 +1099,144 @@ split.
  rewrite Cmod_mult. rewrite H3,H6. lra.
  reflexivity.
 Qed.
+
+Lemma mod1_not_0: forall c, Cmod c = R1 -> c <> 0.
+Proof.
+  intros; intro.
+  subst.
+  rewrite Cmod_0 in H0.
+  lra.
+Qed.
+
+Instance sta_equiv_equiv m n: Equivalence (@sta_equiv m n).
+Proof.
+  constructor.
+  + hnf; intros A.
+    exists 1.
+    split; [autorewrite with C_db;auto | rewrite Mscale_1_l].
+    reflexivity.
+  + hnf; intros.
+    destruct H0 as [c [? ?]]; exists (Cinv c); split.
+    - rewrite Cmod_inv by (apply mod1_not_0; auto).
+      rewrite H0. field.
+    - rewrite <- H1.
+      rewrite Mscale_assoc, Cinv_l by (apply mod1_not_0; auto).
+      rewrite Mscale_1_l.
+      reflexivity.
+  + hnf; intros.
+    destruct H0 as [c [? ?]], H1 as [c0 [? ?]].
+    exists (c * c0); split.
+    - rewrite Cmod_mult, H0, H1.
+      lra.
+    - rewrite <- H3, <- H2.
+      rewrite Mscale_assoc, Cmult_comm.
+      reflexivity.
+Qed.
+
+Lemma sta_equiv_by_Mmult: forall m n (A B: Matrix m n),
+  (forall v : Matrix n 1, Mmult A v ≈ Mmult B v) ->
+  A ≈ B.
+Proof.
+  intros.
+  assert (forall j, (j < n)%nat -> exists c,
+            Cmod c = 1 /\
+            forall i, (i < m)%nat -> c * A i j = B i j).
+  {
+    intros.
+    specialize
+      (H0 (fun j' _ => if (j' =? j) && (j' <? n) then 1 else 0)).
+    destruct H0 as [c [? ?]]; exists c; split; auto.
+    intros.
+    specialize (H2 ltac:(exists i; auto)
+                   ltac:(exists 0%nat; lia)).
+    pose proof Mmult_1_r _ _ A
+                 ltac:(exists i; auto)
+                 ltac:(exists j; auto).
+    pose proof Mmult_1_r _ _ B
+                 ltac:(exists i; auto)
+                 ltac:(exists j; auto).
+    unfold scale in H2.
+    unfold Mmult, get, I in H2, H4, H5; simpl in H2, H4, H5.
+    rewrite H4, H5 in H2; clear H4 H5.
+    auto.
+  }
+  pose proof Classical_Prop.classic
+               (exists i j, (i < m)%nat /\
+                            (j < n)%nat /\
+                            A i j <> 0)
+          as [[i [j [Hi [Hj ?]]]] |].
+  2: {
+    exists 1.
+    split; [autorewrite with C_db;auto | rewrite Mscale_1_l].
+    intros [i ?] [j ?].
+    unfold get; simpl.
+    assert (A i j = 0).
+    {
+      apply Classical_Prop.NNPP.
+      intro; apply H2.
+      exists i, j; auto.
+    }
+    assert (B i j = 0).
+    {
+      specialize (H1 j ltac:(auto)).
+      destruct H1 as [c [_ ?]].
+      specialize (H1 i ltac:(auto)).
+      rewrite H3 in H1.
+      rewrite <- H1.
+      ring.
+    }
+    rewrite H3, H4; reflexivity.
+  }
+  pose proof H1 j Hj as [c [? ?]].
+  exists c; split; auto.
+  unfold scale.
+  intros [i' Hi'] [j' Hj']; unfold get; simpl.
+  revert i' Hi'.
+  pose proof H1 j' Hj' as [c' [? ?]].
+Admitted.
+
+(*
+
+forall i, c * A i j = B i j.
+forall i, c' * A i j' = B i j'.
+
+forall x x', exists k,
+  (A i j * x + A i j' * x') * k = B i j * x + B i j' * x' /\
+  (A i' j * x + A i' j' * x') * k = B i' j * x + B i' j' * x'.
+  
+A i j * B i' j * k = A i' j * B i j * k
+
+since k <> 0 (use cmod),
+
+(A i j * x + A i j' * x') * (B i' j * x + B i' j' * x') = 
+(A i' j * x + A i' j' * x') * (B i j * x + B i j' * x')
+
+
+A i j * B i' j' + A i j' * B i' j =
+A i' j * B i j' + A i' j' * B i j
+
+A i j * A i' j' * c' + A i j' * A i' j * c =
+A i' j * A i j' * c' + A i' j' * A i j * c
+
+(A i j * A i' j' - A i' j * A i j')(c - c') = 0
+
+----------------------------------------------------
+
+
+forall x, exists k, Cmod k = 1 /\
+  (A i j * x + A i j') * k = B i j * x + B i j'
+
+  (A i j * x + A i j') * k = c * A i j * x + c' * A i j'
+
+
+
+
+forall x, 
+  Cmod (A i j * x + A i j') = Cmod (A i j * x + (c'/c) * A i j')
+
+
+
+*)
+  
+  
+  

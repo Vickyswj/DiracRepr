@@ -1118,7 +1118,7 @@ Proof.
         (* Why doesn't this lemma exist??? *)
         destruct m.
         lia.
-        apply Nat.div_small_iff; try lia.
+        apply Nat.div_small_iff.
         simpl. apply Nat.neq_succ_0. 
         apply Nat.div_small in L1.
         rewrite Nat.div_div in L1; try lia.
