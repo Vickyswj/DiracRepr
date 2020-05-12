@@ -1006,10 +1006,53 @@ Qed.
 
 Local Open Scope nat_scope.
 
-Axiom kron_assoc : forall {m n p q r s : nat}
+Lemma kron_assoc : forall {m n p q r s : nat}
   (A : Matrix m n) (B : Matrix p q) (C : Matrix r s),
-  (A ⊗ B ⊗ C) = A ⊗ (B ⊗ C).
-
+  (A ⊗ B ⊗ C) ≡ A ⊗ (B ⊗ C).
+Proof.
+  intros.
+  intros [i Hi] [j Hj]; unfold get; simpl.
+  unfold kron; simpl.
+  rewrite !Cmult_assoc.
+  assert (m <> 0) by (intro; subst; lia).
+  assert (n <> 0) by (intro; subst; lia).
+  assert (p <> 0) by (intro; subst; lia).
+  assert (q <> 0) by (intro; subst; lia).
+  assert (r <> 0) by (intro; subst; lia).
+  assert (s <> 0) by (intro; subst; lia).
+  f_equal; [f_equal |]; f_equal.
+  + rewrite Nat.div_div by auto.
+    rewrite Nat.mul_comm; auto.
+  + rewrite Nat.div_div by auto.
+    rewrite Nat.mul_comm; auto.
+  + rewrite Nat.mul_comm.
+    rewrite Nat.mod_mul_r by auto.
+    rewrite Nat.mul_comm.
+    rewrite Nat.div_add by auto.
+    pose proof Nat.mod_upper_bound i r ltac:(auto).
+    rewrite (Nat.div_small (i mod r) r) by auto.
+    lia.
+  + rewrite Nat.mul_comm.
+    rewrite Nat.mod_mul_r by auto.
+    rewrite Nat.mul_comm.
+    rewrite Nat.div_add by auto.
+    pose proof Nat.mod_upper_bound j s ltac:(auto).
+    rewrite (Nat.div_small (j mod s) s) by auto.
+    lia.
+  + rewrite Nat.mul_comm.
+    rewrite Nat.mod_mul_r by auto.
+    rewrite Nat.mul_comm.
+    rewrite Nat.mod_add by auto.
+    rewrite Nat.mod_mod by auto.
+    auto.
+  + rewrite Nat.mul_comm.
+    rewrite Nat.mod_mul_r by auto.
+    rewrite Nat.mul_comm.
+    rewrite Nat.mod_add by auto.
+    rewrite Nat.mod_mod by auto.
+    auto.
+Qed.
+  
 Lemma kron_mixed_product : forall {m n o p q r : nat} (A : Matrix m n) (B : Matrix p q ) 
   (C : Matrix n o) (D : Matrix q r), (A ⊗ B) × (C ⊗ D) = (A × C) ⊗ (B × D).
 Proof.
