@@ -984,24 +984,6 @@ Qed.
 Lemma Minv_symm : forall (n : nat) (A B : Square n), Minv A B -> Minv B A.
 Proof. unfold Minv; intuition. Qed.
 
-(* The left inverse of a square matrix is also its right inverse *)
-Axiom Minv_flip : forall (n : nat) (A B : Square n), A × B ≡ I n -> B × A ≡ I n.
-
-Lemma Minv_left : forall (n : nat) (A B : Square n), A × B ≡ I n -> Minv A B.
-Proof.
-  intros n A B H. 
-  unfold Minv. split; trivial.
-  apply Minv_flip.
-  assumption.
-Qed.
-
-Lemma Minv_right : forall (n : nat) (A B : Square n), B × A ≡ I n -> Minv A B.
-Proof.
-  intros n A B H. 
-  unfold Minv. split; trivial.
-  apply Minv_flip.
-  assumption.
-Qed.
 
 Local Open Scope nat_scope.
 

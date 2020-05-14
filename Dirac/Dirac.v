@@ -1081,8 +1081,7 @@ Definition operator_apply {m} (A: Matrix m m)(B: Vector m) : Vector m:=
 Mmult A B.
 
 Require Import Morphisms.
-
-Instance Mmult_sta_proper m n o: Proper (sta_equiv ==> sta_equiv ==>sta_equiv) (@Mmult m n o).
+Instance sta_proper m : Proper (sta_equiv ==> sta_equiv ==>sta_equiv) (@operator_apply m).
 Proof.
 hnf;intros A C H1.
 hnf;intros B D H2.
@@ -1211,7 +1210,6 @@ Proof.
       intros j''.
       ring.
     }
-    Search Csum.
     rewrite (Csum_eq _ _ n (H0 (A i))),
             (Csum_eq _ _ n (H0 (B i))),
             !Csum_plus, <- !Csum_mult_r,
