@@ -205,8 +205,8 @@ Qed.
 
 Declare Scope Q_Operator.
 Declare Scope Q_State.
-Delimit Scope Q_Operator with QO.
-Delimit Scope Q_State with QS.
+Delimit Scope Q_Operator with Q_Operator.
+Delimit Scope Q_State with Q_State.
 Bind Scope Q_Operator with Operator.
 Bind Scope Q_State with State.
 Local Open Scope Q_Operator.
@@ -221,6 +221,46 @@ Ltac by_def1 := exists 1%C; split; [autorewrite with C_db;auto | rewrite Mscale_
 Ltac by_def c := exists c; split.
 Ltac by_effect := rewrite OperatorEquiv_spec; intros.
 Ltac by_den := rewrite StateEquiv_spec; intros.
+
+Declare Scope QE.
+Local Open Scope QE.
+
+Ltac gen_equiv A B :=
+  match type of A with
+  | Matrix ?n ?m =>
+      let n' := eval compute in n in
+      let m' := eval compute in m in
+      match constr:(@pair nat nat n' m') with
+      | (64, 64)%nat => exact (@OperatorEquiv 6 A B)
+      | (32, 32)%nat => exact (@OperatorEquiv 5 A B)
+      | (16, 16)%nat => exact (@OperatorEquiv 4 A B)
+      | (8, 8)%nat => exact (@OperatorEquiv 3 A B)
+      | (4, 4)%nat => exact (@OperatorEquiv 2 A B)
+      | (2, 2)%nat => exact (@OperatorEquiv 1 A B)
+      | (16, 1)%nat => exact (@StateEquiv 4 A B)
+      | (8, 1)%nat => exact (@StateEquiv 3 A B)
+      | (4, 1)%nat => exact (@StateEquiv 2 A B)
+      | (2, 1)%nat => exact (@StateEquiv 1 A B)
+      end
+  | Operator ?n =>
+     exact (@OperatorEquiv n A B)
+  | State ?n =>
+     exact (@StateEquiv n A B)
+  end.
+
+Notation "A ≈ B" := (ltac:(gen_equiv A B)) (only parsing): QE.
+
+Lemma Foo: H × H ≈ H.
+Abort.
+
+Lemma Foo: B0 ⊗ B0 ≈ H ⊗ H.
+Abort.
+
+Lemma Foo: B0 ⊗ (B0 ⊗ B0) ≈ (H ⊗ H) ⊗ H.
+Abort.
+
+Lemma Foo: B0 ⊗ (B0 ⊗ B0) × (∣0⟩ ⊗∣0⟩ ⊗∣0⟩) ≈ (H ⊗ H) ⊗ H × (∣0⟩ ⊗∣0⟩ ⊗∣0⟩).
+Abort.
 
 Goal forall (F: Operator 5) (X: State 5),
   Apply (F * F) X ≈ Apply F (Apply F X).
@@ -244,7 +284,7 @@ Proof.
 Abort.
 
 Goal forall (F: Operator 5),
-  ((F * F) ≈ F)%QO.
+  ((F * F) ≈ F).
 Proof.
   intros.
   by_effect.
