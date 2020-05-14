@@ -1137,63 +1137,271 @@ Lemma sta_equiv_by_Mmult: forall m n (A B: Matrix m n),
   (forall v : Matrix n 1, Mmult A v ≈ Mmult B v) ->
   A ≈ B.
 Proof.
-  intros.
+  intros m n A B HAB.
   assert (forall j, (j < n)%nat -> exists c,
             Cmod c = 1 /\
-            forall i, (i < m)%nat -> c * A i j = B i j).
+            forall i, (i < m)%nat -> c * A i j = B i j)
+      as HAB'.
   {
-    intros.
+    intros j Hj.
     specialize
-      (H0 (fun j' _ => if (j' =? j) && (j' <? n) then 1 else 0)).
-    destruct H0 as [c [? ?]]; exists c; split; auto.
+      (HAB (fun j' _ => if (j' =? j) && (j' <? n) then 1 else 0)).
+    destruct HAB as [c [Hc HABj]]; exists c; split; auto.
     intros.
-    specialize (H2 ltac:(exists i; auto)
-                   ltac:(exists 0%nat; lia)).
+    specialize (HABj ltac:(exists i; auto)
+                     ltac:(exists 0%nat; lia)).
     pose proof Mmult_1_r _ _ A
                  ltac:(exists i; auto)
-                 ltac:(exists j; auto).
+                 ltac:(exists j; auto)
+            as HAj.
     pose proof Mmult_1_r _ _ B
                  ltac:(exists i; auto)
-                 ltac:(exists j; auto).
-    unfold scale in H2.
-    unfold Mmult, get, I in H2, H4, H5; simpl in H2, H4, H5.
-    rewrite H4, H5 in H2; clear H4 H5.
+                 ltac:(exists j; auto)
+            as HBj.
+    unfold scale in HABj.
+    unfold Mmult, get, I in HABj, HAj, HBj; simpl in HABj, HAj, HBj.
+    rewrite HAj, HBj in HABj.
+    auto.
+  }
+  assert (forall j j', (j < n)%nat -> (j' < n)%nat ->
+          forall x x': C,
+          exists c,
+            Cmod c = 1 /\
+            forall i, (i < m)%nat ->
+               c * (A i j * x + A i j' * x') = B i j * x + B i j' * x')
+      as HAB''.
+  {
+    intros j j' Hj Hj' x x'.
+    specialize
+      (HAB (fun j'' _ => x * (if (j'' =? j) && (j'' <? n) then 1 else 0) +
+                         x' * (if (j'' =? j') && (j'' <? n) then 1 else 0))).
+    destruct HAB as [c [Hc HABjj']]; exists c; split; auto.
+    intros i Hi.
+    specialize (HABjj' ltac:(exists i; auto)
+                       ltac:(exists 0%nat; lia)).
+    pose proof Mmult_1_r _ _ A
+                 ltac:(exists i; auto)
+                 ltac:(exists j; auto)
+            as HAj.
+    pose proof Mmult_1_r _ _ A
+                 ltac:(exists i; auto)
+                 ltac:(exists j'; auto)
+            as HAj'.
+    pose proof Mmult_1_r _ _ B
+                 ltac:(exists i; auto)
+                 ltac:(exists j; auto)
+            as HBj.
+    pose proof Mmult_1_r _ _ B
+                 ltac:(exists i; auto)
+                 ltac:(exists j'; auto)
+            as HBj'.
+    unfold scale in HABjj'.
+    unfold Mmult, get, I in HABjj', HAj, HAj', HBj, HBj';
+    simpl in HABjj', HAj, HAj', HBj, HBj'.
+    assert (forall K,
+            (fun y : nat =>
+               K y * (x * (if (y =? j) && (y <? n) then 1 else 0) +
+                      x' * (if (y =? j') && (y <? n) then 1 else 0))) =
+            (fun y : nat =>
+               (K y * (if (y =? j) && (y <? n) then 1 else 0)) * x +
+               (K y * (if (y =? j') && (y <? n) then 1 else 0)) * x')).
+    {
+      intros.
+      apply functional_extensionality.
+      intros j''.
+      ring.
+    }
+    Search Csum.
+    rewrite (Csum_eq _ _ n (H0 (A i))),
+            (Csum_eq _ _ n (H0 (B i))),
+            !Csum_plus, <- !Csum_mult_r,
+            HAj, HAj', HBj, HBj'  in HABjj'.
     auto.
   }
   pose proof Classical_Prop.classic
                (exists i j, (i < m)%nat /\
                             (j < n)%nat /\
                             A i j <> 0)
-          as [[i [j [Hi [Hj ?]]]] |].
+          as [[i [j [Hi [Hj HAij]]]] | CONTRA].
   2: {
     exists 1.
     split; [autorewrite with C_db;auto | rewrite Mscale_1_l].
-    intros [i ?] [j ?].
+    intros [i Hi] [j Hj].
     unfold get; simpl.
     assert (A i j = 0).
     {
       apply Classical_Prop.NNPP.
-      intro; apply H2.
+      intro; apply CONTRA.
       exists i, j; auto.
     }
     assert (B i j = 0).
     {
-      specialize (H1 j ltac:(auto)).
-      destruct H1 as [c [_ ?]].
-      specialize (H1 i ltac:(auto)).
-      rewrite H3 in H1.
-      rewrite <- H1.
+      specialize (HAB' j ltac:(auto)).
+      destruct HAB' as [c [_ HH]].
+      specialize (HH i ltac:(auto)).
+      rewrite H0 in HH.
+      rewrite <- HH.
       ring.
     }
-    rewrite H3, H4; reflexivity.
+    rewrite H0, H1; reflexivity.
   }
-  pose proof H1 j Hj as [c [? ?]].
+  pose proof HAB' j Hj as [c [Hc Hcj]].
   exists c; split; auto.
   unfold scale.
   intros [i' Hi'] [j' Hj']; unfold get; simpl.
   revert i' Hi'.
-  pose proof H1 j' Hj' as [c' [? ?]].
-Admitted.
+  pose proof HAB' j' Hj' as [c' [Hc' Hc'j']].
+  destruct (Classical_Prop.classic
+            (exists i, (i < m)%nat /\
+                       A i j <> 0 /\ A i j' <> 0))
+    as [|].
+  {
+    clear dependent i.
+    clear HAB'.
+    assert (c/c' = 1).
+    2: {
+      intros.
+      rewrite <- Hc'j' by auto.
+      f_equal.
+      rewrite <- (Cmult_1_l c').
+      rewrite <- H1.
+      field.
+      apply mod1_not_0.
+      auto.
+    }
+    destruct H0 as [i [Hi [HAij HAij']]].
+    assert (forall x,
+              Cmod (A i j * x + A i j') =
+              Cmod ((c/c') * A i j * x + A i j'))
+         as General.
+    {
+      clear HAij HAij'.
+      intros x.
+      specialize (HAB'' j j' ltac:(auto) ltac:(auto) x 1).
+      destruct HAB'' as [k [Hk HH]].
+      specialize (HH i Hi).
+      transitivity (Cmod (k * (A i j * x + A i j' * 1))).
+      {
+        rewrite Cmod_mult.
+        rewrite Hk.
+        rewrite Rmult_1_l.
+        f_equal.
+        ring.
+      }
+      rewrite HH.
+      rewrite <- Hcj, <- Hc'j' by auto.
+      transitivity (Cmod (c' * (c / c' * A i j * x + A i j'))).
+      {
+        f_equal.
+        field.
+        apply mod1_not_0; auto.
+      }
+      rewrite Cmod_mult, Hc'.
+      ring.
+    }
+    pose proof General (A i j' / A i j) as HH.
+    assert (A i j * (A i j' / A i j) + A i j' = (1+1) * A i j').
+    { field; auto. }
+    rewrite H0 in HH; clear H0.
+    assert (c / c' * A i j * (A i j' / A i j) + A i j' = (c / c' + 1) * A i j').
+    { set (s:= c/c'). field; auto. }
+    rewrite H0 in HH; clear H0.
+    rewrite !Cmod_mult in HH.
+    apply Rmult_eq_reg_r in HH.
+    2: { intro. apply Cmod_eq_0 in H0. tauto. }
+    clear - Hc Hc' HH.
+    assert (Cmod (c/c') = 1) as Hs.
+    {
+      rewrite Cmod_div by (apply mod1_not_0; auto).
+      rewrite Hc, Hc'; field.
+    }
+    set (s := c/c') in *.
+    clearbody s; clear c c' Hc Hc'.
+    destruct s.
+    unfold C1 in HH.
+    unfold Cplus in HH; simpl in HH.
+    unfold Cmod in HH, Hs; simpl in HH, Hs.
+    apply sqrt_inj in HH.
+    2:{ nra. }
+    2:{ set (rr := (r+1)%R). set (rr0 := (r0+0)%R). nra. }
+    apply sqrt_lem_0 in Hs.
+    2:{ nra. }
+    2:{ nra. }
+    ring_simplify in HH.
+    ring_simplify in Hs.
+    assert (r = 1)%R by lra.
+    subst.
+    assert (r0 ^ 2 = 0)%R by lra.
+    assert (r0 = 0) by nra.
+    subst.
+    reflexivity.
+  }
+  destruct (Classical_Prop.classic
+            (exists i, (i < m)%nat /\ A i j' <> 0))
+    as [| CONTRA].
+  {
+    assert (c = c').
+    2: { subst c; auto. }
+    destruct H1 as [i' [Hi' HAi'j']].
+    assert (A i j' = 0) as HAij'.
+    {
+      apply Classical_Prop.NNPP; intro; apply H0.
+      exists i.
+      tauto.
+    }
+    assert (A i' j = 0) as HAi'j.
+    {
+      apply Classical_Prop.NNPP; intro; apply H0.
+      exists i'.
+      tauto.
+    }
+    specialize (HAB'' j j' Hj Hj' 1 1).
+    destruct HAB'' as [k [Hk HAB'']].
+    pose proof HAB'' i Hi.
+    pose proof HAB'' i' Hi'.
+    rewrite <- Hcj in H1, H2 by auto.
+    rewrite <- Hc'j' in H1, H2 by auto.
+    rewrite HAij' in H1.
+    rewrite HAi'j in H2.
+    ring_simplify in H1.
+    ring_simplify in H2.
+    transitivity ((c * A i j) * (k * A i' j') / (k * A i j * A i' j')).
+    {
+      field.
+      split; [| split]; auto.
+      apply mod1_not_0; auto.
+    }
+    transitivity ((c' * A i' j') * (k * A i j) / (k * A i j * A i' j')).
+    2: {
+      field.
+      split; [| split]; auto.
+      apply mod1_not_0; auto.
+    }
+    rewrite H1, H2.
+    f_equal.
+    ring.
+  }
+  {
+    clear dependent i.
+    clear H0.
+    intros i Hi.
+    assert (A i j' = 0).
+    {
+      apply Classical_Prop.NNPP; intro; apply CONTRA.
+      exists i; auto.
+    }
+    assert (B i j' = 0).
+    {
+      rewrite <- Hc'j' by auto.
+      rewrite H0.
+      ring.
+    }
+    rewrite H0, H1.
+    ring.
+  }
+Qed.
+
+
 
 (*
 

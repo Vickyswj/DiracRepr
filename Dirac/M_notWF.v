@@ -338,7 +338,6 @@ Lemma Csum_unique : forall k (f : nat -> C) n,
 Proof.                    
   intros k f n [x [L [Eq Unique]]].
   induction n; try lia.
-  Search Csum.
   rewrite <- Csum_extend_r.
   destruct (Nat.eq_dec x n).
   - subst. 
@@ -1008,7 +1007,7 @@ Local Open Scope nat_scope.
 
 Lemma kron_assoc : forall {m n p q r s : nat}
   (A : Matrix m n) (B : Matrix p q) (C : Matrix r s),
-  (A ⊗ B ⊗ C) ≡ A ⊗ (B ⊗ C).
+  (A ⊗ B ⊗ C) ≡ (A ⊗ (B ⊗ C): Matrix (m * p * r) (n * q * s)).
 Proof.
   intros.
   intros [i Hi] [j Hj]; unfold get; simpl.
