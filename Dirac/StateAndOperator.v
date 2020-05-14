@@ -53,11 +53,155 @@ Proof.
     auto.
 Qed.
 
+Lemma Cmod_Cconj: forall c, RtoC((Cmod c)^2)%R = c^* * c.
+Proof.
+  intros.
+  unfold RtoC.
+  simpl.
+  rewrite Rmult_1_r.
+  destruct c; unfold Cconj, Cmult, Cmod, RtoC.
+  simpl fst; simpl snd.
+  f_equal; [| ring].
+  rewrite sqrt_def by nra.
+  ring.
+Qed.
+
+Lemma mod1_Cconj: forall c, (Cmod c = 1)%R -> c^* * c = 1.
+Proof.
+  intros.
+  rewrite <- Cmod_Cconj.
+  rewrite H.
+  simpl.
+  unfold RtoC.
+  f_equal.
+  ring.
+Qed.
+
+Lemma Cconj_eq_0: forall c, Cconj c = 0 -> c = 0.
+Proof.
+  intros.
+  destruct c; simpl in H.
+  inversion H.
+  unfold RtoC.
+  f_equal.
+  lra.
+Qed.
+
 Lemma StateEquiv_spec: forall {n} (s1 s2: State n),
   StateEquiv s1 s2 <->
   @Mmult (Nat.pow 2 n) 1 (Nat.pow 2 n) s1 (s1 †) ≡
   @Mmult (Nat.pow 2 n) 1 (Nat.pow 2 n) s2 (s2 †) .
-Admitted.
+Proof.
+  intros; split; intros.
+  + unfold StateEquiv in H.
+    destruct H as [c [Hc HH]].
+    rewrite <- HH.
+    rewrite Mscale_adj.
+    rewrite Mscale_mult_dist_r.
+    rewrite Mscale_mult_dist_l.
+    rewrite Mscale_assoc.
+    rewrite mod1_Cconj by auto.
+    rewrite Mscale_1_l.
+    reflexivity.
+  + unfold State in s1, s2.
+    unfold StateEquiv.
+    revert s1 s2 H.
+    set (m := (Nat.pow (S (S O)) n)).
+    clearbody m; clear n.
+    intros.
+    unfold sta_equiv.
+    assert (forall i, (i < m)%nat -> exists c, Cmod c = R1 /\ c * (s1 i O) = s2 i O).
+    {
+      intros i Hi.
+      specialize (H ltac:(exists i; auto) ltac:(exists i; auto)).
+      unfold get in H.
+      simpl in H.
+      unfold adjoint, Mmult in H; simpl in H.
+      ring_simplify in H.
+      rewrite Cmult_comm, <- Cmod_Cconj in H.
+      rewrite Cmult_comm, <- Cmod_Cconj in H.
+      assert (Cmod (s1 i 0%nat) = Cmod (s2 i 0%nat)).
+      {
+        inversion H.
+        ring_simplify in H1.
+        pose proof Cmod_ge_0 (s1 i O).
+        pose proof Cmod_ge_0 (s2 i O).
+        nra.
+      }
+      clear H.
+      destruct (Classical_Prop.classic (s1 i O = 0)).
+      {
+        exists 1.
+        split; [autorewrite with C_db;auto | ].
+        rewrite H in H0.
+        rewrite Cmod_0 in H0.
+        symmetry in H0.
+        apply Cmod_eq_0 in H0.
+        rewrite H0, H.
+        ring.
+      }
+      exists ((s2 i O)/(s1 i O)).
+      split.
+      + rewrite Cmod_div by auto.
+        rewrite <- H0.
+        field.
+        intro.
+        apply Cmod_eq_0 in H1; tauto.
+      + field.
+        auto.
+    }
+    destruct (Classical_Prop.classic (exists i, (i < m)%nat /\ s1 i O <> 0)).
+    2: {
+      exists 1.
+      split; [autorewrite with C_db;auto | ].
+      intros [i Hi] [j Hj]; unfold get; simpl.
+      destruct j; [clear Hj | lia].
+      unfold scale.
+      assert (s1 i O = 0).
+      { apply Classical_Prop.NNPP; intro; apply H1; exists i; auto. }
+      specialize (H0 i Hi).
+      destruct H0 as [c [_ ?]].
+      rewrite <- H0, H2.
+      ring.
+    }
+    destruct H1 as [i [Hi Hs1i]].
+    pose proof H0 i Hi as [c [Hc ?]].
+    exists c; split; auto.
+    intros [i' Hi'] [j Hj]; unfold get; simpl.
+    destruct j; [clear Hj | lia].
+    unfold scale.
+    pose proof H0 i' Hi' as [c' [Hc' ?]].
+    specialize (H ltac:(exists i; auto) ltac:(exists i'; auto)).
+    unfold get in H; simpl in H.
+    unfold Mmult, adjoint in H; simpl in H.
+    ring_simplify in H.
+    rewrite <- H1, <- H2, Cconj_mult_distr in H.
+    rewrite <- H2.
+    destruct (Classical_Prop.classic (s1 i' O = 0)) as [| Hs1i'].
+    { rewrite H3; ring. }
+    assert (c * c' ^* = 1).
+    {
+      transitivity
+         (c * s1 i 0%nat * (c' ^* * (s1 i' 0%nat) ^*) /
+         (s1 i 0%nat * (s1 i' 0%nat) ^*)).
+      { field. split; auto. intro. apply Cconj_eq_0 in H3; tauto. }
+      rewrite <- H.
+      field. split; auto. intro. apply Cconj_eq_0 in H3; tauto.
+    }
+    assert (c' ^* * c'= 1).
+    {
+      rewrite <- Cmod_Cconj.
+      rewrite Hc'.
+      unfold RtoC.
+      f_equal.
+      ring.
+    }
+    rewrite <- (Cmult_1_l c).
+    rewrite <- H4.
+    rewrite <- (Cmult_1_l c') at 3.
+    rewrite <- H3.
+    ring.
+Qed.
 
 Declare Scope Q_Operator.
 Declare Scope Q_State.

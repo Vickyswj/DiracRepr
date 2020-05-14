@@ -1081,7 +1081,7 @@ Definition operator_apply {m} (A: Matrix m m)(B: Vector m) : Vector m:=
 Mmult A B.
 
 Require Import Morphisms.
-Instance sta_proper m : Proper (sta_equiv ==> sta_equiv ==>sta_equiv) (@operator_apply m).
+Instance Mmult_sta_proper m n o: Proper (sta_equiv ==> sta_equiv ==>sta_equiv) (@Mmult m n o).
 Proof.
 hnf;intros A C H1.
 hnf;intros B D H2.
