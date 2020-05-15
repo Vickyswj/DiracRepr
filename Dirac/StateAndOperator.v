@@ -205,8 +205,8 @@ Qed.
 
 Declare Scope Q_Operator.
 Declare Scope Q_State.
-Delimit Scope Q_Operator with Q_Operator.
-Delimit Scope Q_State with Q_State.
+Delimit Scope Q_Operator with QO.
+Delimit Scope Q_State with QS.
 Bind Scope Q_Operator with Operator.
 Bind Scope Q_State with State.
 Local Open Scope Q_Operator.
@@ -221,6 +221,19 @@ Ltac by_def1 := exists 1%C; split; [autorewrite with C_db;auto | rewrite Mscale_
 Ltac by_def c := exists c; split.
 Ltac by_effect := rewrite OperatorEquiv_spec; intros.
 Ltac by_den := rewrite StateEquiv_spec; intros.
+
+Ltac state_reduce:=
+let Hs := fresh "Hs" in
+match goal with
+| |-context [ @Mmult ?n 1 ?n 
+(@Mmult ?n1 ?m ?n2 ?A ?B) (@adjoint ?m1 1 ?C ) ≡
+  @Mmult  ?n 1 ?n ?D (@adjoint ?n 1 ?D)] =>
+      match C with
+      | @Mmult ?n2 ?m2 ?o ?A ?B=>
+       assert (@Mmult n2 m2 o  A B ≡ D) as Hs
+      end
+end;
+  [ |  repeat rewrite Hs; reflexivity].
 
 Declare Scope QE.
 Local Open Scope QE.
@@ -289,12 +302,6 @@ Proof.
   intros.
   by_effect.
 Abort.
-
-
-
-
-
-
 
 
 

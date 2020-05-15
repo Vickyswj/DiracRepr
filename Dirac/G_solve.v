@@ -145,11 +145,11 @@ Definition B1 := ∣0⟩ × ⟨1∣.
 Definition B2 := ∣1⟩ × ⟨0∣.
 Definition B3 := ∣1⟩ × ⟨1∣.
 Definition MI := (B0 .+ B1 .+ B2 .+ B3)⊗ (B0 .+ B1 .+ B2 .+ B3).
-Definition GPS := (((/2 .* MI) .+ (-1) .* (I 2 ⊗ I 2)) ⊗ I 2).
+Definition CPS' := (((/2 .* MI) .+ (-1) .* (I 2 ⊗ I 2)) ⊗ I 2).
 
-Lemma ee : CPS = GPS .
+Lemma ee : CPS = CPS' .
 Proof.
-unfold CPS,GPS,MI.
+unfold CPS,CPS',MI.
 solve_matrix.
 
 Qed.
@@ -161,57 +161,47 @@ Proof.
 unfold  ORA0,ORA0',not_CX,B0,B3.
 solve_matrix.
 Qed.
-
+*)
 Hint Rewrite Cmult_plus_distr_l Cmult_plus_distr_r Copp_plus_distr Copp_mult_distr_l
               Copp_involutive : C_db.
 
 
-Lemma DGrover_2_2 :super ((I 2 ⊗ I 2 ⊗ hadamard) × (CPS × (ORA2 × (hadamard ⊗ hadamard ⊗ hadamard)))) ((∣0,0,1⟩) × (∣0,0,1⟩)†)  = ((∣1,0,1⟩) × (∣1,0,1⟩)†).
-Proof.
-unfold ORA2,CPS,super.
-solve_matrix.
-Qed.
-
-Lemma DGrover_2_3 :super ((I 2 ⊗ I 2 ⊗ hadamard) × (CPS × (ORA3 × (hadamard ⊗ hadamard ⊗ hadamard)))) ((∣0,0,1⟩) × (∣0,0,1⟩)†)  = ((∣1,1,1⟩) × (∣1,1,1⟩)†).
-Proof.
-unfold ORA3,CPS,super.
-solve_matrix.
-Qed.
-
 Lemma DGrover_2_0 :super ((I 2 ⊗ I 2 ⊗ hadamard) × (CPS × (ORA0 × (hadamard ⊗ hadamard ⊗ hadamard)))) ((∣0,0,1⟩) × (∣0,0,1⟩)†)  = ((∣0,0,1⟩) × (∣0,0,1⟩)†).
 Proof.
-unfold ORA0,CPS,super.
+unfold super.
+solve_matrix.
+Qed.
+
+(* Lemma DGrover_2_0'' :super ((I 2 ⊗ I 2 ⊗ hadamard) × (CPS' × (ORA0 × (hadamard ⊗ hadamard ⊗ hadamard)))) ((∣0,0,1⟩) × (∣0,0,1⟩)†)  = ((∣0,0,1⟩) × (∣0,0,1⟩)†).
+Proof.
+unfold CPS',MI,B0,B1,B2,B3,super.
+solve_matrix.
+Qed. *)
+
+
+Lemma DGrover_2_0' :super (I 2 ⊗ I 2 ⊗ hadamard) (super CPS (super ORA0 (super (hadamard ⊗ hadamard ⊗ hadamard) ((∣0,0,1⟩) × (∣0,0,1⟩)†))))  = ((∣0,0,1⟩) × (∣0,0,1⟩)†).
+Proof.
+unfold super.
 solve_matrix.
 Qed.
 
 Lemma DGrover_2_1 :super ((I 2 ⊗ I 2 ⊗ hadamard) × (CPS × (ORA1 × (hadamard ⊗ hadamard ⊗ hadamard)))) ((∣0,0,1⟩) × (∣0,0,1⟩)†)  = ((∣0,1,1⟩) × (∣0,1,1⟩)†).
 Proof.
-unfold ORA1,CPS,super.
+unfold super.
 solve_matrix.
 Qed.
 
 Lemma DGrover_2_2 :super ((I 2 ⊗ I 2 ⊗ hadamard) × (CPS × (ORA2 × (hadamard ⊗ hadamard ⊗ hadamard)))) ((∣0,0,1⟩) × (∣0,0,1⟩)†)  = ((∣1,0,1⟩) × (∣1,0,1⟩)†).
 Proof.
-unfold ORA2,CPS,super.
+unfold super.
 solve_matrix.
 Qed.
 
 Lemma DGrover_2_3 :super ((I 2 ⊗ I 2 ⊗ hadamard) × (CPS × (ORA3 × (hadamard ⊗ hadamard ⊗ hadamard)))) ((∣0,0,1⟩) × (∣0,0,1⟩)†)  = ((∣1,1,1⟩) × (∣1,1,1⟩)†).
 Proof.
-unfold ORA3,CPS,super.
+unfold super.
 solve_matrix.
 Qed.
 
-Lemma DGrover_2_0 :super ((I 2 ⊗ I 2 ⊗ hadamard) × (GPS × (ORA0 × (hadamard ⊗ hadamard ⊗ hadamard)))) ((∣0,0,1⟩) × (∣0,0,1⟩)†)  = ((∣0,0,1⟩) × (∣0,0,1⟩)†).
-Proof.
-unfold ORA0,GPS,MI,B0,B1,B2,B3,super.
-solve_matrix.
-Qed.
-(* Lemma DGrover_2_0 : super ((hadamard ⊗ hadamard ⊗ hadamard) × (σx ⊗ σx ⊗ I 2) × (I 2 ⊗ hadamard ⊗ I 2)
-× (cnot ⊗ I 2) × (I 2 ⊗ hadamard ⊗ I 2) × (σx ⊗ σx ⊗ I 2) × (hadamard ⊗ hadamard ⊗ I 2)
- × ORA0 × (hadamard ⊗ hadamard ⊗ hadamard)) ((∣0,0,1⟩) × (∣0,0,1⟩)†)  = ((∣0,0,1⟩) × (∣0,0,1⟩)†).
-Proof.
-unfold ORA0,super.
-solve_matrix.
-Qed. *)
+
 

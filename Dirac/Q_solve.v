@@ -38,7 +38,7 @@ Qed.
 
 Lemma DQFT_ket0_3 : super (hadamard ⊗ I 2 ⊗ I 2) (super (CS ⊗ I 2) (super (I 2 ⊗ hadamard ⊗ I 2) (super CIT (super (I 2 ⊗ CS) (super (I 2 ⊗ I 2 ⊗ hadamard) ((∣0⟩ ⊗ ∣0⟩ ⊗ ∣0⟩) × (∣0⟩ ⊗ ∣0⟩ ⊗ ∣0⟩)†)))))) = (∣+⟩ ⊗ ∣+⟩ ⊗ ∣+⟩) × (∣+⟩ ⊗ ∣+⟩ ⊗ ∣+⟩)†.
 Proof.
-unfold CIT,CS,super.
+unfold CIT,super.
 solve_matrix.
 Qed.
 

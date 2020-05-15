@@ -1,11 +1,8 @@
 Require Export Dirac.
+Require Export StateAndOperator.
+Declare Scope QE.
+Local Open Scope QE.
 
-
-Definition PS := B0 .+ Cexp PI/2.* B3.
-Definition PT := B0 .+ Cexp PI/4 .* B2.
-Definition CS :=  B0 ⊗ I_2 .+ B3 ⊗ PS.
-Definition CT :=  B0 ⊗ I_2 .+ B3 ⊗ PT.
-Definition CIT :=  B0 ⊗ I_2 ⊗ I_2 .+ B3 ⊗ I_2 ⊗ PT.
 
 Fixpoint kron_n n {m1 m2} (A : Matrix m1 m2) : Matrix (m1^n) (m2^n) :=
   match n with
@@ -51,10 +48,16 @@ induction n.
  Qed.
 
 
+
+(* 3-qubits QFT on  ∣0,0,0⟩ *)
+
+
 (*Step-by-step*)
 
 (*Vector*)
-Definition φ0 := ∣0⟩ ⊗ ∣0⟩ ⊗ ∣0⟩.
+Definition CIT :=  B0 ⊗ I_2 ⊗ I_2 .+ B3 ⊗ I_2 ⊗ PT.
+
+Definition φ0 := ∣0,0,0⟩.
 Definition φ1 := (I_2 ⊗ I_2 ⊗ H) × φ0.
 Definition φ2 := (I_2 ⊗ CS) × φ1.
 Definition φ3 := CIT × φ2.
@@ -159,33 +162,58 @@ Qed.
 
 (* One-time *)
 
-Lemma QFT_ket0_3 : (H ⊗ I_2 ⊗ I_2) × (CS ⊗ I_2) × (I_2 ⊗ H ⊗ I_2) × CIT ×  (I_2 ⊗ CS) × (I_2 ⊗ I_2 ⊗ H) × φ0 ≡ ∣+⟩ ⊗ ∣+⟩ ⊗ ∣+⟩.
+Lemma QFT_ket0_3' : (H ⊗ I_2 ⊗ I_2) × (CS ⊗ I_2) × (I_2 ⊗ H ⊗ I_2) × CIT ×  (I_2 ⊗ CS) × (I_2 ⊗ I_2 ⊗ H) × ∣0,0,0⟩ ≡ ∣+⟩ ⊗ ∣+⟩ ⊗ ∣+⟩.
 Proof.
-unfold φ0,CS,CIT.
+unfold CIT.
 operate_reduce.
 Qed.
 
-
-Lemma DQFT_ket0_3 : super ((H ⊗ I_2 ⊗ I_2) × (CS ⊗ I_2) × (I_2 ⊗ H ⊗ I_2) × CIT ×  (I_2 ⊗ CS) × (I_2 ⊗ I_2 ⊗ H)) ρ0 ≡ density (∣+⟩ ⊗ ∣+⟩ ⊗ ∣+⟩).
+Lemma QFT_ket0_3 : (H ⊗ I_2 ⊗ I_2) × (CS ⊗ I_2) × (I_2 ⊗ H ⊗ I_2) × CIT ×  (I_2 ⊗ CS) × (I_2 ⊗ I_2 ⊗ H) × ∣0,0,0⟩ ≈ ∣+⟩ ⊗ ∣+⟩ ⊗ ∣+⟩.
 Proof.
-unfold ρ0,φ0,CS,CIT,super.
+by_den.
+state_reduce.
+rewrite QFT_ket0_3';reflexivity.
+Qed.
+
+
+Lemma DQFT_ket0_3' : super ((H ⊗ I_2 ⊗ I_2) × (CS ⊗ I_2) × (I_2 ⊗ H ⊗ I_2) × CIT ×  (I_2 ⊗ CS) × (I_2 ⊗ I_2 ⊗ H)) (density ∣0,0,0⟩) ≡ density (∣+⟩ ⊗ ∣+⟩ ⊗ ∣+⟩).
+Proof.
+unfold CIT.
 super_reduce.
 Qed.
 
-Lemma QFT_ket0_2 : (H ⊗ I_2) × CS × (I_2 ⊗ H) × (∣0,0⟩) ≡ ∣+⟩ ⊗ ∣+⟩.
+Lemma DQFT_ket0_3 : super ((H ⊗ I_2 ⊗ I_2) × (CS ⊗ I_2) × (I_2 ⊗ H ⊗ I_2) × CIT ×  (I_2 ⊗ CS) × (I_2 ⊗ I_2 ⊗ H)) (density ∣0,0,0⟩) ≈ density (∣+⟩ ⊗ ∣+⟩ ⊗ ∣+⟩).
 Proof.
-unfold CS.
-operate_reduce.
-Qed.
-
-Lemma DQFT_ket0_2 : super ((H ⊗ I_2) × CS × (I_2 ⊗ H)) (density ∣0⟩ ⊗ ∣0⟩) ≡ density  ∣+⟩ ⊗ ∣+⟩ ⊗ ∣+⟩ .
-Proof.
-unfold CS,super.
-super_reduce.
+by_def1.
+rewrite DQFT_ket0_3';reflexivity.
 Qed.
 
 
-Definition PK := B0 .+ Cexp (PI/8)  .* B3.
+(* 2-qubits QFT on  ∣0,0⟩ *)
+
+Lemma QFT_ket0_2' : (H ⊗ I_2) × CS × (I_2 ⊗ H) × (∣0,0⟩) ≡ ∣+⟩ ⊗ ∣+⟩.
+Proof. operate_reduce. Qed.
+
+Lemma QFT_ket0_2 : (H ⊗ I_2) × CS × (I_2 ⊗ H) × (∣0,0⟩) ≈ ∣+⟩ ⊗ ∣+⟩.
+Proof.
+by_den.
+state_reduce.
+rewrite QFT_ket0_2';reflexivity.
+Qed.
+
+
+Lemma DQFT_ket0_2' : super ((H ⊗ I_2) × CS × (I_2 ⊗ H)) (density ∣0,0⟩) ≡ density  (∣+⟩ ⊗ ∣+⟩) .
+Proof. super_reduce. Qed.
+
+Lemma DQFT_ket0_2 : super ((H ⊗ I_2) × CS × (I_2 ⊗ H)) (density ∣0,0⟩) ≈ density  (∣+⟩ ⊗ ∣+⟩) .
+Proof.
+by_def1.
+rewrite DQFT_ket0_2';reflexivity.
+Qed.
+
+
+(* try 4-qubits QFT on  ∣0,0,0,0⟩ *)
+(* Definition PK := B0 .+ Cexp (PI/8)  .* B3.
 Definition CIS :=  B0 ⊗ I_2 ⊗ I_2 .+ B3 ⊗ I_2 ⊗ PS.
 Definition CIIK :=  B0 ⊗ I_2 ⊗ I_2 ⊗ I_2 .+ B3 ⊗ I_2 ⊗ I_2 ⊗ PK.
 Lemma QFT_ket0_4 : (H ⊗ I_2 ⊗ I_2 ⊗ I_2) × (CS ⊗ I_2 ⊗ I_2) × (I_2 ⊗ H ⊗ I_2 ⊗ I_2) × (CIT ⊗ I_2) × (I_2 ⊗ CS ⊗ I_2) × (I_2 ⊗ I_2 ⊗ H ⊗ I_2) ×
@@ -193,5 +221,5 @@ Lemma QFT_ket0_4 : (H ⊗ I_2 ⊗ I_2 ⊗ I_2) × (CS ⊗ I_2 ⊗ I_2) × (I_2 �
 Proof.
 unfold CIT,CIIK,PK,CS.
 operate_reduce.
-Qed.
+Qed. *)
 

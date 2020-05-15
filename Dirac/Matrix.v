@@ -1773,12 +1773,19 @@ Ltac reduce_matrices := assoc_least;
                                end.
 
 
-Ltac solve_matrix := assoc_least;
+Ltac solve_matrix' := assoc_least;
                      repeat reduce_matrix; try crunch_matrix;
                      (* handle out-of-bounds *)
                      unfold Nat.ltb; simpl; try rewrite andb_false_r; 
                      (* try to solve complex equalities *)
                      autorewrite with C_db; try lca.
+
+Ltac solve_matrix := assoc_least;
+                     repeat reduce_matrix; try crunch_matrix;
+                     (* handle out-of-bounds *)
+                     unfold Nat.ltb; simpl; try rewrite andb_false_r; 
+                     (* try to solve complex equalities *)
+                     autorewrite with C_db; repeat group_radicals; try lca.
 
 (*********************************************************)
 (**                         Gridify                     **)

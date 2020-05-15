@@ -1,4 +1,7 @@
 Require Export Dirac.
+Require Export StateAndOperator.
+Declare Scope QE.
+Local Open Scope QE.
 
 
 (* s = 10*)
@@ -10,7 +13,6 @@ Definition φ20 := ∣0,0,0,0⟩.
 Definition φ21 := (H ⊗ H ⊗ I_2 ⊗ σX) × φ20.
 Definition φ22 := (I_2 ⊗ CX ⊗ I_2) × φ21.
 Definition φ23 := (H ⊗ H ⊗ I_2 ⊗ I_2) × φ22.
-
 
 Lemma step21 : φ21 ≡ ∣+⟩ ⊗ ∣+⟩ ⊗ ∣0⟩ ⊗ ∣1⟩.
 Proof.
@@ -63,16 +65,22 @@ Qed.
 
 
 (*One-time*)
-Lemma simon2 : (H ⊗ H ⊗ I_2 ⊗ I_2) × (I_2 ⊗ CX ⊗ I_2) × (H ⊗ H ⊗ I_2 ⊗ σX) × ∣0,0,0,0⟩ ≡ /2 .* ∣0,0,0,1⟩ .+ /2 .* ∣0,1,0,1⟩ .+ /2 .* ∣0,0,1,1⟩ .+ - /2 .* ∣0,1,1,1⟩.
+Lemma simon2' : (H ⊗ H ⊗ I_2 ⊗ I_2) × (I_2 ⊗ CX ⊗ I_2) × (H ⊗ H ⊗ I_2 ⊗ σX) × ∣0,0,0,0⟩ ≡ /2 .* ∣0,0,0,1⟩ .+ /2 .* ∣0,1,0,1⟩ .+ /2 .* ∣0,0,1,1⟩ .+ - /2 .* ∣0,1,1,1⟩.
+Proof. operate_reduce. Qed.
+
+Lemma simon2 : (H ⊗ H ⊗ I_2 ⊗ I_2) × (I_2 ⊗ CX ⊗ I_2) × (H ⊗ H ⊗ I_2 ⊗ σX) × ∣0,0,0,0⟩ ≈ /2 .* ∣0,0,0,1⟩ .+ /2 .* ∣0,1,0,1⟩ .+ /2 .* ∣0,0,1,1⟩ .+ - /2 .* ∣0,1,1,1⟩.
 Proof.
+by_den.
+state_reduce.
 operate_reduce.
 Qed.
 
-Lemma Dsimon2 : super ((H ⊗ H ⊗ I_2 ⊗ I_2) × (I_2 ⊗ CX ⊗ I_2) × (H ⊗ H ⊗ I_2 ⊗ σX)) (density ∣0,0,0,0⟩) ≡ density (/2 .* ∣0,0,0,1⟩ .+ /2 .* ∣0,1,0,1⟩ .+ /2 .* ∣0,0,1,1⟩ .+ - /2 .* ∣0,1,1,1⟩).
-Proof.
-super_reduce.
-Qed.
 
+Lemma Dsimon2' : super ((H ⊗ H ⊗ I_2 ⊗ I_2) × (I_2 ⊗ CX ⊗ I_2) × (H ⊗ H ⊗ I_2 ⊗ σX)) (density ∣0,0,0,0⟩) ≡ density (/2 .* ∣0,0,0,1⟩ .+ /2 .* ∣0,1,0,1⟩ .+ /2 .* ∣0,0,1,1⟩ .+ - /2 .* ∣0,1,1,1⟩).
+Proof. super_reduce. Qed.
+
+Lemma Dsimon2 : super ((H ⊗ H ⊗ I_2 ⊗ I_2) × (I_2 ⊗ CX ⊗ I_2) × (H ⊗ H ⊗ I_2 ⊗ σX)) (density ∣0,0,0,0⟩) ≈ density (/2 .* ∣0,0,0,1⟩ .+ /2 .* ∣0,1,0,1⟩ .+ /2 .* ∣0,0,1,1⟩ .+ - /2 .* ∣0,1,1,1⟩).
+Proof. by_def1. super_reduce. Qed.
 
 
 (* s = 11*)
@@ -83,13 +91,13 @@ Qed.
 Definition CIX := B0 ⊗ I_2 ⊗ I_2 .+ B3 ⊗ I_2 ⊗ σX.
 
 Definition φ30 := ∣0,0,0,0⟩.
-Definition φ31 := (H ⊗ H ⊗ I_2 ⊗ σX) × φ30.
-Definition φ32 := (CIX ⊗ I_2) × φ31.
+Definition φ31 := (H ⊗ H ⊗ I_2 ⊗ I_2) × φ30.
+Definition φ32 := (CIX ⊗ σX) × φ31.
 Definition φ33 := (I_2 ⊗ CX ⊗ I_2) × φ32.
 Definition φ34 := (H ⊗ H ⊗ I_2 ⊗ I_2) × φ33.
 
 
-Lemma step31 : φ31 ≡ ∣+⟩ ⊗ ∣+⟩ ⊗ ∣0⟩ ⊗ ∣1⟩.
+Lemma step31 : φ31 ≡ ∣+⟩ ⊗ ∣+⟩ ⊗ ∣0⟩ ⊗ ∣0⟩.
 Proof.
 unfold φ31,φ30.
 operate_reduce.
@@ -120,8 +128,8 @@ Qed.
 
 (*Density*)
 Definition ρ30 := φ30 × φ30†.
-Definition ρ31 := super (H ⊗ H ⊗ I_2 ⊗ σX) ρ30.
-Definition ρ32 := super (CIX ⊗ I_2) ρ31.
+Definition ρ31 := super (H ⊗ H ⊗ I_2 ⊗ I_2) ρ30.
+Definition ρ32 := super (CIX ⊗ σX) ρ31.
 Definition ρ33 := super (I_2 ⊗ CX ⊗ I_2) ρ32.
 Definition ρ34 := super (H ⊗ H ⊗ I_2 ⊗ I_2) ρ33.
 
@@ -154,14 +162,28 @@ Qed.
 
 
 (*One-time*)
-Lemma simon3 : (H ⊗ H ⊗ I_2 ⊗ I_2) × (I_2 ⊗ CX ⊗ I_2) × (CIX ⊗ σX) × (H ⊗ H ⊗ I_2 ⊗ I_2) × ∣0,0,0,0⟩ ≡ /2 .* ∣0,0,0,1⟩ .+ /2 .* ∣1,1,0,1⟩ .+ /2 .* ∣0,0,1,1⟩ .+ - /2 .* ∣1,1,1,1⟩.
+(* Definition CIX := B0 ⊗ I_2 ⊗ I_2 .+ B3 ⊗ I_2 ⊗ σX.
+Lemma simon3'' : (H ⊗ H ⊗ I_2 ⊗ I_2) × (I_2 ⊗ CX ⊗ I_2) × (CIX ⊗ σX) × (H ⊗ H ⊗ I_2 ⊗ I_2) × ∣0,0,0,0⟩ ≡ /2 .* ∣0,0,0,1⟩ .+ /2 .* ∣1,1,0,1⟩ .+ /2 .* ∣0,0,1,1⟩ .+ - /2 .* ∣1,1,1,1⟩. *)
+Lemma simon3' : (H ⊗ H ⊗ I_2 ⊗ I_2) × (I_2 ⊗ CX ⊗ I_2) × (B0 ⊗ I_2 ⊗ (I_2 ⊗ σX) .+ B3 ⊗ I_2 ⊗ (σX ⊗ σX)) × (H ⊗ H ⊗ I_2 ⊗ I_2) × ∣0,0,0,0⟩ ≡ /2 .* ∣0,0,0,1⟩ .+ /2 .* ∣1,1,0,1⟩ .+ /2 .* ∣0,0,1,1⟩ .+ - /2 .* ∣1,1,1,1⟩.
+Proof. operate_reduce. Qed.
+
+Lemma simon3 : (H ⊗ H ⊗ I_2 ⊗ I_2) × (I_2 ⊗ CX ⊗ I_2) × (B0 ⊗ I_2 ⊗ (I_2 ⊗ σX) .+ B3 ⊗ I_2 ⊗ (σX ⊗ σX)) × (H ⊗ H ⊗ I_2 ⊗ I_2) × ∣0,0,0,0⟩ ≈ /2 .* ∣0,0,0,1⟩ .+ /2 .* ∣1,1,0,1⟩ .+ /2 .* ∣0,0,1,1⟩ .+ - /2 .* ∣1,1,1,1⟩.
 Proof.
-unfold CIX.
-operate_reduce.
+by_den.
+state_reduce.
+rewrite simon3'; reflexivity.
 Qed.
 
-Lemma Dsimon3 : super ((H ⊗ H ⊗ I_2 ⊗ I_2) × (I_2 ⊗ CX ⊗ I_2) × (CIX ⊗ I_2) × (H ⊗ H ⊗ I_2 ⊗ σX)) (density ∣0,0,0,0⟩) ≡ density (/2 .* ∣0,0,0,1⟩ .+ /2 .* ∣1,1,0,1⟩ .+ /2 .* ∣0,0,1,1⟩ .+ - /2 .* ∣1,1,1,1⟩).
+
+Lemma Dsimon3' : super ((H ⊗ H ⊗ I_2 ⊗ I_2) × (I_2 ⊗ CX ⊗ I_2) × (B0 ⊗ I_2 ⊗ (I_2 ⊗ σX) .+ B3 ⊗ I_2 ⊗ (σX ⊗ σX)) × (H ⊗ H ⊗ I_2 ⊗ I_2)) (density ∣0,0,0,0⟩) ≡ density (/2 .* ∣0,0,0,1⟩ .+ /2 .* ∣1,1,0,1⟩ .+ /2 .* ∣0,0,1,1⟩ .+ - /2 .* ∣1,1,1,1⟩).
 Proof.
-unfold ρ00,φ00,super.
+(* unfold CIX. *)
 super_reduce.
 Qed.
+
+Lemma Dsimon3 : super ((H ⊗ H ⊗ I_2 ⊗ I_2) × (I_2 ⊗ CX ⊗ I_2) × (B0 ⊗ I_2 ⊗ (I_2 ⊗ σX) .+ B3 ⊗ I_2 ⊗ (σX ⊗ σX)) × (H ⊗ H ⊗ I_2 ⊗ I_2)) (density ∣0,0,0,0⟩) ≈ density (/2 .* ∣0,0,0,1⟩ .+ /2 .* ∣1,1,0,1⟩ .+ /2 .* ∣0,0,1,1⟩ .+ - /2 .* ∣1,1,1,1⟩).
+Proof.
+by_def1.
+rewrite Dsimon3'; reflexivity.
+Qed.
+
