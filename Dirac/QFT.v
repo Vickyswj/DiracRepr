@@ -162,53 +162,39 @@ Qed.
 
 (* One-time *)
 
-Lemma QFT_ket0_3' : (H ⊗ I_2 ⊗ I_2) × (CS ⊗ I_2) × (I_2 ⊗ H ⊗ I_2) × CIT ×  (I_2 ⊗ CS) × (I_2 ⊗ I_2 ⊗ H) × ∣0,0,0⟩ ≡ ∣+⟩ ⊗ ∣+⟩ ⊗ ∣+⟩.
+Lemma QFT_ket0_3 : (H ⊗ I_2 ⊗ I_2) × (CS ⊗ I_2) × (I_2 ⊗ H ⊗ I_2) × CIT ×  (I_2 ⊗ CS) × (I_2 ⊗ I_2 ⊗ H) × ∣0,0,0⟩ ≡ ∣+⟩ ⊗ ∣+⟩ ⊗ ∣+⟩.
 Proof.
 unfold CIT.
 operate_reduce.
 Qed.
 
-Lemma QFT_ket0_3 : (H ⊗ I_2 ⊗ I_2) × (CS ⊗ I_2) × (I_2 ⊗ H ⊗ I_2) × CIT ×  (I_2 ⊗ CS) × (I_2 ⊗ I_2 ⊗ H) × ∣0,0,0⟩ ≈ ∣+⟩ ⊗ ∣+⟩ ⊗ ∣+⟩.
-Proof.
-by_den.
-state_reduce.
-rewrite QFT_ket0_3';reflexivity.
-Qed.
-
-
-Lemma DQFT_ket0_3' : super ((H ⊗ I_2 ⊗ I_2) × (CS ⊗ I_2) × (I_2 ⊗ H ⊗ I_2) × CIT ×  (I_2 ⊗ CS) × (I_2 ⊗ I_2 ⊗ H)) (density ∣0,0,0⟩) ≡ density (∣+⟩ ⊗ ∣+⟩ ⊗ ∣+⟩).
+Lemma DQFT_ket0_3 : super ((H ⊗ I_2 ⊗ I_2) × (CS ⊗ I_2) × (I_2 ⊗ H ⊗ I_2) × CIT ×  (I_2 ⊗ CS) × (I_2 ⊗ I_2 ⊗ H)) (density ∣0,0,0⟩) ≡ density (∣+⟩ ⊗ ∣+⟩ ⊗ ∣+⟩).
 Proof.
 unfold CIT.
 super_reduce.
 Qed.
 
-Lemma DQFT_ket0_3 : super ((H ⊗ I_2 ⊗ I_2) × (CS ⊗ I_2) × (I_2 ⊗ H ⊗ I_2) × CIT ×  (I_2 ⊗ CS) × (I_2 ⊗ I_2 ⊗ H)) (density ∣0,0,0⟩) ≈ density (∣+⟩ ⊗ ∣+⟩ ⊗ ∣+⟩).
+Lemma QFT_ket0_3' : (H ⊗ I_2 ⊗ I_2) × (CS ⊗ I_2) × (I_2 ⊗ H ⊗ I_2) × CIT ×  (I_2 ⊗ CS) × (I_2 ⊗ I_2 ⊗ H) × ∣0,0,0⟩ ≈ ∣+⟩ ⊗ ∣+⟩ ⊗ ∣+⟩.
 Proof.
-by_def1.
-rewrite DQFT_ket0_3';reflexivity.
+by_den.
+rewrite QFT_ket0_3.
+reflexivity.
 Qed.
 
 
 (* 2-qubits QFT on  ∣0,0⟩ *)
 
-Lemma QFT_ket0_2' : (H ⊗ I_2) × CS × (I_2 ⊗ H) × (∣0,0⟩) ≡ ∣+⟩ ⊗ ∣+⟩.
+Lemma QFT_ket0_2 : (H ⊗ I_2) × CS × (I_2 ⊗ H) × (∣0,0⟩) ≡ ∣+⟩ ⊗ ∣+⟩.
 Proof. operate_reduce. Qed.
 
-Lemma QFT_ket0_2 : (H ⊗ I_2) × CS × (I_2 ⊗ H) × (∣0,0⟩) ≈ ∣+⟩ ⊗ ∣+⟩.
-Proof.
-by_den.
-state_reduce.
-rewrite QFT_ket0_2';reflexivity.
-Qed.
-
-
-Lemma DQFT_ket0_2' : super ((H ⊗ I_2) × CS × (I_2 ⊗ H)) (density ∣0,0⟩) ≡ density  (∣+⟩ ⊗ ∣+⟩) .
+Lemma DQFT_ket0_2 : super ((H ⊗ I_2) × CS × (I_2 ⊗ H)) (density ∣0,0⟩) ≡ density  (∣+⟩ ⊗ ∣+⟩) .
 Proof. super_reduce. Qed.
 
-Lemma DQFT_ket0_2 : super ((H ⊗ I_2) × CS × (I_2 ⊗ H)) (density ∣0,0⟩) ≈ density  (∣+⟩ ⊗ ∣+⟩) .
+Lemma QFT_ket0_2' : (H ⊗ I_2) × CS × (I_2 ⊗ H) × (∣0,0⟩) ≈ ∣+⟩ ⊗ ∣+⟩.
 Proof.
-by_def1.
-rewrite DQFT_ket0_2';reflexivity.
+by_den.
+rewrite QFT_ket0_2.
+reflexivity.
 Qed.
 
 

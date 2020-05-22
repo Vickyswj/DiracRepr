@@ -11,33 +11,33 @@ Definition Compose {n} (o1 o2: Operator n): Operator n :=
   @Mmult _ (Nat.pow 2 n) _ o1 o2.
 
 Definition OperatorEquiv {n} (o1 o2: Operator n): Prop :=
-  @sta_equiv (Nat.pow 2 n) (Nat.pow 2 n) o1 o2.
+  @phase_equiv (Nat.pow 2 n) (Nat.pow 2 n) o1 o2.
 
 Definition StateEquiv {n} (s1 s2: State n): Prop :=
-  @sta_equiv (Nat.pow 2 n) 1 s1 s2.
+  @phase_equiv (Nat.pow 2 n) 1 s1 s2.
 
 Instance ProperApply n:
   Proper (OperatorEquiv ==> StateEquiv ==> StateEquiv) (@Apply n).
 Proof.
   intros.
-  apply (Mmult_sta_proper (Nat.pow 2 n) (Nat.pow 2 n) 1).
+  apply (Mmult_phase_proper (Nat.pow 2 n) (Nat.pow 2 n) 1).
 Qed.
 
 Instance ProperCompose n:
   Proper (OperatorEquiv ==> OperatorEquiv ==> OperatorEquiv) (@Compose n).
 Proof.
   intros.
-  apply (Mmult_sta_proper (Nat.pow 2 n) (Nat.pow 2 n) (Nat.pow 2 n)).
+  apply (Mmult_phase_proper (Nat.pow 2 n) (Nat.pow 2 n) (Nat.pow 2 n)).
 Qed.
 
 Instance OperatorEquiv_equiv n: Equivalence (@OperatorEquiv n).
 Proof.
-  apply (sta_equiv_equiv (Nat.pow 2 n) (Nat.pow 2 n)).
+  apply (phase_equiv_equiv (Nat.pow 2 n) (Nat.pow 2 n)).
 Qed.
 
 Instance StateEquiv_equiv n: Equivalence (@StateEquiv n).
 Proof.
-  apply (sta_equiv_equiv (Nat.pow 2 n) 1).
+  apply (phase_equiv_equiv (Nat.pow 2 n) 1).
 Qed.
 
 Lemma OperatorEquiv_spec: forall {n} (o1 o2: Operator n),
@@ -51,6 +51,17 @@ Proof.
     reflexivity.
   + apply sta_equiv_by_Mmult.
     auto.
+Qed.
+
+Lemma MatrixEquiv_spec: forall {n} (A B: Matrix n n),
+		  A ≡ B <-> (forall v: Vector n, A × v ≡ B × v).
+Proof.
+  intros.
+  split; intros.
+  + rewrite H.
+    reflexivity.
+  + apply mat_equiv_by_Mmult.
+     auto.
 Qed.
 
 Lemma Cmod_Cconj: forall c, RtoC((Cmod c)^2)%R = c^* * c.
@@ -109,7 +120,7 @@ Proof.
     set (m := (Nat.pow (S (S O)) n)).
     clearbody m; clear n.
     intros.
-    unfold sta_equiv.
+    unfold phase_equiv.
     assert (forall i, (i < m)%nat -> exists c, Cmod c = R1 /\ c * (s1 i O) = s2 i O).
     {
       intros i Hi.
@@ -262,49 +273,6 @@ Ltac gen_equiv A B :=
   end.
 
 Notation "A ≈ B" := (ltac:(gen_equiv A B)) (only parsing): QE.
-
-Lemma Foo: H × H ≈ H.
-Abort.
-
-Lemma Foo: B0 ⊗ B0 ≈ H ⊗ H.
-Abort.
-
-Lemma Foo: B0 ⊗ (B0 ⊗ B0) ≈ (H ⊗ H) ⊗ H.
-Abort.
-
-Lemma Foo: B0 ⊗ (B0 ⊗ B0) × (∣0⟩ ⊗∣0⟩ ⊗∣0⟩) ≈ (H ⊗ H) ⊗ H × (∣0⟩ ⊗∣0⟩ ⊗∣0⟩).
-Abort.
-
-Goal forall (F: Operator 5) (X: State 5),
-  Apply (F * F) X ≈ Apply F (Apply F X).
-Proof.
-  intros.
-  by_def 1.
-Abort.
-
-Goal forall (F: Operator 5) (X: State 5),
-  Apply (F * F) X ≈ Apply F (Apply F X).
-Proof.
-  intros.
-  by_def1.
-Abort.
-
-Goal forall (F: Operator 5) (X: State 5),
-  Apply (F * F) X ≈ Apply F (Apply F X).
-Proof.
-  intros.
-  by_den.
-Abort.
-
-Goal forall (F: Operator 5),
-  ((F * F) ≈ F).
-Proof.
-  intros.
-  by_effect.
-Abort.
-
-
-
 
 
 

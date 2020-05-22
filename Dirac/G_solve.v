@@ -161,7 +161,7 @@ Proof.
 unfold  ORA0,ORA0',not_CX,B0,B3.
 solve_matrix.
 Qed.
-*)
+
 Hint Rewrite Cmult_plus_distr_l Cmult_plus_distr_r Copp_plus_distr Copp_mult_distr_l
               Copp_involutive : C_db.
 

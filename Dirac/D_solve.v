@@ -32,13 +32,13 @@ Proof. solve_matrix. Qed.
 Lemma Ddeutsch0 : super (hadamard ⊗ I 2) (super (I 2 ⊗ I 2) (super (hadamard ⊗ hadamard) ((∣0⟩ ⊗ ∣1⟩) × (∣0⟩ ⊗ ∣1⟩)†))) = (∣0⟩ ⊗ ∣-⟩) × (∣0⟩ ⊗ ∣-⟩)†.
 Proof.
 unfold super.
-solve_matrix. 
-Qed.
+solve_matrix.
+Qed. 
 
-Lemma Ddeutsch0' : super ((hadamard ⊗ I 2) × (I 2 ⊗ I 2) × (hadamard ⊗ hadamard)) ((∣0⟩ ⊗ ∣1⟩) × (∣0⟩ ⊗ ∣1⟩)†)= (∣0⟩ ⊗ ∣-⟩) × (∣0⟩ ⊗ ∣-⟩)†.
+Lemma Ddeutsch0' : super ((hadamard ⊗ I 2) × ((I 2 ⊗ I 2) × (hadamard ⊗ hadamard))) ((∣0⟩ ⊗ ∣1⟩) × (∣0⟩ ⊗ ∣1⟩)†)= (∣0⟩ ⊗ ∣-⟩) × (∣0⟩ ⊗ ∣-⟩)†.
 Proof.
 unfold super.
-solve_matrix. 
+solve_matrix.
 Qed.
 
 

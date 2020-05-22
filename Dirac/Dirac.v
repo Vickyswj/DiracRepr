@@ -1047,24 +1047,16 @@ end;
     repeat rewrite Hs; reflexivity].                                            (*  rewrite it back in density matrix form*)
 
 
-Definition φ := ∣0,0⟩.
-Definition ρ := (∣0,0⟩) × (∣0,0⟩)†.
-Lemma test_density : ρ = density φ.
-Proof. unfold density. auto. Qed.
-
-Lemma test_super : super (CX × (H ⊗ H) )  (density φ) ≡ density (/ √ 2 .* ∣0⟩ ⊗ ∣+⟩ .+ / √ 2 .* ∣1⟩ ⊗ ∣+⟩).
-Proof.
-unfold φ.
-super_reduce.
-Qed.
 
 
-Definition sta_equiv {m n : nat} (A B : Matrix m n) : Prop := 
+
+
+Definition phase_equiv {m n : nat} (A B : Matrix m n) : Prop := 
   exists c : C, Cmod c = R1 /\  c .* A ≡ B.
 
-Infix "≈" := sta_equiv (at level 70) : matrix_scope.
+Infix "≈" := phase_equiv (at level 70) : matrix_scope.
 
-Ltac sta_yes :=
+(* Ltac sta_yes :=
 unfold sta_equiv;
 exists 1;
 split;
@@ -1075,17 +1067,17 @@ Ltac sta_m1 :=
 unfold sta_equiv;
 exists (-(1));
 split;
-autorewrite with C_db;auto.
+autorewrite with C_db;auto. *)
 
 Definition operator_apply {m} (A: Matrix m m)(B: Vector m) : Vector m:=
 Mmult A B.
 
 Require Import Morphisms.
-Instance Mmult_sta_proper m n o: Proper (sta_equiv ==> sta_equiv ==>sta_equiv) (@Mmult m n o).
+Instance Mmult_phase_proper m n o: Proper (phase_equiv ==> phase_equiv ==>phase_equiv) (@Mmult m n o).
 Proof.
 hnf;intros A C H1.
 hnf;intros B D H2.
-unfold sta_equiv,operator_apply,get in * .
+unfold phase_equiv,operator_apply,get in * .
 inversion H1. inversion H0.
 inversion H2. inversion H5.
 exists (x0*x).
@@ -1099,6 +1091,10 @@ split.
  reflexivity.
 Qed.
 
+
+
+
+
 Lemma mod1_not_0: forall c, Cmod c = R1 -> c <> 0.
 Proof.
   intros; intro.
@@ -1107,7 +1103,7 @@ Proof.
   lra.
 Qed.
 
-Instance sta_equiv_equiv m n: Equivalence (@sta_equiv m n).
+Instance phase_equiv_equiv m n: Equivalence (@phase_equiv m n).
 Proof.
   constructor.
   + hnf; intros A.
@@ -1131,6 +1127,152 @@ Proof.
       rewrite Mscale_assoc, Cmult_comm.
       reflexivity.
 Qed.
+
+
+
+Lemma mat_equiv_by_Mmult: forall m n (A B: Matrix m n),
+  (forall v : Matrix n 1, Mmult A v ≡ Mmult B v) ->
+  A ≡ B.
+Proof.
+  intros m n A B HAB.
+    assert (forall j, (j < n)%nat ->
+            forall i, (i < m)%nat -> A i j = B i j)
+      as HAB'.
+ { 
+    intros j Hj.
+    specialize
+      (HAB (fun j' _ => if (j' =? j) && (j' <? n) then 1 else 0)).
+    intros.
+    specialize (HAB ltac:(exists i; auto)
+                     ltac:(exists 0%nat; lia)).
+    pose proof Mmult_1_r _ _ A
+                 ltac:(exists i; auto)
+                 ltac:(exists j; auto)
+            as HAj.
+    pose proof Mmult_1_r _ _ B
+                 ltac:(exists i; auto)
+                 ltac:(exists j; auto)
+            as HBj.
+    unfold scale in HAB.
+    unfold Mmult, get, I in HAB, HAj, HBj; simpl in HAB, HAj, HBj.
+    rewrite HAj, HBj in HAB.
+    auto. 
+    }
+  assert (forall j j', (j < n)%nat -> (j' < n)%nat ->
+          forall x x': C,
+            forall i, (i < m)%nat ->
+               (A i j * x + A i j' * x') = B i j * x + B i j' * x')
+      as HAB''.
+{
+    intros j j' Hj Hj' x x'.
+    specialize
+      (HAB (fun j'' _ => x * (if (j'' =? j) && (j'' <? n) then 1 else 0) +
+                         x' * (if (j'' =? j') && (j'' <? n) then 1 else 0))).
+    intros i Hi.
+    specialize (HAB ltac:(exists i; auto)
+                       ltac:(exists 0%nat; lia)).
+    pose proof Mmult_1_r _ _ A
+                 ltac:(exists i; auto)
+                 ltac:(exists j; auto)
+            as HAj.
+    pose proof Mmult_1_r _ _ A
+                 ltac:(exists i; auto)
+                 ltac:(exists j'; auto)
+            as HAj'.
+    pose proof Mmult_1_r _ _ B
+                 ltac:(exists i; auto)
+                 ltac:(exists j; auto)
+            as HBj.
+    pose proof Mmult_1_r _ _ B
+                 ltac:(exists i; auto)
+                 ltac:(exists j'; auto)
+            as HBj'.
+    unfold scale in HAB.
+    unfold Mmult, get, I in HAB, HAj, HAj', HBj, HBj';
+    simpl in HAB, HAj, HAj', HBj, HBj'.
+    assert (forall K,
+            (fun y : nat =>
+               K y * (x * (if (y =? j) && (y <? n) then 1 else 0) +
+                      x' * (if (y =? j') && (y <? n) then 1 else 0))) =
+            (fun y : nat =>
+               (K y * (if (y =? j) && (y <? n) then 1 else 0)) * x +
+               (K y * (if (y =? j') && (y <? n) then 1 else 0)) * x')).
+    {
+      intros.
+      apply functional_extensionality.
+      intros j''.
+      ring.
+    }
+    rewrite (Csum_eq _ _ n (H0 (A i))),
+            (Csum_eq _ _ n (H0 (B i))),
+            !Csum_plus, <- !Csum_mult_r,
+            HAj, HAj', HBj, HBj'  in HAB.
+    auto.
+  }
+    pose proof Classical_Prop.classic
+               (exists i j, (i < m)%nat /\
+                            (j < n)%nat /\
+                            A i j <> 0)
+          as [[i [j [Hi [Hj HAij]]]] | CONTRA].
+  2: {
+    intros [i Hi] [j Hj].
+    unfold get; simpl.
+    assert (A i j = 0).
+    {
+      apply Classical_Prop.NNPP.
+      intro; apply CONTRA.
+      exists i, j; auto.
+    }
+    assert (B i j = 0).
+    {
+      specialize (HAB' j ltac:(auto)).
+      specialize (HAB' i ltac:(auto)).
+      rewrite H0 in HAB'.
+      rewrite <- HAB'.
+      ring.
+    }
+    rewrite H0, H1; reflexivity.
+  }
+  pose proof HAB' j Hj as Hcj.
+  intros [i' Hi'] [j' Hj']; unfold get; simpl.
+  revert i' Hi'.
+  pose proof HAB' j' Hj' as Hc'j'.
+  destruct (Classical_Prop.classic
+            (exists i, (i < m)%nat /\
+                       A i j <> 0 /\ A i j' <> 0))
+    as [|].
+  {
+    clear dependent i.
+    clear HAB'.
+      intros.
+      rewrite <- Hc'j' by auto.
+      f_equal.
+    }
+  destruct (Classical_Prop.classic
+            (exists i, (i < m)%nat /\ A i j' <> 0))
+    as [| CONTRA].
+  { auto. }
+  {
+    clear dependent i.
+    clear H0.
+    intros i Hi.
+    assert (A i j' = 0).
+    {
+      apply Classical_Prop.NNPP; intro; apply CONTRA.
+      exists i; auto.
+    }
+    assert (B i j' = 0).
+    {
+      rewrite <- Hc'j' by auto.
+      rewrite H0.
+      ring.
+    }
+    rewrite H0, H1.
+    ring.
+  }
+Qed.
+
+
 
 Lemma sta_equiv_by_Mmult: forall m n (A B: Matrix m n),
   (forall v : Matrix n 1, Mmult A v ≈ Mmult B v) ->
@@ -1399,50 +1541,3 @@ Proof.
   }
 Qed.
 
-
-
-(*
-
-forall i, c * A i j = B i j.
-forall i, c' * A i j' = B i j'.
-
-forall x x', exists k,
-  (A i j * x + A i j' * x') * k = B i j * x + B i j' * x' /\
-  (A i' j * x + A i' j' * x') * k = B i' j * x + B i' j' * x'.
-  
-A i j * B i' j * k = A i' j * B i j * k
-
-since k <> 0 (use cmod),
-
-(A i j * x + A i j' * x') * (B i' j * x + B i' j' * x') = 
-(A i' j * x + A i' j' * x') * (B i j * x + B i j' * x')
-
-
-A i j * B i' j' + A i j' * B i' j =
-A i' j * B i j' + A i' j' * B i j
-
-A i j * A i' j' * c' + A i j' * A i' j * c =
-A i' j * A i j' * c' + A i' j' * A i j * c
-
-(A i j * A i' j' - A i' j * A i j')(c - c') = 0
-
-----------------------------------------------------
-
-
-forall x, exists k, Cmod k = 1 /\
-  (A i j * x + A i j') * k = B i j * x + B i j'
-
-  (A i j * x + A i j') * k = c * A i j * x + c' * A i j'
-
-
-
-
-forall x, 
-  Cmod (A i j * x + A i j') = Cmod (A i j * x + (c'/c) * A i j')
-
-
-
-*)
-  
-  
-  

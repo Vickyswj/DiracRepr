@@ -3,7 +3,7 @@ Require Export StateAndOperator.
 Declare Scope QE.
 Local Open Scope QE.
 
-(*
+
 (*Step-by-step*)
 
 (*Search space 4 and query for 0 *)
@@ -311,122 +311,88 @@ unfold ρ4,super.
 rewrite Dstep3.
 super_reduce.
 Qed.
-*)
+
 
 
 (* One-time *)
-Definition not_CX := B0 ⊗ σX .+ B3 ⊗ I_2 .
-Definition ORA0 := B0 ⊗ not_CX .+ B3 ⊗ I_2 ⊗ I_2.
-Definition MI := (B0 .+ B1 .+ B2 .+ B3)⊗ (B0 .+ B1 .+ B2 .+ B3).
-Definition CPS := (((/2 .* MI) .+ (-1) .* (I_2 ⊗ I_2)) ⊗ I_2).
-Definition ORA1 := B0 ⊗ CX .+ B3 ⊗ I_2 ⊗ I_2.
-Definition ORA2 := B0 ⊗ I_2 ⊗ I_2 .+ B3 ⊗ not_CX.
-Definition ORA3 := B0 ⊗ I_2 ⊗ I_2 .+ B3 ⊗ CX.
-
-
-Lemma Grover_2_0' : (I_2 ⊗ I_2 ⊗ H) × CPS × ORA0× (H ⊗ H ⊗ H) × ∣0,0,1⟩ ≡ ∣0,0,1⟩.
+Lemma Grover_2_0 : (I_2 ⊗ I_2 ⊗ H) × CPS × ORA0× (H ⊗ H ⊗ H) × ∣0,0,1⟩ ≡ ∣0,0,1⟩.
 Proof.
 unfold ORA0,CPS,MI,not_CX.
 operate_reduce.
 Qed.
 
-Lemma Grover_2_0 : (I_2 ⊗ I_2 ⊗ H) × CPS × ORA0× (H ⊗ H ⊗ H) × ∣0,0,1⟩ ≈ ∣0,0,1⟩.
-Proof.
-by_den.
-state_reduce.
-rewrite Grover_2_0';reflexivity.
-Qed.
-
-
-Lemma DGrover_2_0' : super ((I_2 ⊗ I_2 ⊗ H) × CPS × ORA0 × (H ⊗ H ⊗ H)) (density ∣0,0,1⟩) ≡ density ∣0,0,1⟩.
+Lemma DGrover_2_0 : super ((I_2 ⊗ I_2 ⊗ H) × CPS × ORA0 × (H ⊗ H ⊗ H)) (density ∣0,0,1⟩) ≡ density ∣0,0,1⟩.
 Proof.
 unfold ORA0,CPS,MI,not_CX.
 super_reduce.
 Qed.
 
-Lemma DGrover_2_0 : super ((I_2 ⊗ I_2 ⊗ H) × CPS × ORA0 × (H ⊗ H ⊗ H)) (density ∣0,0,1⟩) ≈ density ∣0,0,1⟩.
+Lemma Grover_2_0' : (I_2 ⊗ I_2 ⊗ H) × CPS × ORA0× (H ⊗ H ⊗ H) × ∣0,0,1⟩ ≈ ∣0,0,1⟩.
 Proof.
-by_def1.
-rewrite DGrover_2_0';reflexivity.
+by_den.
+rewrite Grover_2_0;reflexivity.
 Qed.
 
 
-Lemma Grover_2_1' : (I_2 ⊗ I_2 ⊗ H) × CPS × ORA1 × (H ⊗ H ⊗ H) × ∣0,0,1⟩ ≡ ∣0,1,1⟩.
+
+Lemma Grover_2_1 : (I_2 ⊗ I_2 ⊗ H) × CPS × ORA1 × (H ⊗ H ⊗ H) × ∣0,0,1⟩ ≡ ∣0,1,1⟩.
 Proof.
 unfold ORA1,CPS,MI.
 operate_reduce.
 Qed.
 
-Lemma Grover_2_1 : (I_2 ⊗ I_2 ⊗ H) × CPS × ORA1 × (H ⊗ H ⊗ H) × ∣0,0,1⟩ ≈ ∣0,1,1⟩.
-Proof.
-by_den.
-state_reduce.
-rewrite Grover_2_1';reflexivity.
-Qed.
-
-
-Lemma DGrover_2_1' : super ((I_2 ⊗ I_2 ⊗ H) × CPS × ORA1 × (H ⊗ H ⊗ H)) (density ∣0,0,1⟩) ≡ density ∣0,1,1⟩.
+Lemma DGrover_2_1 : super ((I_2 ⊗ I_2 ⊗ H) × CPS × ORA1 × (H ⊗ H ⊗ H)) (density ∣0,0,1⟩) ≡ density ∣0,1,1⟩.
 Proof.
 unfold ORA1,CPS,MI.
 super_reduce.
 Qed.
 
-Lemma DGrover_2_1 : super ((I_2 ⊗ I_2 ⊗ H) × CPS × ORA1 × (H ⊗ H ⊗ H)) (density ∣0,0,1⟩) ≈ density ∣0,1,1⟩.
+Lemma Grover_2_1' : (I_2 ⊗ I_2 ⊗ H) × CPS × ORA1 × (H ⊗ H ⊗ H) × ∣0,0,1⟩ ≈ ∣0,1,1⟩.
 Proof.
-by_def1.
-rewrite DGrover_2_1';reflexivity.
+by_den.
+rewrite Grover_2_1;reflexivity.
 Qed.
 
-Lemma Grover_2_2' : (I_2 ⊗ I_2 ⊗ H) × CPS × ORA2 × (H ⊗ H ⊗ H) × ∣0,0,1⟩ ≡ ∣1,0,1⟩.
+
+
+Lemma Grover_2_2 : (I_2 ⊗ I_2 ⊗ H) × CPS × ORA2 × (H ⊗ H ⊗ H) × ∣0,0,1⟩ ≡ ∣1,0,1⟩.
 Proof.
 unfold ORA2,CPS,MI,not_CX.
 operate_reduce.
 Qed.
 
-Lemma Grover_2_2 : (I_2 ⊗ I_2 ⊗ H) × CPS × ORA2 × (H ⊗ H ⊗ H) × ∣0,0,1⟩ ≈ ∣1,0,1⟩.
-Proof.
-by_den.
-state_reduce.
-rewrite Grover_2_2';reflexivity.
-Qed.
-
-
-Lemma DGrover_2_2' : super ((I_2 ⊗ I_2 ⊗ H) × CPS × ORA2 × (H ⊗ H ⊗ H)) (density ∣0,0,1⟩) ≡ density ∣1,0,1⟩.
+Lemma DGrover_2_2 : super ((I_2 ⊗ I_2 ⊗ H) × CPS × ORA2 × (H ⊗ H ⊗ H)) (density ∣0,0,1⟩) ≡ density ∣1,0,1⟩.
 Proof.
 unfold ORA2,CPS,MI,not_CX.
 super_reduce.
 Qed.
 
-Lemma DGrover_2_2 : super ((I_2 ⊗ I_2 ⊗ H) × CPS × ORA2 × (H ⊗ H ⊗ H)) (density ∣0,0,1⟩) ≈ density ∣1,0,1⟩.
+Lemma Grover_2_2' : (I_2 ⊗ I_2 ⊗ H) × CPS × ORA2 × (H ⊗ H ⊗ H) × ∣0,0,1⟩ ≈ ∣1,0,1⟩.
 Proof.
-by_def1.
-rewrite DGrover_2_2';reflexivity.
+by_den.
+state_reduce.
+rewrite Grover_2_2;reflexivity.
 Qed.
 
 
-Lemma Grover_2_3' : (I_2 ⊗ I_2 ⊗ H) × CPS × ORA3 × (H ⊗ H ⊗ H) × ∣0,0,1⟩ ≡ ∣1,1,1⟩.
+
+Lemma Grover_2_3 : (I_2 ⊗ I_2 ⊗ H) × CPS × ORA3 × (H ⊗ H ⊗ H) × ∣0,0,1⟩ ≡ ∣1,1,1⟩.
 Proof.
 unfold ORA3,CPS,MI.
 operate_reduce.
 Qed.
 
-Lemma Grover_2_3 : (I_2 ⊗ I_2 ⊗ H) × CPS × ORA3 × (H ⊗ H ⊗ H) × ∣0,0,1⟩ ≈ ∣1,1,1⟩.
-Proof.
-by_den.
-state_reduce.
-rewrite Grover_2_3';reflexivity.
-Qed.
-
-
-Lemma DGrover_2_3' : super ((I_2 ⊗ I_2 ⊗ H) × CPS × ORA3 × (H ⊗ H ⊗ H)) (density ∣0,0,1⟩) ≡ density ∣1,1,1⟩.
+Lemma DGrover_2_3 : super ((I_2 ⊗ I_2 ⊗ H) × CPS × ORA3 × (H ⊗ H ⊗ H)) (density ∣0,0,1⟩) ≡ density ∣1,1,1⟩.
 Proof.
 unfold ORA3,CPS,MI.
 super_reduce.
 Qed.
 
-Lemma DGrover_2_3 : super ((I_2 ⊗ I_2 ⊗ H) × CPS × ORA3 × (H ⊗ H ⊗ H)) (density ∣0,0,1⟩) ≈ density ∣1,1,1⟩.
+Lemma Grover_2_3' : (I_2 ⊗ I_2 ⊗ H) × CPS × ORA3 × (H ⊗ H ⊗ H) × ∣0,0,1⟩ ≈ ∣1,1,1⟩.
 Proof.
-by_def1.
-rewrite DGrover_2_3';reflexivity.
+by_den.
+state_reduce.
+rewrite Grover_2_3;reflexivity.
 Qed.
+
 

@@ -282,7 +282,6 @@ operate_reduce.
 Qed.
 
 
-
 (* Density *)
 Lemma Dtele0'' : super ((M0 ⊗ M0 ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × (CX ⊗ I_2)) ρ0 ≡ density (/ 2  .* (∣0⟩ ⊗ ∣0⟩ ⊗ ∣+⟩)).
 Proof.
@@ -311,218 +310,106 @@ Qed.
 
 
 (* parameterize *)
-Lemma vq1 : forall v : Vector 2, exists a b : C, v ≡ a .* ∣0⟩ .+ b .* ∣1⟩ .
-Proof.
-intros v.
-exists (v 0%nat 0%nat),(v 1%nat 0%nat).
-autounfold with S_db;
-autounfold with U_db.
-intros x1 y1.
-destruct x1 as [x Px], y1 as [y Py].
-unfold get.
-simpl.
-destruct x,y.
-  + autorewrite with C_db; auto; exfalso; lia.
-  + exfalso; lia. 
-  + destruct x.
-     - autorewrite with C_db. auto.
-     - exfalso. lia.
-  + exfalso. lia.
-Qed.
+Definition φ (a b : C) : Vector 2 := a .* ∣0⟩ .+ b .* ∣1⟩.
 
-Lemma tele0' :  forall (v : Vector 2),
-(M0 ⊗ M0 ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × (CX ⊗ I_2) × (v ⊗ bell00) ≡ / 2  .* ∣0⟩ ⊗ ∣0⟩ ⊗ v .
+Lemma tele0 :  forall (a b : C),
+(M0 ⊗ M0 ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × (CX ⊗ I_2) × ((φ a b) ⊗ bell00) ≡ / 2  .* ∣0⟩ ⊗ ∣0⟩ ⊗ (φ a b).
 Proof.
 intros.
-pose proof vq1 v.
-destruct H as [a [b H]].
-rewrite H.
-
-unfold bell00.
+unfold φ,bell00.
 operate_reduce.
 Qed.
 
-Lemma tele0 :  forall (v : Vector 2),
-(M0 ⊗ M0 ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × (CX ⊗ I_2) × (v ⊗ bell00) ≈ / 2  .* ∣0⟩ ⊗ ∣0⟩ ⊗ v .
+Lemma Dtele0 :  forall (a b : C),
+super ((M0 ⊗ M0 ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × (CX ⊗ I_2)) (density ((φ a b) ⊗ bell00)) ≡ density (/ 2  .* ∣0⟩ ⊗ ∣0⟩ ⊗ (φ a b)).
+Proof.
+intros.
+unfold φ,bell00.
+super_reduce.
+Qed.
+
+Lemma tele0' :  forall (a b : C),
+(M0 ⊗ M0 ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × (CX ⊗ I_2) × ((φ a b) ⊗ bell00) ≈ / 2  .* ∣0⟩ ⊗ ∣0⟩ ⊗ (φ a b) .
 Proof.
 intros.
 by_den.
-pose proof vq1 v.
-destruct H as [a [b H]].
-rewrite H.
-
-rewrite tele0'; reflexivity.
+rewrite tele0; reflexivity.
 Qed.
 
 
-Lemma tele1' :  forall (v : Vector 2),
-(I_2 ⊗ I_2 ⊗ σX) × (M0 ⊗ M1 ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × (CX ⊗ I_2) × (v ⊗ bell00) ≡ / 2  .* ∣0⟩ ⊗ ∣1⟩ ⊗ v .
+
+Lemma tele1 :  forall (a b : C),
+(I_2 ⊗ I_2 ⊗ σX) × (M0 ⊗ M1 ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × (CX ⊗ I_2) × ((φ a b) ⊗ bell00) ≡ / 2  .* ∣0⟩ ⊗ ∣1⟩ ⊗ (φ a b) .
 Proof.
 intros.
-pose proof vq1 v.
-destruct H as [a [b H]].
-rewrite H.
-
-unfold bell00.
+unfold φ,bell00.
 operate_reduce.
 Qed.
 
-Lemma tele1 :  forall (v : Vector 2),
-(I_2 ⊗ I_2 ⊗ σX) × (M0 ⊗ M1 ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × (CX ⊗ I_2) × (v ⊗ bell00) ≈ / 2  .* ∣0⟩ ⊗ ∣1⟩ ⊗ v .
+Lemma Dtele1 :  forall (a b : C),
+super ((I_2 ⊗ I_2 ⊗ σX) × (M0 ⊗ M1 ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × (CX ⊗ I_2)) (density ((φ a b) ⊗ bell00)) ≡ density (/ 2  .* ∣0⟩ ⊗ ∣1⟩ ⊗ (φ a b)).
+Proof.
+intros.
+unfold φ,bell00.
+super_reduce.
+Qed.
+
+Lemma tele1' :  forall (a b : C),
+(I_2 ⊗ I_2 ⊗ σX) × (M0 ⊗ M1 ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × (CX ⊗ I_2) × ((φ a b) ⊗ bell00) ≈ / 2  .* ∣0⟩ ⊗ ∣1⟩ ⊗ (φ a b) .
 Proof.
 intros.
 by_den.
-pose proof vq1 v.
-destruct H as [a [b H]].
-rewrite H.
-
-rewrite tele1'; reflexivity.
+rewrite tele1; reflexivity.
 Qed.
 
 
-Lemma tele2' :  forall (v : Vector 2),
-(I_2 ⊗ I_2 ⊗ σZ) × (M1 ⊗ M0 ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × (CX ⊗ I_2) × (v ⊗ bell00) ≡ / 2  .* ∣1⟩ ⊗ ∣0⟩ ⊗ v .
+
+Lemma tele2 :  forall (a b : C),
+(I_2 ⊗ I_2 ⊗ σZ) × (M1 ⊗ M0 ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × (CX ⊗ I_2) × ((φ a b) ⊗ bell00) ≡ / 2  .* ∣1⟩ ⊗ ∣0⟩ ⊗ (φ a b) .
 Proof.
 intros.
-pose proof vq1 v.
-destruct H as [a [b H]].
-rewrite H.
-
-unfold bell00.
+unfold φ,bell00.
 operate_reduce.
 Qed.
 
-Lemma tele2 :  forall (v : Vector 2),
-(I_2 ⊗ I_2 ⊗ σZ) × (M1 ⊗ M0 ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × (CX ⊗ I_2) × (v ⊗ bell00) ≈ / 2  .* ∣1⟩ ⊗ ∣0⟩ ⊗ v .
+Lemma Dtele2 :  forall (a b : C),
+super ((I_2 ⊗ I_2 ⊗ σZ) × (M1 ⊗ M0 ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × (CX ⊗ I_2)) (density ((φ a b) ⊗ bell00)) ≡ density (/ 2  .* ∣1⟩ ⊗ ∣0⟩ ⊗ (φ a b)).
+Proof.
+intros.
+unfold φ,bell00.
+super_reduce.
+Qed.
+
+Lemma tele2' :  forall (a b : C),
+(I_2 ⊗ I_2 ⊗ σZ) × (M1 ⊗ M0 ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × (CX ⊗ I_2) × ((φ a b) ⊗ bell00) ≈ / 2  .* ∣1⟩ ⊗ ∣0⟩ ⊗ (φ a b) .
 Proof.
 intros.
 by_den.
-pose proof vq1 v.
-destruct H as [a [b H]].
-rewrite H.
-
-rewrite tele2'; reflexivity.
+rewrite tele2; reflexivity.
 Qed.
 
 
-Lemma tele3' :  forall (v : Vector 2),
-(I_2 ⊗ I_2 ⊗ σZ) × (I_2 ⊗ I_2 ⊗ σX) × (M1 ⊗ M1 ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × (CX ⊗ I_2) × (v ⊗ bell00) ≡ / 2  .* ∣1⟩ ⊗ ∣1⟩ ⊗ v .
+Lemma tele3 :  forall (a b : C),
+(I_2 ⊗ I_2 ⊗ σZ) × (I_2 ⊗ I_2 ⊗ σX) × (M1 ⊗ M1 ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × (CX ⊗ I_2) × ((φ a b) ⊗ bell00) ≡ / 2  .* ∣1⟩ ⊗ ∣1⟩ ⊗ (φ a b) .
 Proof.
 intros.
-pose proof vq1 v.
-destruct H as [a [b H]].
-rewrite H.
-
-unfold bell00.
+unfold φ,bell00.
 operate_reduce.
 Qed.
 
+Lemma Dtele3 :  forall (a b : C),
+super ((I_2 ⊗ I_2 ⊗ σZ) × (I_2 ⊗ I_2 ⊗ σX) × (M1 ⊗ M1 ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × (CX ⊗ I_2)) (density ((φ a b) ⊗ bell00)) ≡ density (/ 2  .* ∣1⟩ ⊗ ∣1⟩ ⊗ (φ a b)).
+Proof.
+intros.
+unfold φ,bell00.
+super_reduce.
+Qed.
 
-Lemma tele3 :  forall (v : Vector 2),
-(I_2 ⊗ I_2 ⊗ σZ) × (I_2 ⊗ I_2 ⊗ σX) × (M1 ⊗ M1 ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × (CX ⊗ I_2) × (v ⊗ bell00) ≈ / 2  .* ∣1⟩ ⊗ ∣1⟩ ⊗ v .
+Lemma tele3' :  forall (a b : C),
+(I_2 ⊗ I_2 ⊗ σZ) × (I_2 ⊗ I_2 ⊗ σX) × (M1 ⊗ M1 ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × (CX ⊗ I_2) × ((φ a b) ⊗ bell00) ≈ / 2  .* ∣1⟩ ⊗ ∣1⟩ ⊗ (φ a b) .
 Proof.
 intros.
 by_den.
-pose proof vq1 v.
-destruct H as [a [b H]].
-rewrite H.
-
-rewrite tele3'; reflexivity.
-Qed.
-
-
-
-
-Lemma Dtele0' :  forall (v : Vector 2),
-super ((M0 ⊗ M0 ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × (CX ⊗ I_2)) (density (v ⊗ bell00)) ≡ density (/ 2  .* ∣0⟩ ⊗ ∣0⟩ ⊗ v).
-Proof.
-intros.
-pose proof vq1 v.
-destruct H as [a [b H]].
-unfold super,density.
-rewrite H.
-
-unfold bell00.
-super_reduce.
-Qed.
-
-Lemma Dtele0 :  forall (v : Vector 2),
-super ((M0 ⊗ M0 ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × (CX ⊗ I_2)) (density (v ⊗ bell00)) ≈ density (/ 2  .* ∣0⟩ ⊗ ∣0⟩ ⊗ v).
-Proof.
-intros.
-by_def1.
-
-rewrite Dtele0';reflexivity.
-Qed.
-
-
-Lemma Dtele1' :  forall (v : Vector 2),
-super ((I_2 ⊗ I_2 ⊗ σX) × (M0 ⊗ M1 ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × (CX ⊗ I_2)) (density (v⊗ bell00)) ≡ density (/ 2  .* ∣0⟩ ⊗ ∣1⟩ ⊗ (v)).
-Proof.
-intros.
-pose proof vq1 v.
-destruct H as [a [b H]].
-unfold super,density.
-rewrite H.
-
-unfold bell00.
-super_reduce.
-Qed.
-
-Lemma Dtele1 :  forall (v : Vector 2),
-super ((I_2 ⊗ I_2 ⊗ σX) × (M0 ⊗ M1 ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × (CX ⊗ I_2)) (density (v⊗ bell00)) ≈ density (/ 2  .* ∣0⟩ ⊗ ∣1⟩ ⊗ (v)).
-Proof.
-intros.
-by_def1.
-
-rewrite Dtele1';reflexivity.
-Qed.
-
-
-Lemma Dtele2' :  forall (v : Vector 2),
-super ((I_2 ⊗ I_2 ⊗ σZ) × (M1 ⊗ M0 ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × (CX ⊗ I_2)) (density (v⊗ bell00)) ≡ density (/ 2  .* ∣1⟩ ⊗ ∣0⟩ ⊗ (v)).
-Proof.
-intros.
-pose proof vq1 v.
-destruct H as [a [b H]].
-unfold super,density.
-rewrite H.
-
-unfold bell00.
-super_reduce.
-Qed.
-
-Lemma Dtele2 :  forall (v : Vector 2),
-super ((I_2 ⊗ I_2 ⊗ σZ) × (M1 ⊗ M0 ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × (CX ⊗ I_2)) (density (v⊗ bell00)) ≈ density (/ 2  .* ∣1⟩ ⊗ ∣0⟩ ⊗ (v)).
-Proof.
-Proof.
-intros.
-by_def1.
-
-rewrite Dtele2';reflexivity.
-Qed.
-
-
-Lemma Dtele3' :  forall (v : Vector 2),
-super ((I_2 ⊗ I_2 ⊗ σZ) × (I_2 ⊗ I_2 ⊗ σX) × (M1 ⊗ M1 ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × (CX ⊗ I_2)) (density (v⊗ bell00)) ≡ density (/ 2  .* ∣1⟩ ⊗ ∣1⟩ ⊗ (v)).
-Proof.
-intros.
-pose proof vq1 v.
-destruct H as [a [b H]].
-unfold super,density.
-rewrite H.
-
-unfold bell00.
-super_reduce.
-Qed.
-
-Lemma Dtele3 :  forall (v : Vector 2),
-super ((I_2 ⊗ I_2 ⊗ σZ) × (I_2 ⊗ I_2 ⊗ σX) × (M1 ⊗ M1 ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × (CX ⊗ I_2)) (density (v⊗ bell00)) ≈ density (/ 2  .* ∣1⟩ ⊗ ∣1⟩ ⊗ (v)).
-Proof.
-Proof.
-intros.
-by_def1.
-
-rewrite Dtele3';reflexivity.
+rewrite tele3; reflexivity.
 Qed.
 

@@ -4,6 +4,7 @@ Declare Scope QE.
 Local Open Scope QE.
 
 
+
 (* f(0) =  f(1) = 0 *)
 
 (*Step-by-step*)
@@ -14,39 +15,24 @@ Definition φ01 := (H ⊗ H) × φ00.
 Definition φ02 := (I_2 ⊗ I_2) × φ01.
 Definition φ03 := (H ⊗ I_2) × φ02.
 
-Lemma step01' : φ01 ≡ ∣+⟩ ⊗ ∣-⟩.
+Lemma step01 : φ01 ≡ ∣+⟩ ⊗ ∣-⟩.
 Proof.
 unfold φ01,φ00.
 operate_reduce.
 Qed.
-Lemma step01 : φ01 ≈ ∣+⟩ ⊗ ∣-⟩.
-Proof.
-sta_yes.
-apply step01'.
-Qed.
 
-Lemma step02' : φ02 ≡ ∣+⟩ ⊗ ∣-⟩.
+Lemma step02 : φ02 ≡ ∣+⟩ ⊗ ∣-⟩.
 Proof.
 unfold φ02.
 rewrite step01'.
 operate_reduce.
 Qed.
-Lemma step02 : φ02 ≈ ∣+⟩ ⊗ ∣-⟩.
-Proof.
-sta_yes.
-apply step02'.
-Qed.
 
-Lemma step03' : φ03 ≡ ∣0⟩ ⊗ ∣-⟩.
+Lemma step03 : φ03 ≡ ∣0⟩ ⊗ ∣-⟩.
 Proof.
 unfold φ03.
 rewrite step02'.
 operate_reduce.
-Qed.
-Lemma step03 : φ03 ≈ ∣0⟩ ⊗ ∣-⟩.
-Proof.
-sta_yes.
-apply step03'.
 Qed.
 
 
@@ -76,31 +62,21 @@ rewrite Dstep02.
 super_reduce.
 Qed.
 
+
 (*One-time*)
-Lemma deutsch0' : (H ⊗ I_2) × (I_2 ⊗ I_2) × (H ⊗ H) × (∣0⟩ ⊗ ∣1⟩) ≡ ∣0⟩ ⊗ ∣-⟩ .
+Lemma deutsch0 : (H ⊗ I_2) × (I_2 ⊗ I_2) × (H ⊗ H) × (∣0⟩ ⊗ ∣1⟩) ≡ ∣0⟩ ⊗ ∣-⟩ .
 Proof. operate_reduce. Qed.
 
-Lemma deutsch0 : (H ⊗ I_2) × (I_2 ⊗ I_2) × (H ⊗ H) × (∣0⟩ ⊗ ∣1⟩) ≈ ∣0⟩ ⊗ ∣-⟩ .
+Lemma Ddeutsch0 : (super ((H ⊗ I_2) × (I_2 ⊗ I_2) × (H ⊗ H)) (density (∣0⟩ ⊗ ∣1⟩)) ≡ density  (∣0⟩ ⊗ ∣-⟩)).
+Proof. super_reduce. Qed.
+
+Lemma deutsch0' : (H ⊗ I_2) × (I_2 ⊗ I_2) × (H ⊗ H) × (∣0⟩ ⊗ ∣1⟩) ≈ ∣0⟩ ⊗ ∣-⟩ .
 Proof.
 by_den.
-state_reduce.
-operate_reduce.
+rewrite deutsch0. 
+reflexivity.
 Qed.
 
-(* Lemma deutsch0'' : (H ⊗ I_2) × (I_2 ⊗ I_2) × (H ⊗ H) × (∣0⟩ ⊗ ∣1⟩) ≈ ∣0⟩ ⊗ ∣-⟩ .
-Proof.
-sta_yes.
-operate_reduce.
-Qed. *)
-
-
-Lemma Ddeutsch0' : (super ((H ⊗ I_2) × (I_2 ⊗ I_2) × (H ⊗ H)) (density (∣0⟩ ⊗ ∣1⟩)) ≡ density  (∣0⟩ ⊗ ∣-⟩)).
-Proof. super_reduce. Qed.
-Lemma Ddeutsch0 : (super ((H ⊗ I_2) × (I_2 ⊗ I_2) × (H ⊗ H)) (density (∣0⟩ ⊗ ∣1⟩)) ≈ density  (∣0⟩ ⊗ ∣-⟩)).
-Proof.
-by_def1.
-super_reduce.
-Qed.
 
 
 (* f(0) =  f(1) = 1 *)
@@ -119,14 +95,12 @@ unfold φ11,φ10.
 operate_reduce.
 Qed.
 
-
 Lemma step12 : φ12 ≡ -1 .* ∣+⟩ ⊗ ∣-⟩.
 Proof.
 unfold φ12.
 rewrite step11.
 operate_reduce.
 Qed.
-
 
 Lemma step13 : φ13 ≡ -1 .* ∣0⟩ ⊗ ∣-⟩.
 Proof.
@@ -137,7 +111,7 @@ Qed.
 
 Lemma step13' : φ13 ≈ ∣0⟩ ⊗ ∣-⟩.
 Proof.
-sta_m1.
+by_def (-(1)). autorewrite with C_db;auto.
 rewrite step13.
 isolate_scale.
 reduce_scale.
@@ -172,32 +146,22 @@ Qed.
 
 
 (*One-time*)
-Lemma deutsch1' : (H ⊗ I_2) × (I_2 ⊗ σX) × (H ⊗ H) × (∣0⟩ ⊗ ∣1⟩) ≡ -1 .* ∣0⟩ ⊗ ∣-⟩ .
+Lemma deutsch1 : (H ⊗ I_2) × (I_2 ⊗ σX) × (H ⊗ H) × (∣0⟩ ⊗ ∣1⟩) ≡ -1 .* ∣0⟩ ⊗ ∣-⟩ .
 Proof. operate_reduce. Qed.
 
-Lemma deutsch1 : (H ⊗ I_2) × (I_2 ⊗ σX) × (H ⊗ H) × (∣0⟩ ⊗ ∣1⟩) ≈ ∣0⟩ ⊗ ∣-⟩ .
-Proof. 
-by_den.
-rewrite deutsch1'.
-isolate_scale.
-rewrite Mscale_adj.
-isolate_scale.
-reduce_scale.
-Qed.
-
-
-Lemma Ddeutsch1' : super ((H ⊗ I_2) × (I_2 ⊗ σX) × (H ⊗ H)) (density (∣0⟩ ⊗ ∣1⟩))  ≡ density (-1 .* (∣0⟩ ⊗ ∣-⟩)).
+Lemma Ddeutsch1 : super ((H ⊗ I_2) × (I_2 ⊗ σX) × (H ⊗ H)) (density (∣0⟩ ⊗ ∣1⟩))  ≡ density (-1 .* (∣0⟩ ⊗ ∣-⟩)).
 Proof. super_reduce. Qed.
 
-Lemma Ddeutsch1 : super ((H ⊗ I_2) × (I_2 ⊗ σX) × (H ⊗ H)) (density (∣0⟩ ⊗ ∣1⟩)) ≈ density (∣0⟩ ⊗ ∣-⟩).
-Proof.
-by_def1.
-rewrite Ddeutsch1'.
-unfold density.
+Lemma deutsch1' : (H ⊗ I_2) × (I_2 ⊗ σX) × (H ⊗ H) × (∣0⟩ ⊗ ∣1⟩) ≈ ∣0⟩ ⊗ ∣-⟩ .
+Proof. 
+by_den.
+rewrite deutsch1.
+isolate_scale.
 rewrite Mscale_adj.
 isolate_scale.
 reduce_scale.
 Qed.
+
 
 
 (* f(0) = 0, f(1) = 1 *)
@@ -259,22 +223,19 @@ Qed.
 
 
 (*One-time*)
-Lemma deutsch2' : (H ⊗ I_2) × CX × (H ⊗ H) × (∣0⟩ ⊗ ∣1⟩) ≡ ∣1⟩ ⊗ ∣-⟩ .
+Lemma deutsch2 : (H ⊗ I_2) × CX × (H ⊗ H) × (∣0⟩ ⊗ ∣1⟩) ≡ ∣1⟩ ⊗ ∣-⟩ .
 Proof. operate_reduce. Qed.
 
-Lemma deutsch2 : (H ⊗ I_2) × CX × (H ⊗ H) × (∣0⟩ ⊗ ∣1⟩) ≈ ∣1⟩ ⊗ ∣-⟩ .
-Proof. 
-by_den.
-state_reduce.
-operate_reduce.
-Qed.
-
-
-Lemma Ddeutsch2' : super ((H ⊗ I_2) × CX × (H ⊗ H)) (density (∣0⟩ ⊗ ∣1⟩)) ≡ density (∣1⟩ ⊗ ∣-⟩).
+Lemma Ddeutsch2 : super ((H ⊗ I_2) × CX × (H ⊗ H)) (density (∣0⟩ ⊗ ∣1⟩)) ≡ density (∣1⟩ ⊗ ∣-⟩).
 Proof. super_reduce. Qed.
 
-Lemma Ddeutsch2 : super ((H ⊗ I_2) × CX × (H ⊗ H)) (density (∣0⟩ ⊗ ∣1⟩)) ≈ density (∣1⟩ ⊗ ∣-⟩).
-Proof. by_def1. super_reduce. Qed.
+Lemma deutsch2' : (H ⊗ I_2) × CX × (H ⊗ H) × (∣0⟩ ⊗ ∣1⟩) ≈ ∣1⟩ ⊗ ∣-⟩ .
+Proof. 
+by_den.
+rewrite deutsch2.
+reflexivity.
+Qed.
+
 
 
 (* f(0) = 1, f(1) = 0 *)
@@ -310,7 +271,7 @@ Qed.
 
 Lemma step33' : φ33 ≈ ∣1⟩ ⊗ ∣-⟩.
 Proof.
-sta_m1.
+by_def (-(1)). autorewrite with C_db;auto.
 rewrite step33.
 isolate_scale.
 reduce_scale.
@@ -345,28 +306,17 @@ Qed.
 
 
 (*One-time*)
-Lemma deutsch3' : (H ⊗ I_2) × not_CX × (H ⊗ H) × (∣0⟩ ⊗ ∣1⟩) ≡ -1 .* ∣1⟩ ⊗ ∣-⟩.
+Lemma deutsch3 : (H ⊗ I_2) × not_CX × (H ⊗ H) × (∣0⟩ ⊗ ∣1⟩) ≡ -1 .* ∣1⟩ ⊗ ∣-⟩.
 Proof. operate_reduce. Qed.
 
-Lemma deutsch3 : (H ⊗ I_2) × not_CX × (H ⊗ H) × (∣0⟩ ⊗ ∣1⟩) ≈ ∣1⟩ ⊗ ∣-⟩ .
-Proof.
-by_den.
-rewrite deutsch3'.
-isolate_scale.
-rewrite Mscale_adj.
-isolate_scale.
-reduce_scale.
-Qed.
-
-
-Lemma Ddeutsch3' : super ((H ⊗ I_2) × not_CX × (H ⊗ H)) (density(∣0⟩ ⊗ ∣1⟩)) ≡ density (-1 .* (∣1⟩ ⊗ ∣-⟩)).
+Lemma Ddeutsch3 : super ((H ⊗ I_2) × not_CX × (H ⊗ H)) (density(∣0⟩ ⊗ ∣1⟩)) ≡ density (-1 .* (∣1⟩ ⊗ ∣-⟩)).
 Proof. super_reduce. Qed.
 
-Lemma Ddeutsch3 : super ((H ⊗ I_2) × not_CX × (H ⊗ H)) (density(∣0⟩ ⊗ ∣1⟩)) ≈ density (∣1⟩ ⊗ ∣-⟩).
+Lemma deutsch3' : (H ⊗ I_2) × not_CX × (H ⊗ H) × (∣0⟩ ⊗ ∣1⟩) ≈ ∣1⟩ ⊗ ∣-⟩ .
 Proof.
-by_def1.
-rewrite Ddeutsch3'.
-unfold density.
+by_den.
+rewrite deutsch3.
+isolate_scale.
 rewrite Mscale_adj.
 isolate_scale.
 reduce_scale.
