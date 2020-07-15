@@ -6,36 +6,16 @@ Lemma t10 :
 Proof.
   Time repeat rewrite kron_assoc.
 Admitted.
-Lemma e3 : 
-(I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ CX)
-× (I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ CX ⊗ I_2)
-× (I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ CX ⊗ I_2 ⊗ I_2)
-× (I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ CX ⊗ I_2 ⊗ I_2 ⊗ I_2)
-× (I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ CX ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2)
-× (I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ CX ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2)
-× (I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ CX ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2)
-× (I_2 ⊗ I_2 ⊗ I_2 ⊗ CX ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2)
-× (I_2 ⊗ I_2 ⊗ CX ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2)
-× (I_2 ⊗ CX ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2)
-× (CX ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2)
-× (H ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2)
-× ∣0,0,0,0,0,0,0,0,0,0,0,0⟩ 
-≡  / √ 2 .* ∣0,0,0,0,0,0,0,0,0,0,0,0⟩  .+ / √ 2 .* ∣1,1,1,1,1,1,1,1,1,1,1,1⟩.
-Proof.
-Time assoc_right.
-Time repeat mult_kron.
-rewrite Mmult_I0,Mmult_H0. repeat cancel_0.
-Admitted.
-
 
 Definition TOF := B0 ⊗ I_2 ⊗ I_2 .+ B3 ⊗ CX.
-
 
 Ltac kron_plus_distr:=
 repeat rewrite ?kron_plus_distr_r,?kron_plus_distr_l.
 
 Ltac Mmult_plus_distr:=
 repeat rewrite ?Mmult_plus_distr_r, ?Mmult_plus_distr_l.
+
+Hint Unfold  CZ CX CS CT XC ZC PC TC SWAP not_CX TOF : Gn_db.
 
 Ltac unfold_gate M :=
 match M with
@@ -45,7 +25,7 @@ unfold_gate B
 | @Mmult ?m ?n ?o ?A ?B =>
 idtac A B;
 set (ol :=M);
-autounfold with Gn_db in ol;
+repeat autounfold with Gn_db in ol;
 subst ol
 end.
 
@@ -71,7 +51,96 @@ try rewrite Mmult_I0,Mmult_I1,Mmult_σX0,Mmult_B31,Mmult_B00;
 isolate_scale); *)
 reduce_scale.
 
-Lemma t10 :
+Ltac tactic1' :=
+unfold_operator;
+kron_plus_distr;
+assoc_right;
+try rewrite Mmult_plus_distr_l;
+try repeat rewrite Mmult_plus_distr_r;
+isolate_scale;
+repeat mult_kron;
+(* try rewrite Mmult_I0,Mmult_H0;
+try rewrite Mmult_I0,Mmult_σX0,Mmult_B0pos,Mmult_B3pos;
+try rewrite Mmult_B30,Mmult_B01; repeat cancel_0;
+try rewrite Mmult_I0,Mmult_I1,Mmult_σX0,Mmult_B31,Mmult_B00; *)
+repeat (autorewrite with G1_db;
+isolate_scale);
+reduce_scale.
+
+
+Lemma t12 :
+(I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ CX)
+× (I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ CX ⊗ I_2)
+× (I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ CX ⊗ I_2 ⊗ I_2)
+× (I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ CX ⊗ I_2 ⊗ I_2 ⊗ I_2)
+× (I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ CX ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2)
+× (I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ CX ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2)
+× (I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ CX ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2)
+× (I_2 ⊗ I_2 ⊗ I_2 ⊗ CX ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2)
+× (I_2 ⊗ I_2 ⊗ CX ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2)
+× (I_2 ⊗ CX ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2)
+× (CX ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2)
+× (H ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2)
+× ∣0,0,0,0,0,0,0,0,0,0,0,0⟩
+≡  / √ 2 .* ∣0,0,0,0,0,0,0,0,0,0,0,0⟩  .+ / √ 2 .* ∣1,1,1,1,1,1,1,1,1,1,1,1⟩.
+Proof.
+Time assoc_right.
+unfold_operator.
+kron_plus_distr.
+assoc_right.
+try rewrite Mmult_plus_distr_l.
+try repeat rewrite Mmult_plus_distr_r.
+isolate_scale.
+Time repeat mult_kron.
+try rewrite Mmult_I0,Mmult_H0.
+try rewrite Mmult_I0,Mmult_σX0,Mmult_B0pos,Mmult_B3pos.
+try rewrite Mmult_B30,Mmult_B01; repeat cancel_0.
+try rewrite Mmult_I0,Mmult_I1,Mmult_σX0,Mmult_B31,Mmult_B00.
+(* repeat (autorewrite with G1_db;
+isolate_scale); *)
+
+unfold_operator.
+kron_plus_distr.
+assoc_right.
+try rewrite Mmult_plus_distr_l.
+try repeat rewrite Mmult_plus_distr_r.
+isolate_scale.
+Time repeat mult_kron.
+try rewrite Mmult_I0,Mmult_H0.
+try rewrite Mmult_I0,Mmult_σX0,Mmult_B0pos,Mmult_B3pos.
+try rewrite Mmult_B30,Mmult_B01; repeat cancel_0.
+try rewrite Mmult_I0,Mmult_I1,Mmult_σX0,Mmult_B31,Mmult_B00.
+
+unfold_operator.
+kron_plus_distr.
+assoc_right.
+try rewrite Mmult_plus_distr_l.
+try repeat rewrite Mmult_plus_distr_r.
+isolate_scale.
+Time repeat mult_kron.
+try rewrite Mmult_I0,Mmult_H0.
+try rewrite Mmult_I0,Mmult_σX0,Mmult_B0pos,Mmult_B3pos.
+try rewrite Mmult_B30,Mmult_B01; repeat cancel_0.
+try rewrite Mmult_I0,Mmult_I1,Mmult_σX0,Mmult_B31,Mmult_B00.
+
+(* Time assoc_right.
+repeat tactic1. *)
+Admitted.
+
+Lemma t5 :
+(I_2 ⊗ I_2 ⊗ I_2 ⊗ CX)
+× (I_2 ⊗ I_2 ⊗ CX ⊗ I_2)
+× (I_2 ⊗ CX ⊗ I_2 ⊗ I_2)
+× (CX ⊗ I_2 ⊗ I_2 ⊗ I_2)
+× (H ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2)
+× ∣0,0,0,0,0⟩
+≡  / √ 2 .* ∣0,0,0,0,0⟩  .+ / √ 2 .* ∣1,1,1,1,1⟩.
+Proof.
+Time assoc_right.
+Time repeat tactic1.
+Qed.
+
+Lemma t12' :
 (* (I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ CX)
 × (I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ CX ⊗ I_2)
 × (I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ I_2 ⊗ CX ⊗ I_2 ⊗ I_2)*)
