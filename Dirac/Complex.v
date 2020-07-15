@@ -84,7 +84,6 @@ Infix "*" := Cmult : C_scope.
 Notation "/ x" := (Cinv x) : C_scope.
 Infix "/" := Cdiv : C_scope.
 
-
 (* Added exponentiation *)
 Fixpoint Cpow (c : C) (n : nat) : C :=  
   match n with
