@@ -8,6 +8,7 @@ Definition ket0 : Vector 2 :=
           | 1, 0 => C0
           | _, _ => C0
           end.
+
 Definition ket1 : Vector 2 := 
   fun x y => match x, y with 
           | 0, 0 => C0
@@ -933,7 +934,8 @@ Definition ket (x : nat) : Matrix 2 1 := if x =? 0 then ∣0⟩ else ∣1⟩.
 Notation "'∣' x '⟩'" := (ket x).
 Notation "'⟨' x '∣'" := (bra x).
 
-Notation "∣ x , y , .. , z ⟩" := (kron .. (kron ∣x⟩ ∣y⟩) .. ∣z⟩) (at level 0).
+(* Notation "∣ x , y , .. , z ⟩" := (kron .. (kron ∣x⟩ ∣y⟩) .. ∣z⟩) (at level 0). *)
+Notation "∣ x , .. , y , z ⟩" := (kron ∣x⟩ .. (kron ∣y⟩ ∣z⟩) ..) (at level 0).
 
 
 Lemma CX00 : CX × ∣0,0⟩ ≡ ∣0,0⟩.
@@ -1051,10 +1053,10 @@ end;
 
 
 
-Definition phase_equiv {m n : nat} (A B : Matrix m n) : Prop := 
+Definition obs_equiv{m n : nat} (A B : Matrix m n) : Prop := 
   exists c : C, Cmod c = R1 /\  c .* A ≡ B.
 
-Infix "≈" := phase_equiv (at level 70) : matrix_scope.
+Infix "≈" := obs_equiv(at level 70) : matrix_scope.
 
 (* Ltac sta_yes :=
 unfold sta_equiv;
@@ -1073,11 +1075,11 @@ Definition operator_apply {m} (A: Matrix m m)(B: Vector m) : Vector m:=
 Mmult A B.
 
 Require Import Morphisms.
-Instance Mmult_phase_proper m n o: Proper (phase_equiv ==> phase_equiv ==>phase_equiv) (@Mmult m n o).
+Instance Mmult_obs_proper m n o: Proper (obs_equiv==> obs_equiv==>obs_equiv) (@Mmult m n o).
 Proof.
 hnf;intros A C H1.
 hnf;intros B D H2.
-unfold phase_equiv,operator_apply,get in * .
+unfold obs_equiv,operator_apply,get in * .
 inversion H1. inversion H0.
 inversion H2. inversion H5.
 exists (x0*x).
@@ -1103,7 +1105,7 @@ Proof.
   lra.
 Qed.
 
-Instance phase_equiv_equiv m n: Equivalence (@phase_equiv m n).
+Instance obs_equiv_equiv m n: Equivalence (@obs_equiv m n).
 Proof.
   constructor.
   + hnf; intros A.

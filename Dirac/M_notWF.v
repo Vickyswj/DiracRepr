@@ -473,7 +473,6 @@ Qed.
 Lemma trace_plus_dist : forall (n : nat) (A B : Square n), 
     trace (A .+ B) = (trace A + trace B)%C. 
 Proof.
- 
   intros.
   unfold trace, Mplus.
   induction n.
