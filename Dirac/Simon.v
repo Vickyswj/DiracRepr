@@ -1,7 +1,5 @@
 Require Export Dirac.
-Require Export StateAndOperator.
-Declare Scope QE.
-Local Open Scope QE.
+Require Export Equival.
 
 
 
@@ -62,7 +60,7 @@ rewrite Dstep22.
 super_reduce.
 Qed.
 
-
+(* 
 (*One-time*)
 Lemma simon2 : (H ⊗ H ⊗ I_2 ⊗ I_2) × (I_2 ⊗ CX ⊗ I_2) × (H ⊗ H ⊗ I_2 ⊗ σX) × ∣0,0,0,0⟩ ≡ /2 .* ∣0,0,0,1⟩ .+ /2 .* ∣0,1,0,1⟩ .+ /2 .* ∣0,0,1,1⟩ .+ - /2 .* ∣0,1,1,1⟩.
 Proof. operate_reduce. Qed.
@@ -75,7 +73,7 @@ Proof.
 by_den.
 rewrite simon2.
 reflexivity.
-Qed.
+Qed. *)
 
 
 
@@ -85,6 +83,7 @@ Qed.
 
 (*Vector*)
 Definition CIX := B0 ⊗ I_2 ⊗ I_2 .+ B3 ⊗ I_2 ⊗ σX.
+Hint Unfold  CIX : Gn_db.
 
 Definition φ30 := ∣0,0,0,0⟩.
 Definition φ31 := (H ⊗ H ⊗ I_2 ⊗ I_2) × φ30.
@@ -100,7 +99,7 @@ Qed.
 
 Lemma step32 : φ32 ≡ /√2 .* (∣0⟩ ⊗ ∣+⟩ ⊗ ∣0⟩ ⊗ ∣1⟩) .+ /√2 .* (∣1⟩ ⊗ ∣+⟩ ⊗ ∣1⟩ ⊗ ∣1⟩).
 Proof.
-unfold φ32,CIX.
+unfold φ32.
 rewrite step31.
 operate_reduce.
 Qed.
@@ -156,22 +155,17 @@ Qed.
 
 
 (*One-time*)
-(* Definition CIX := B0 ⊗ I_2 ⊗ I_2 .+ B3 ⊗ I_2 ⊗ σX.
-Lemma simon3'' : (H ⊗ H ⊗ I_2 ⊗ I_2) × (I_2 ⊗ CX ⊗ I_2) × (CIX ⊗ σX) × (H ⊗ H ⊗ I_2 ⊗ I_2) × ∣0,0,0,0⟩ ≡ /2 .* ∣0,0,0,1⟩ .+ /2 .* ∣1,1,0,1⟩ .+ /2 .* ∣0,0,1,1⟩ .+ - /2 .* ∣1,1,1,1⟩. *)
-Lemma simon3 : (H ⊗ H ⊗ I_2 ⊗ I_2) × (I_2 ⊗ CX ⊗ I_2) × (B0 ⊗ I_2 ⊗ (I_2 ⊗ σX) .+ B3 ⊗ I_2 ⊗ (σX ⊗ σX)) × (H ⊗ H ⊗ I_2 ⊗ I_2) × ∣0,0,0,0⟩ ≡ /2 .* ∣0,0,0,1⟩ .+ /2 .* ∣1,1,0,1⟩ .+ /2 .* ∣0,0,1,1⟩ .+ - /2 .* ∣1,1,1,1⟩.
+Lemma simon3 : (H ⊗ H ⊗ I_2 ⊗ I_2) × (I_2 ⊗ CX ⊗ I_2) × (CIX ⊗ σX) × (H ⊗ H ⊗ I_2 ⊗ I_2) × ∣0,0,0,0⟩ ≡ /2 .* ∣0,0,0,1⟩ .+ /2 .* ∣1,1,0,1⟩ .+ /2 .* ∣0,0,1,1⟩ .+ - /2 .* ∣1,1,1,1⟩.
 Proof. operate_reduce. Qed.
-
-Lemma Dsimon3 : super ((H ⊗ H ⊗ I_2 ⊗ I_2) × (I_2 ⊗ CX ⊗ I_2) × (B0 ⊗ I_2 ⊗ (I_2 ⊗ σX) .+ B3 ⊗ I_2 ⊗ (σX ⊗ σX)) × (H ⊗ H ⊗ I_2 ⊗ I_2)) (density ∣0,0,0,0⟩) ≡ density (/2 .* ∣0,0,0,1⟩ .+ /2 .* ∣1,1,0,1⟩ .+ /2 .* ∣0,0,1,1⟩ .+ - /2 .* ∣1,1,1,1⟩).
+Lemma Dsimon3 : super ((H ⊗ H ⊗ I_2 ⊗ I_2) × (I_2 ⊗ CX ⊗ I_2) × (CIX ⊗ σX) × (H ⊗ H ⊗ I_2 ⊗ I_2)) (density ∣0,0,0,0⟩) ≡ density (/2 .* ∣0,0,0,1⟩ .+ /2 .* ∣1,1,0,1⟩ .+ /2 .* ∣0,0,1,1⟩ .+ - /2 .* ∣1,1,1,1⟩).
 Proof.
-(* unfold CIX. *)
 super_reduce.
 Qed.
 
-Lemma simon3' : (H ⊗ H ⊗ I_2 ⊗ I_2) × (I_2 ⊗ CX ⊗ I_2) × (B0 ⊗ I_2 ⊗ (I_2 ⊗ σX) .+ B3 ⊗ I_2 ⊗ (σX ⊗ σX)) × (H ⊗ H ⊗ I_2 ⊗ I_2) × ∣0,0,0,0⟩ ≈ /2 .* ∣0,0,0,1⟩ .+ /2 .* ∣1,1,0,1⟩ .+ /2 .* ∣0,0,1,1⟩ .+ - /2 .* ∣1,1,1,1⟩.
+
+Lemma simon3' : (H ⊗ H ⊗ I_2 ⊗ I_2) × (I_2 ⊗ CX ⊗ I_2) × (CIX ⊗ σX) × (H ⊗ H ⊗ I_2 ⊗ I_2) × ∣0,0,0,0⟩ ≈ /2 .* ∣0,0,0,1⟩ .+ /2 .* ∣1,1,0,1⟩ .+ /2 .* ∣0,0,1,1⟩ .+ - /2 .* ∣1,1,1,1⟩.
 Proof.
 by_den.
 rewrite simon3.
 reflexivity.
 Qed.
-
-
