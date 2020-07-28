@@ -1,51 +1,49 @@
 Require Export Dirac.
-Require Export StateAndOperator.
-Declare Scope QE.
-Local Open Scope QE.
+Require Export Equival.
 
 
-Fixpoint kron_n n {m1 m2} (A : Matrix m1 m2) : Matrix (m1^n) (m2^n) :=
+Fixpoint kron_n n {m1 m2} (A : Matrix m1 m2) : Matrix (m1^(N.of_nat n)) (m2^(N.of_nat n)) :=
   match n with
   | 0    => I 1
   | S n' => kron (kron_n n' A) A
   end.
 
 Fixpoint ket0_n' (n : nat) := kron_n n ket0.
-Fixpoint ket0_n (n : nat) : Matrix (2^n) 1 :=
+Fixpoint ket0_n (n : nat) : Matrix (2^(N.of_nat n)) 1 :=
 match n with
 | 0 => I 1
 | S n' => ket0 ⊗ ket0_n n'
 end.
 
 Fixpoint H_n' (n : nat) := kron_n n H.
-Fixpoint H_n'' (n : nat) : Matrix (2^n) (2^n):= 
+Fixpoint H_n'' (n : nat) : Matrix (2^(N.of_nat n)) (2^(N.of_nat n)):= 
   match n with
   | 0 => I 1
   | S n' => H_n n' ⊗ H
   end.
 
-Fixpoint H_n (n : nat) : Matrix (2^n) (2^n):= 
+Fixpoint H_n (n : nat) : Matrix (2^(N.of_nat n)) (2^(N.of_nat n)):= 
   match n with
   | 0 => I 1
   | S n' => H ⊗ H_n n' 
   end.
 
 Fixpoint ketp_n' (n : nat) := kron_n n ketp.
-Fixpoint ketp_n (n : nat) : Matrix (2^n) 1 :=
+Fixpoint ketp_n (n : nat) : Matrix (2^(N.of_nat n)) 1 :=
 match n with
 | 0 => I 1
 | S n' => ketp ⊗ ketp_n n'
 end.
 
 
-Theorem QFT_ket0_n : forall n : nat,
+(* Theorem QFT_ket0_n : forall n : nat,
 ketp_n n ≡ H_n n × ket0_n n .
 Proof.
 intros.
 induction n.
  -  simpl. rewrite Mmult_1_r. reflexivity.
- -  simpl. rewrite IHn. mult_kron. rewrite Mmult_H0. reflexivity.
- Qed.
+ -  simpl.  rewrite IHn. mult_kron. rewrite Mmult_H0. reflexivity.
+ Qed. *)
 
 
 
@@ -56,7 +54,7 @@ induction n.
 
 (*Vector*)
 Definition CIT :=  B0 ⊗ I_2 ⊗ I_2 .+ B3 ⊗ I_2 ⊗ PT.
-
+Hint Unfold  CIT : Gn_db.
 Definition φ0 := ∣0,0,0⟩.
 Definition φ1 := (I_2 ⊗ I_2 ⊗ H) × φ0.
 Definition φ2 := (I_2 ⊗ CS) × φ1.
@@ -74,14 +72,14 @@ Qed.
 
 Lemma step2 : φ2 ≡ ∣0⟩ ⊗ ∣0⟩ ⊗ ∣+⟩.
 Proof.
-unfold φ2,CS.
+unfold φ2.
 rewrite step1.
 operate_reduce.
 Qed.
 
 Lemma step3 : φ3 ≡ ∣0⟩ ⊗ ∣0⟩ ⊗ ∣+⟩.
 Proof.
-unfold φ3,CIT.
+unfold φ3.
 rewrite step2.
 operate_reduce.
 Qed.
@@ -95,7 +93,7 @@ Qed.
 
 Lemma step5 : φ5 ≡ ∣0⟩ ⊗ ∣+⟩ ⊗ ∣+⟩.
 Proof.
-unfold φ5,CS.
+unfold φ5.
 rewrite step4.
 operate_reduce.
 Qed.
@@ -164,13 +162,11 @@ Qed.
 
 Lemma QFT_ket0_3 : (H ⊗ I_2 ⊗ I_2) × (CS ⊗ I_2) × (I_2 ⊗ H ⊗ I_2) × CIT ×  (I_2 ⊗ CS) × (I_2 ⊗ I_2 ⊗ H) × ∣0,0,0⟩ ≡ ∣+⟩ ⊗ ∣+⟩ ⊗ ∣+⟩.
 Proof.
-unfold CIT.
 operate_reduce.
 Qed.
 
 Lemma DQFT_ket0_3 : super ((H ⊗ I_2 ⊗ I_2) × (CS ⊗ I_2) × (I_2 ⊗ H ⊗ I_2) × CIT ×  (I_2 ⊗ CS) × (I_2 ⊗ I_2 ⊗ H)) (density ∣0,0,0⟩) ≡ density (∣+⟩ ⊗ ∣+⟩ ⊗ ∣+⟩).
 Proof.
-unfold CIT.
 super_reduce.
 Qed.
 
@@ -196,16 +192,3 @@ by_den.
 rewrite QFT_ket0_2.
 reflexivity.
 Qed.
-
-
-(* try 4-qubits QFT on  ∣0,0,0,0⟩ *)
-(* Definition PK := B0 .+ Cexp (PI/8)  .* B3.
-Definition CIS :=  B0 ⊗ I_2 ⊗ I_2 .+ B3 ⊗ I_2 ⊗ PS.
-Definition CIIK :=  B0 ⊗ I_2 ⊗ I_2 ⊗ I_2 .+ B3 ⊗ I_2 ⊗ I_2 ⊗ PK.
-Lemma QFT_ket0_4 : (H ⊗ I_2 ⊗ I_2 ⊗ I_2) × (CS ⊗ I_2 ⊗ I_2) × (I_2 ⊗ H ⊗ I_2 ⊗ I_2) × (CIT ⊗ I_2) × (I_2 ⊗ CS ⊗ I_2) × (I_2 ⊗ I_2 ⊗ H ⊗ I_2) ×
-                                     CIIK ×  (I_2 ⊗ CIT) × (I_2 ⊗ I_2 ⊗ CS) × (I_2 ⊗ I_2 ⊗ I_2 ⊗ H) × ∣0,0,0,0⟩ ≡ ∣+⟩ ⊗ ∣+⟩ ⊗ ∣+⟩ ⊗ ∣+⟩.
-Proof.
-unfold CIT,CIIK,PK,CS.
-operate_reduce.
-Qed. *)
-
