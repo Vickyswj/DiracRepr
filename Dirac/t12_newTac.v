@@ -1,4 +1,4 @@
-Require Export Dirac_new.
+Require Export Dirac.
 
 Lemma aux_lm1:
   forall m n o (A A': Matrix m n) (B B': Matrix n o) (C: Matrix m o),
