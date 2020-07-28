@@ -1,7 +1,6 @@
 Require Export Dirac.
-Require Export StateAndOperator.
-Declare Scope QE.
-Local Open Scope QE.
+Require Export Equival.
+
 
 
 
@@ -24,14 +23,14 @@ Qed.
 Lemma step02 : φ02 ≡ ∣+⟩ ⊗ ∣-⟩.
 Proof.
 unfold φ02.
-rewrite step01'.
+rewrite step01.
 operate_reduce.
 Qed.
 
 Lemma step03 : φ03 ≡ ∣0⟩ ⊗ ∣-⟩.
 Proof.
 unfold φ03.
-rewrite step02'.
+rewrite step02.
 operate_reduce.
 Qed.
 
@@ -73,7 +72,7 @@ Proof. super_reduce. Qed.
 Lemma deutsch0' : (H ⊗ I_2) × (I_2 ⊗ I_2) × (H ⊗ H) × (∣0⟩ ⊗ ∣1⟩) ≈ ∣0⟩ ⊗ ∣-⟩ .
 Proof.
 by_den.
-rewrite deutsch0. 
+rewrite  deutsch0.
 reflexivity.
 Qed.
 
@@ -111,7 +110,8 @@ Qed.
 
 Lemma step13' : φ13 ≈ ∣0⟩ ⊗ ∣-⟩.
 Proof.
-by_def (-(1)). autorewrite with C_db;auto.
+by_def (-(1)). 
+autorewrite with C_db;auto.
 rewrite step13.
 isolate_scale.
 reduce_scale.
