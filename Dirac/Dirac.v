@@ -1,4 +1,4 @@
-Require Export M_notWF.
+Require Export MN_notWF.
 
 
 (* The matrix representations of the ground states ∣0⟩ and ∣1⟩*)
@@ -41,18 +41,18 @@ Notation "⟨-∣" := bran.
 
 
 (* Recursively define the n qubits of 'ket0' and 'ket1' *)
-Fixpoint ket0_n (n : nat) : Matrix (2^n) 1 :=
-match n with
-| 0 => I 1
-| S n' => ket0 ⊗ ket0_n n'
-end.
+Fixpoint ket0_n (n : nat) : Matrix (2^(N.of_nat n)) 1 :=
+  match n with
+  | 0 => I 1
+  | S n' => ket0 ⊗ ket0_n n'
+  end.
 Definition ket0_n' (n : nat) := kron_n n ket0.
 
-Fixpoint ket1_n (n : nat) : Matrix (2^n) 1 :=
-match n with
-| 0 => I 1
-| S n' => ket1 ⊗ ket1_n n'
-end.
+Fixpoint ket1_n (n : nat) : Matrix (2^(N.of_nat n))1 :=
+  match n with
+  | 0 => I 1
+  | S n' => ket1 ⊗ ket1_n n'
+  end.
 Definition ket1_n' (n : nat) := kron_n n ket1.
 
 Hint Unfold ket0 ket1 : U_db.
@@ -158,7 +158,7 @@ Qed.
 (*H Operators*)
 Definition H := /√2 .* B0 .+ /√2 .* B1  .+ /√2 .* B2 .+ (-/√2) .* B3.
 
-Fixpoint H_n (n : nat) : Matrix (2^n) (2^n):= 
+Fixpoint H_n (n : nat) : Matrix (2^(N.of_nat n)) (2^(N.of_nat n)):= 
   match n with
   | 0 => I 1
   | S n' => H ⊗ H_n n'
@@ -175,32 +175,32 @@ Definition Pg (ϕ : R) := B0 .+ Cexp ϕ .* B3.
 
 Lemma PS_eq : PS = Pg (PI/2).
 Proof.
-unfold PS,Pg.
-autorewrite * with Cexp_db.
-auto.
+  unfold PS,Pg.
+  autorewrite * with Cexp_db.
+  auto.
 Qed.
 
 Lemma PT_eq : PT = Pg (PI/4).
 Proof.
-unfold PT,Pg.
-autorewrite * with Cexp_db.
-auto.
+  unfold PT,Pg.
+  autorewrite * with Cexp_db.
+  auto.
 Qed.
 
 Lemma PZ_eq : σZ = Pg PI.
 Proof.
-unfold Pg.
-autorewrite * with Cexp_db.
-auto.
+  unfold Pg.
+  autorewrite * with Cexp_db.
+  auto.
 Qed.
 
 Lemma PZn_eq : σZ = Pg (-PI) .
 Proof.
-unfold Pg,σZ.
-autorewrite * with Cexp_db.
-replace (/ -1) with (Copp (RtoC 1)) by lca.
-rewrite Copp_1.
-auto.
+  unfold Pg,σZ.
+  autorewrite * with Cexp_db.
+  replace (/ -1) with (Copp (RtoC 1)) by lca.
+  rewrite Copp_1.
+  auto.
 Qed.
 
 
@@ -248,10 +248,10 @@ Proof. unfold CT',CT,Cg_1. auto. Qed.
 
 
 Definition SWAP :=  B0 ⊗ B0 .+ B1 ⊗ B2 .+ B2 ⊗ B1 .+ B3 ⊗ B3.
+Definition TOF := B0 ⊗ I_2 ⊗ I_2 .+ B3 ⊗ CX.
 
-
-Hint Unfold  σX σY σZ I_2 H M0 M1 : G1_db.
-Hint Unfold  CZ CX CS CT XC ZC PC TC SWAP not_CX : G2_db.
+Hint Unfold  σX σY σZ I_2 H M0 M1 : G_db.
+Hint Unfold  CZ CX CS CT XC ZC PC TC SWAP not_CX TOF : Gn_db.
 
 
 
@@ -346,12 +346,20 @@ Qed.
 
 (* Preliminary strategy *)
 Ltac distribute_plus:=
-repeat rewrite ?Mmult_plus_distr_r, ?Mmult_plus_distr_l,?Mscale_plus_distr_r,?kron_plus_distr_r,?kron_plus_distr_l;
-try repeat rewrite<- Mplus_assoc.
+  repeat rewrite ?Mmult_plus_distr_r, ?Mmult_plus_distr_l,
+                                  ?Mscale_plus_distr_r,?kron_plus_distr_r,?kron_plus_distr_l;
+  try repeat rewrite<- Mplus_assoc.
+
+Ltac kron_plus_distr:=
+  repeat rewrite ?kron_plus_distr_r,?kron_plus_distr_l.
+
+Ltac mult_plus_distr:=
+  repeat rewrite ?Mmult_plus_distr_r, ?Mmult_plus_distr_l.
 
 
 Ltac isolate_scale:=
-repeat rewrite ?Mscale_mult_dist_l,?Mscale_mult_dist_r,?Mscale_kron_dist_r,?Mscale_kron_dist_l,?Mscale_assoc.
+  repeat rewrite ?Mscale_mult_dist_l,?Mscale_mult_dist_r,
+                                  ?Mscale_kron_dist_r,?Mscale_kron_dist_l,?Mscale_assoc.
 
 
 Ltac kron_mult:=
@@ -361,14 +369,20 @@ repeat rewrite <- kron_mixed_product.
 Ltac assoc_right:=
 repeat rewrite ?Mmult_assoc, ?kron_assoc.
 
+Ltac mult_assoc:=
+repeat rewrite ?Mmult_assoc.
+
+Ltac kron_assoc:=
+repeat rewrite ?kron_assoc.
+
 
 Ltac distribute_adjoint:=
-repeat rewrite ?adjoint_involutive, ?id_adjoint_eq,?zero_adjoint_eq,
-                          ?Mscale_adj,?Mplus_adjoint,?Mmult_adjoint,?kron_adjoint.
+  repeat rewrite ?adjoint_involutive, ?id_adjoint_eq,?zero_adjoint_eq,
+                                  ?Mscale_adj,?Mplus_adjoint,?Mmult_adjoint,?kron_adjoint.
 
 
 Inductive fake_eq {n m}: Matrix n m -> Matrix n m -> Prop :=
-| fake_eq_intro: forall A B, A = B -> fake_eq A B.
+  | fake_eq_intro: forall A B, A = B -> fake_eq A B.
 
 Lemma mult_reduce1 : forall n A B x, fake_eq (@Mmult 1 n 1 A B) x -> @Mmult 1 n 1 A B = x.
 Proof.
@@ -461,24 +475,24 @@ Ltac Mmult_1 :=
 
 
 Ltac mult_reduce :=
-match goal with
-| |-context [ @Mmult ?one1 ?n ?one2 ?A ?B] =>
+  match goal with
+  | |-context [ @Mmult ?one1 ?n ?one2 ?A ?B] =>
          match B with
         | @Mmult _ _ _ _ _ => fail 1
         | _ => change (@Mmult one1 n one2 A B) with
                                 (@Mmult 1 n 1 A B);
-                   unify one1 1%nat;
-                   unify one2 1%nat;
+                   unify one1 1%N;
+                   unify one2 1%N;
                    erewrite (mult_reduce1 n A B) by (mult_result; fail 2 "mult_result_gen fail")
         end
-| |-context [ @Mmult ?one1 ?n ?m ?A (@Mmult ?n ?one2 ?m ?B ?C)] =>
+  | |-context [ @Mmult ?one1 ?n ?m ?A (@Mmult ?n ?one2 ?m ?B ?C)] =>
          change (@Mmult one1 n m A (@Mmult n one2 m B C)) with
                        (@Mmult 1 n m A (@Mmult n 1 m B C));
           erewrite (mult_reduce2 n m A B C) by (mult_result; fail 2 "mult_result_gen fail")
 end;
-isolate_scale;
-repeat Mmult_1;
-repeat cancel_0.
+  isolate_scale;
+  repeat Mmult_1;
+  repeat cancel_0.
 
 
 
@@ -624,30 +638,32 @@ Ltac linear_solver :=
   linear_solver';
   lca.
 
+
 Ltac reduce_scale:=
-autorewrite with C_db;
-repeat group_radicals;
-repeat rewrite ?Mscale_0_l,?Mscale_1_l;
-repeat cancel_0;
-try linear_solver;
-try reflexivity.
+  autorewrite with C_db;
+  repeat group_radicals;
+  repeat rewrite ?Mscale_0_l,?Mscale_1_l;
+  repeat cancel_0;
+  try linear_solver;
+  try reflexivity.
 
 Ltac unified_base :=
-autounfold with S_db;
-distribute_plus;
-isolate_scale;
-reduce_scale.
+  autounfold with S_db;
+  distribute_plus;
+  assoc_right;
+  isolate_scale;
+  reduce_scale.
 
 
 
 (* Symbolic Reasoning Strategy of Base Operate *)
 Ltac base_reduce :=
-autounfold with B_db S_db;
-distribute_plus;
-isolate_scale;
-assoc_right;
-repeat mult_reduce;
-reduce_scale.
+  autounfold with B_db S_db;
+  distribute_plus;
+  (* isolate_scale; *)
+  assoc_right;
+  repeat mult_reduce;
+  reduce_scale.
 
 
 (*Base-Operators_reduce *)
@@ -671,6 +687,7 @@ Proof. base_reduce. Qed.
 Lemma Mmult_negB0 : ⟨-∣ × B0 ≡ / √ 2 .* ⟨0∣.
 Proof. base_reduce. Qed.
 
+
 Lemma Mmult_B10 : B1 × ∣0⟩ ≡ Zero.
 Proof. base_reduce. Qed.
 Lemma Mmult_0B1 : ⟨0∣ × B1 ≡ ⟨1∣.
@@ -690,6 +707,7 @@ Lemma Mmult_B1neg : B1 × ∣-⟩ ≡ - / √ 2 .* ∣0⟩.
 Proof. base_reduce. Qed.
 Lemma Mmult_negB1 : ⟨-∣ × B1 ≡ / √ 2 .* ⟨1∣.
 Proof. base_reduce. Qed.
+
 
 Lemma Mmult_B20 : B2 × ∣0⟩ ≡ ∣1⟩.
 Proof. base_reduce. Qed.
@@ -745,13 +763,13 @@ Hint Rewrite Mmult_B00 Mmult_B01 Mmult_B0pos Mmult_B0neg
 
 (* Symbolic Reasoning Strategy of Pauli and H operate *)
 Ltac gate_reduce :=
-autounfold with G1_db;
-distribute_plus;
-isolate_scale;
-assoc_right;
-autorewrite with B_db;
-reduce_scale;
-unified_base.
+  autounfold with G_db;
+  distribute_plus;
+  isolate_scale;
+  (* assoc_right; *)
+  autorewrite with B_db;
+  reduce_scale;
+  unified_base.
 
 (*Pauli-Operators_reduce *)
 Lemma Mmult_I0 : I_2 × ∣0⟩ ≡ ∣0⟩.
@@ -838,7 +856,6 @@ Proof. gate_reduce. Qed.
 (*H-Operators_reduce *)
 Lemma Mmult_H0 : H × ∣0⟩ ≡ ∣+⟩.
 Proof. gate_reduce. Qed.
-
 Lemma Mmult_0H : ⟨0∣ × H ≡ ⟨+∣.
 Proof. gate_reduce. Qed.
 
@@ -911,32 +928,105 @@ Hint Rewrite Mmult_I0 Mmult_I1 Mmult_Ipos Mmult_Ineg
                               Mmult_0B0 Mmult_1B0 Mmult_posB0 Mmult_negB0
                               Mmult_0B1 Mmult_1B1 Mmult_posB1 Mmult_negB1
                               Mmult_0B2 Mmult_1B2 Mmult_posB2 Mmult_negB2
-                              Mmult_0B3 Mmult_1B3 Mmult_posB3 Mmult_negB3  : G1_db.
+                              Mmult_0B3 Mmult_1B3 Mmult_posB3 Mmult_negB3  : G_db.
 
 
 
 (* Symbolic Reasoning Strategy of states in the vector form *)
-Ltac operate_reduce :=
-autounfold with G2_db;
-distribute_plus;
+Ltac operate_reduce' :=
+  autounfold with Gn_db;
+  distribute_plus;
+  isolate_scale;
+  assoc_right;
+  repeat mult_kron;
+  repeat (autorewrite with G_db;
+  isolate_scale);
+  reduce_scale;
+  unified_base.
+
+
+Ltac unfold_gate M :=
+  match M with
+  | ?A × ?B=>
+  (*idtac B;*)
+  unfold_gate B
+  | @Mmult ?m ?n ?o ?A ?B =>
+  (* idtac A B; *)
+  set (ol :=M);
+  repeat autounfold with Gn_db in ol;
+  subst ol
+  end.
+
+Ltac unfold_operator :=
+  match goal with 
+    | [ |- ?M ≡ ?N] => try unfold_gate M; try unfold_gate N
+  end.
+
+(* Ltac unfold_operator :=
+match goal with 
+ | [ |- ?M ≡ _] => unfold_gate M
+ | [ |- _ ≡ ?M] => unfold_gate M
+end.
+
+Ltac inner_reduce :=
+unfold_operator;
+kron_plus_distr;
+assoc_right;
+try rewrite Mmult_plus_distr_l;
+try repeat rewrite Mmult_plus_distr_r;
+isolate_scale;
+repeat mult_kron;
+autorewrite with G_db;
+repeat cancel_0;
+isolate_scale.
+
+Ltac inner_reduce' :=
+unfold_operator;
+kron_plus_distr;
 isolate_scale;
 assoc_right;
+try repeat rewrite Mmult_plus_distr_l;
+try repeat rewrite Mmult_plus_distr_r;
+isolate_scale;
 repeat mult_kron;
-repeat (autorewrite with G1_db;
+repeat (autorewrite with G_db;
+repeat cancel_0;
 isolate_scale);
-reduce_scale;
-unified_base.
+repeat rewrite <- Mmult_plus_distr_l. *)
+
+
+Ltac inner_reduce :=
+  unfold_operator;
+  kron_plus_distr;
+  isolate_scale;
+  assoc_right;
+  try repeat rewrite Mmult_plus_distr_l;
+  try repeat rewrite Mmult_plus_distr_r;
+  repeat rewrite <- Mscale_kron_dist_r;
+  repeat mult_kron;
+  repeat rewrite Mscale_mult_dist_r;
+  repeat (autorewrite with G_db;
+  repeat cancel_0;
+  repeat rewrite Mscale_kron_dist_r);
+  repeat rewrite <- Mmult_plus_distr_l.
+
+Ltac operate_reduce :=
+  assoc_right;
+  repeat inner_reduce;
+  reduce_scale;
+  unified_base.
 
 
 (* Notation for kron of ∣0⟩ and ∣1⟩ *)
-Definition bra (x : nat) : Matrix 1 2 := if x =? 0 then ⟨0∣ else ⟨1∣.
-Definition ket (x : nat) : Matrix 2 1 := if x =? 0 then ∣0⟩ else ∣1⟩.
+(* Definition bra (x : nat) : Matrix 1 2 := if x =? 0 then ⟨0∣ else ⟨1∣.
+Definition ket (x : nat) : Matrix 2 1 := if x =? 0 then ∣0⟩ else ∣1⟩. *)
+Definition bra (x : N) : Matrix 1 2 := if (x =? 0)%N then ⟨0∣ else ⟨1∣.
+Definition ket (x : N) : Matrix 2 1 := if (x =? 0)%N then ∣0⟩ else ∣1⟩.
 Notation "'∣' x '⟩'" := (ket x).
 Notation "'⟨' x '∣'" := (bra x).
 
 (* Notation "∣ x , y , .. , z ⟩" := (kron .. (kron ∣x⟩ ∣y⟩) .. ∣z⟩) (at level 0). *)
 Notation "∣ x , .. , y , z ⟩" := (kron ∣x⟩ .. (kron ∣y⟩ ∣z⟩) ..) (at level 0).
-
 
 Lemma CX00 : CX × ∣0,0⟩ ≡ ∣0,0⟩.
 Proof. operate_reduce. Qed.
@@ -999,17 +1089,14 @@ Hint Rewrite CX00 CX01 CX10 CX11
                               CXp0 CXp1 CXn0 CXn1
                              CXpp CXpn CXnp CXnn : G2_db.
 
-
-Lemma GHZ_ket0_3 : /√2 .* ∣0,0,0⟩ .+ /√2 .* ∣1,1,1⟩ ≡  (I_2 ⊗ CX) × (CX ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × ∣0,0,0⟩.
+Lemma GHZ_ket0_3' : (I_2 ⊗ CX) × (CX ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × ∣0,0,0⟩ ≡  /√2 .* ∣0,0,0⟩ .+ /√2 .* ∣1,1,1⟩.
 Proof.
-autounfold with G2_db.
-distribute_plus.
-isolate_scale.
-assoc_right.
-repeat mult_kron.
-repeat (autorewrite with G1_db;
-isolate_scale).
-reduce_scale.
+  operate_reduce'.
+Qed.
+
+Lemma GHZ_ket0_3 : (I_2 ⊗ CX) × (CX ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × ∣0,0,0⟩ ≡  /√2 .* ∣0,0,0⟩ .+ /√2 .* ∣1,1,1⟩.
+Proof.
+  operate_reduce.
 Qed.
 
 
@@ -1020,81 +1107,64 @@ Definition super {m n} (M : Matrix m n) : Density n -> Density m := fun ρ =>
   M × ρ × M†.
 
 Ltac super_reduce:=
-unfold super,density;                                                                   (* expand super and density *)
-match goal with                                                                              (* match the pattern of the target *)
-| |-context [ @Mmult ?n ?m ?n                                                  (*  if likes U × φ × φ† × U† *)
-                       (@Mmult ?n ?m ?m ?A ?B)
-                        (@adjoint ?n ?m ?A)] =>
-     match B with
-    | @Mmult ?m ?one ?m ?C 
-     (@adjoint ?m ?one ?C) => 
-           transitivity (@Mmult n one n                                        (* cast uniform types *)
-          (@Mmult n m one A C) (@Mmult one m m 
-          (@adjoint m one C) (@adjoint n m A)))
-     end
-end;
-  [repeat rewrite <- Mmult_assoc; reflexivity| ..];
-rewrite <- Mmult_adjoint;                                                         (* extract adjoint to become U × φ × (U × φ) *)
-let Hs := fresh "Hs" in
-match goal with
-| |-context [ @Mmult ?n ?o ?n 
-(@Mmult ?n ?m ?o ?A ?B) (@adjoint ?m ?o ?C ) ≡ 
-  @Mmult  ?n ?p ?n ?D (@adjoint ?n ?p ?D)] =>
-      match C with
-      | @Mmult ?n ?m ?o ?A ?B=>
-       assert (@Mmult n m o A B ≡ D) as Hs
-      end
-end;
-  [try reflexivity; try operate_reduce |                                   (* use operate_reduce to proof vector form states *)
-    repeat rewrite Hs; reflexivity].                                            (*  rewrite it back in density matrix form*)
+  unfold super,density;                                                                   (* expand super and density *)
+  match goal with                                                                              (* match the pattern of the target *)
+  | |-context [ @Mmult ?n ?m ?n                                                  (*  if likes U × φ × φ† × U† *)
+                         (@Mmult ?n ?m ?m ?A ?B)
+                         (@adjoint ?n ?m ?A)] =>
+       match B with
+      | @Mmult ?m ?one ?m ?C 
+       (@adjoint ?m ?one ?C) => 
+             transitivity (@Mmult n one n                                        (* cast uniform types *)
+            (@Mmult n m one A C) (@Mmult one m m 
+            (@adjoint m one C) (@adjoint n m A)))
+       end
+  end;
+    [repeat rewrite <- Mmult_assoc; reflexivity| ..];
+  rewrite <- Mmult_adjoint;                                                         (* extract adjoint to become U × φ × (U × φ) *)
+  let Hs := fresh "Hs" in
+  match goal with
+  | |-context [ @Mmult ?a ?o ?a
+  (@Mmult ?a ?m ?o ?A ?B) (@adjoint ?m ?o ?C ) ≡ 
+    @Mmult  ?n ?p ?n ?D (@adjoint ?n ?p ?D)] =>
+        match C with
+        | @Mmult ?a ?m ?o ?A ?B=>
+         assert (@Mmult n m o A B ≡ D) as Hs
+        end
+  end;
+    [try reflexivity; try operate_reduce |                                   (* use operate_reduce to proof vector form states *)
+      repeat rewrite Hs; reflexivity].                                            (*  rewrite it back in density matrix form*)
 
 
 
 
-
-
-Definition obs_equiv{m n : nat} (A B : Matrix m n) : Prop := 
+Definition obs_equiv{m n : N} (A B : Matrix m n) : Prop := 
   exists c : C, Cmod c = R1 /\  c .* A ≡ B.
 
 Infix "≈" := obs_equiv(at level 70) : matrix_scope.
 
-(* Ltac sta_yes :=
-unfold sta_equiv;
-exists 1;
-split;
-autorewrite with C_db;auto;
-rewrite Mscale_1_l.
-
-Ltac sta_m1 :=
-unfold sta_equiv;
-exists (-(1));
-split;
-autorewrite with C_db;auto. *)
 
 Definition operator_apply {m} (A: Matrix m m)(B: Vector m) : Vector m:=
-Mmult A B.
+  Mmult A B.
 
 Require Import Morphisms.
 Instance Mmult_obs_proper m n o: Proper (obs_equiv==> obs_equiv==>obs_equiv) (@Mmult m n o).
 Proof.
-hnf;intros A C H1.
-hnf;intros B D H2.
-unfold obs_equiv,operator_apply,get in * .
-inversion H1. inversion H0.
-inversion H2. inversion H5.
-exists (x0*x).
-rewrite <- Mscale_mult_dist_l.
-rewrite <- Mscale_assoc.
-rewrite Mscale_mult_dist_l.
-rewrite <- Mscale_mult_dist_r.
-rewrite H7,H4.
-split.
- rewrite Cmod_mult. rewrite H3,H6. lra.
- reflexivity.
+  hnf;intros A C H1.
+  hnf;intros B D H2.
+  unfold obs_equiv,operator_apply,get in * .
+  inversion H1. inversion H0.
+  inversion H2. inversion H5.
+  exists (x0*x).
+  rewrite <- Mscale_mult_dist_l.
+  rewrite <- Mscale_assoc.
+  rewrite Mscale_mult_dist_l.
+  rewrite <- Mscale_mult_dist_r.
+  rewrite H7,H4.
+  split.
+  rewrite Cmod_mult. rewrite H3,H6. lra.
+  reflexivity.
 Qed.
-
-
-
 
 
 Lemma mod1_not_0: forall c, Cmod c = R1 -> c <> 0.
@@ -1128,418 +1198,5 @@ Proof.
     - rewrite <- H3, <- H2.
       rewrite Mscale_assoc, Cmult_comm.
       reflexivity.
-Qed.
-
-
-
-Lemma mat_equiv_by_Mmult: forall m n (A B: Matrix m n),
-  (forall v : Matrix n 1, Mmult A v ≡ Mmult B v) ->
-  A ≡ B.
-Proof.
-  intros m n A B HAB.
-    assert (forall j, (j < n)%nat ->
-            forall i, (i < m)%nat -> A i j = B i j)
-      as HAB'.
- { 
-    intros j Hj.
-    specialize
-      (HAB (fun j' _ => if (j' =? j) && (j' <? n) then 1 else 0)).
-    intros.
-    specialize (HAB ltac:(exists i; auto)
-                     ltac:(exists 0%nat; lia)).
-    pose proof Mmult_1_r _ _ A
-                 ltac:(exists i; auto)
-                 ltac:(exists j; auto)
-            as HAj.
-    pose proof Mmult_1_r _ _ B
-                 ltac:(exists i; auto)
-                 ltac:(exists j; auto)
-            as HBj.
-    unfold scale in HAB.
-    unfold Mmult, get, I in HAB, HAj, HBj; simpl in HAB, HAj, HBj.
-    rewrite HAj, HBj in HAB.
-    auto. 
-    }
-  assert (forall j j', (j < n)%nat -> (j' < n)%nat ->
-          forall x x': C,
-            forall i, (i < m)%nat ->
-               (A i j * x + A i j' * x') = B i j * x + B i j' * x')
-      as HAB''.
-{
-    intros j j' Hj Hj' x x'.
-    specialize
-      (HAB (fun j'' _ => x * (if (j'' =? j) && (j'' <? n) then 1 else 0) +
-                         x' * (if (j'' =? j') && (j'' <? n) then 1 else 0))).
-    intros i Hi.
-    specialize (HAB ltac:(exists i; auto)
-                       ltac:(exists 0%nat; lia)).
-    pose proof Mmult_1_r _ _ A
-                 ltac:(exists i; auto)
-                 ltac:(exists j; auto)
-            as HAj.
-    pose proof Mmult_1_r _ _ A
-                 ltac:(exists i; auto)
-                 ltac:(exists j'; auto)
-            as HAj'.
-    pose proof Mmult_1_r _ _ B
-                 ltac:(exists i; auto)
-                 ltac:(exists j; auto)
-            as HBj.
-    pose proof Mmult_1_r _ _ B
-                 ltac:(exists i; auto)
-                 ltac:(exists j'; auto)
-            as HBj'.
-    unfold scale in HAB.
-    unfold Mmult, get, I in HAB, HAj, HAj', HBj, HBj';
-    simpl in HAB, HAj, HAj', HBj, HBj'.
-    assert (forall K,
-            (fun y : nat =>
-               K y * (x * (if (y =? j) && (y <? n) then 1 else 0) +
-                      x' * (if (y =? j') && (y <? n) then 1 else 0))) =
-            (fun y : nat =>
-               (K y * (if (y =? j) && (y <? n) then 1 else 0)) * x +
-               (K y * (if (y =? j') && (y <? n) then 1 else 0)) * x')).
-    {
-      intros.
-      apply functional_extensionality.
-      intros j''.
-      ring.
-    }
-    rewrite (Csum_eq _ _ n (H0 (A i))),
-            (Csum_eq _ _ n (H0 (B i))),
-            !Csum_plus, <- !Csum_mult_r,
-            HAj, HAj', HBj, HBj'  in HAB.
-    auto.
-  }
-    pose proof Classical_Prop.classic
-               (exists i j, (i < m)%nat /\
-                            (j < n)%nat /\
-                            A i j <> 0)
-          as [[i [j [Hi [Hj HAij]]]] | CONTRA].
-  2: {
-    intros [i Hi] [j Hj].
-    unfold get; simpl.
-    assert (A i j = 0).
-    {
-      apply Classical_Prop.NNPP.
-      intro; apply CONTRA.
-      exists i, j; auto.
-    }
-    assert (B i j = 0).
-    {
-      specialize (HAB' j ltac:(auto)).
-      specialize (HAB' i ltac:(auto)).
-      rewrite H0 in HAB'.
-      rewrite <- HAB'.
-      ring.
-    }
-    rewrite H0, H1; reflexivity.
-  }
-  pose proof HAB' j Hj as Hcj.
-  intros [i' Hi'] [j' Hj']; unfold get; simpl.
-  revert i' Hi'.
-  pose proof HAB' j' Hj' as Hc'j'.
-  destruct (Classical_Prop.classic
-            (exists i, (i < m)%nat /\
-                       A i j <> 0 /\ A i j' <> 0))
-    as [|].
-  {
-    clear dependent i.
-    clear HAB'.
-      intros.
-      rewrite <- Hc'j' by auto.
-      f_equal.
-    }
-  destruct (Classical_Prop.classic
-            (exists i, (i < m)%nat /\ A i j' <> 0))
-    as [| CONTRA].
-  { auto. }
-  {
-    clear dependent i.
-    clear H0.
-    intros i Hi.
-    assert (A i j' = 0).
-    {
-      apply Classical_Prop.NNPP; intro; apply CONTRA.
-      exists i; auto.
-    }
-    assert (B i j' = 0).
-    {
-      rewrite <- Hc'j' by auto.
-      rewrite H0.
-      ring.
-    }
-    rewrite H0, H1.
-    ring.
-  }
-Qed.
-
-
-
-Lemma sta_equiv_by_Mmult: forall m n (A B: Matrix m n),
-  (forall v : Matrix n 1, Mmult A v ≈ Mmult B v) ->
-  A ≈ B.
-Proof.
-  intros m n A B HAB.
-  assert (forall j, (j < n)%nat -> exists c,
-            Cmod c = 1 /\
-            forall i, (i < m)%nat -> c * A i j = B i j)
-      as HAB'.
-  {
-    intros j Hj.
-    specialize
-      (HAB (fun j' _ => if (j' =? j) && (j' <? n) then 1 else 0)).
-    destruct HAB as [c [Hc HABj]]; exists c; split; auto.
-    intros.
-    specialize (HABj ltac:(exists i; auto)
-                     ltac:(exists 0%nat; lia)).
-    pose proof Mmult_1_r _ _ A
-                 ltac:(exists i; auto)
-                 ltac:(exists j; auto)
-            as HAj.
-    pose proof Mmult_1_r _ _ B
-                 ltac:(exists i; auto)
-                 ltac:(exists j; auto)
-            as HBj.
-    unfold scale in HABj.
-    unfold Mmult, get, I in HABj, HAj, HBj; simpl in HABj, HAj, HBj.
-    rewrite HAj, HBj in HABj.
-    auto.
-  }
-  assert (forall j j', (j < n)%nat -> (j' < n)%nat ->
-          forall x x': C,
-          exists c,
-            Cmod c = 1 /\
-            forall i, (i < m)%nat ->
-               c * (A i j * x + A i j' * x') = B i j * x + B i j' * x')
-      as HAB''.
-  {
-    intros j j' Hj Hj' x x'.
-    specialize
-      (HAB (fun j'' _ => x * (if (j'' =? j) && (j'' <? n) then 1 else 0) +
-                         x' * (if (j'' =? j') && (j'' <? n) then 1 else 0))).
-    destruct HAB as [c [Hc HABjj']]; exists c; split; auto.
-    intros i Hi.
-    specialize (HABjj' ltac:(exists i; auto)
-                       ltac:(exists 0%nat; lia)).
-    pose proof Mmult_1_r _ _ A
-                 ltac:(exists i; auto)
-                 ltac:(exists j; auto)
-            as HAj.
-    pose proof Mmult_1_r _ _ A
-                 ltac:(exists i; auto)
-                 ltac:(exists j'; auto)
-            as HAj'.
-    pose proof Mmult_1_r _ _ B
-                 ltac:(exists i; auto)
-                 ltac:(exists j; auto)
-            as HBj.
-    pose proof Mmult_1_r _ _ B
-                 ltac:(exists i; auto)
-                 ltac:(exists j'; auto)
-            as HBj'.
-    unfold scale in HABjj'.
-    unfold Mmult, get, I in HABjj', HAj, HAj', HBj, HBj';
-    simpl in HABjj', HAj, HAj', HBj, HBj'.
-    assert (forall K,
-            (fun y : nat =>
-               K y * (x * (if (y =? j) && (y <? n) then 1 else 0) +
-                      x' * (if (y =? j') && (y <? n) then 1 else 0))) =
-            (fun y : nat =>
-               (K y * (if (y =? j) && (y <? n) then 1 else 0)) * x +
-               (K y * (if (y =? j') && (y <? n) then 1 else 0)) * x')).
-    {
-      intros.
-      apply functional_extensionality.
-      intros j''.
-      ring.
-    }
-    rewrite (Csum_eq _ _ n (H0 (A i))),
-            (Csum_eq _ _ n (H0 (B i))),
-            !Csum_plus, <- !Csum_mult_r,
-            HAj, HAj', HBj, HBj'  in HABjj'.
-    auto.
-  }
-  pose proof Classical_Prop.classic
-               (exists i j, (i < m)%nat /\
-                            (j < n)%nat /\
-                            A i j <> 0)
-          as [[i [j [Hi [Hj HAij]]]] | CONTRA].
-  2: {
-    exists 1.
-    split; [autorewrite with C_db;auto | rewrite Mscale_1_l].
-    intros [i Hi] [j Hj].
-    unfold get; simpl.
-    assert (A i j = 0).
-    {
-      apply Classical_Prop.NNPP.
-      intro; apply CONTRA.
-      exists i, j; auto.
-    }
-    assert (B i j = 0).
-    {
-      specialize (HAB' j ltac:(auto)).
-      destruct HAB' as [c [_ HH]].
-      specialize (HH i ltac:(auto)).
-      rewrite H0 in HH.
-      rewrite <- HH.
-      ring.
-    }
-    rewrite H0, H1; reflexivity.
-  }
-  pose proof HAB' j Hj as [c [Hc Hcj]].
-  exists c; split; auto.
-  unfold scale.
-  intros [i' Hi'] [j' Hj']; unfold get; simpl.
-  revert i' Hi'.
-  pose proof HAB' j' Hj' as [c' [Hc' Hc'j']].
-  destruct (Classical_Prop.classic
-            (exists i, (i < m)%nat /\
-                       A i j <> 0 /\ A i j' <> 0))
-    as [|].
-  {
-    clear dependent i.
-    clear HAB'.
-    assert (c/c' = 1).
-    2: {
-      intros.
-      rewrite <- Hc'j' by auto.
-      f_equal.
-      rewrite <- (Cmult_1_l c').
-      rewrite <- H1.
-      field.
-      apply mod1_not_0.
-      auto.
-    }
-    destruct H0 as [i [Hi [HAij HAij']]].
-    assert (forall x,
-              Cmod (A i j * x + A i j') =
-              Cmod ((c/c') * A i j * x + A i j'))
-         as General.
-    {
-      clear HAij HAij'.
-      intros x.
-      specialize (HAB'' j j' ltac:(auto) ltac:(auto) x 1).
-      destruct HAB'' as [k [Hk HH]].
-      specialize (HH i Hi).
-      transitivity (Cmod (k * (A i j * x + A i j' * 1))).
-      {
-        rewrite Cmod_mult.
-        rewrite Hk.
-        rewrite Rmult_1_l.
-        f_equal.
-        ring.
-      }
-      rewrite HH.
-      rewrite <- Hcj, <- Hc'j' by auto.
-      transitivity (Cmod (c' * (c / c' * A i j * x + A i j'))).
-      {
-        f_equal.
-        field.
-        apply mod1_not_0; auto.
-      }
-      rewrite Cmod_mult, Hc'.
-      ring.
-    }
-    pose proof General (A i j' / A i j) as HH.
-    assert (A i j * (A i j' / A i j) + A i j' = (1+1) * A i j').
-    { field; auto. }
-    rewrite H0 in HH; clear H0.
-    assert (c / c' * A i j * (A i j' / A i j) + A i j' = (c / c' + 1) * A i j').
-    { set (s:= c/c'). field; auto. }
-    rewrite H0 in HH; clear H0.
-    rewrite !Cmod_mult in HH.
-    apply Rmult_eq_reg_r in HH.
-    2: { intro. apply Cmod_eq_0 in H0. tauto. }
-    clear - Hc Hc' HH.
-    assert (Cmod (c/c') = 1) as Hs.
-    {
-      rewrite Cmod_div by (apply mod1_not_0; auto).
-      rewrite Hc, Hc'; field.
-    }
-    set (s := c/c') in *.
-    clearbody s; clear c c' Hc Hc'.
-    destruct s.
-    unfold C1 in HH.
-    unfold Cplus in HH; simpl in HH.
-    unfold Cmod in HH, Hs; simpl in HH, Hs.
-    apply sqrt_inj in HH.
-    2:{ nra. }
-    2:{ set (rr := (r+1)%R). set (rr0 := (r0+0)%R). nra. }
-    apply sqrt_lem_0 in Hs.
-    2:{ nra. }
-    2:{ nra. }
-    ring_simplify in HH.
-    ring_simplify in Hs.
-    assert (r = 1)%R by lra.
-    subst.
-    assert (r0 ^ 2 = 0)%R by lra.
-    assert (r0 = 0) by nra.
-    subst.
-    reflexivity.
-  }
-  destruct (Classical_Prop.classic
-            (exists i, (i < m)%nat /\ A i j' <> 0))
-    as [| CONTRA].
-  {
-    assert (c = c').
-    2: { subst c; auto. }
-    destruct H1 as [i' [Hi' HAi'j']].
-    assert (A i j' = 0) as HAij'.
-    {
-      apply Classical_Prop.NNPP; intro; apply H0.
-      exists i.
-      tauto.
-    }
-    assert (A i' j = 0) as HAi'j.
-    {
-      apply Classical_Prop.NNPP; intro; apply H0.
-      exists i'.
-      tauto.
-    }
-    specialize (HAB'' j j' Hj Hj' 1 1).
-    destruct HAB'' as [k [Hk HAB'']].
-    pose proof HAB'' i Hi.
-    pose proof HAB'' i' Hi'.
-    rewrite <- Hcj in H1, H2 by auto.
-    rewrite <- Hc'j' in H1, H2 by auto.
-    rewrite HAij' in H1.
-    rewrite HAi'j in H2.
-    ring_simplify in H1.
-    ring_simplify in H2.
-    transitivity ((c * A i j) * (k * A i' j') / (k * A i j * A i' j')).
-    {
-      field.
-      split; [| split]; auto.
-      apply mod1_not_0; auto.
-    }
-    transitivity ((c' * A i' j') * (k * A i j) / (k * A i j * A i' j')).
-    2: {
-      field.
-      split; [| split]; auto.
-      apply mod1_not_0; auto.
-    }
-    rewrite H1, H2.
-    f_equal.
-    ring.
-  }
-  {
-    clear dependent i.
-    clear H0.
-    intros i Hi.
-    assert (A i j' = 0).
-    {
-      apply Classical_Prop.NNPP; intro; apply CONTRA.
-      exists i; auto.
-    }
-    assert (B i j' = 0).
-    {
-      rewrite <- Hc'j' by auto.
-      rewrite H0.
-      ring.
-    }
-    rewrite H0, H1.
-    ring.
-  }
 Qed.
 
