@@ -1,7 +1,5 @@
 Require Export Dirac.
-Require Export StateAndOperator.
-Declare Scope QE.
-Local Open Scope QE.
+Require Export Equival.
 
 
 Definition GHZ := /√2 .* (∣0,0,0⟩) .+ /√2 .* (∣1,1,1⟩).
@@ -213,4 +211,3 @@ intros.
 by_den.
 rewrite ss7; reflexivity.
 Qed.
-
