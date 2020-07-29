@@ -1,8 +1,5 @@
  Require Export Dirac.
- Require Export StateAndOperator.
-
-Declare Scope QE.
-Local Open Scope QE.
+ Require Export Equival.
 
 Lemma vq1 : forall v : Vector 2, exists a b : C, v ≡ a .* ∣0⟩ .+ b .* ∣1⟩ .
 Proof.
@@ -84,7 +81,7 @@ Qed.
 
 
 (* Unitary *)
-Lemma unit_X_p : forall v : Vector 2,  σX × σX × v ≡ I_2 × v.
+Lemma unit_X' : forall v : Vector 2,  σX × σX × v ≡ I_2 × v.
 Proof.
 intros.
 pose proof vq1 v.
@@ -97,13 +94,13 @@ Qed.
 Lemma unit_X : σX × σX ≡ I_2.
 Proof.
 rewrite MatrixEquiv_spec.
-apply unit_X_p.
+apply unit_X'.
 Qed.
 
 Lemma unit_X_d : forall  v : Vector 2,   σX × σX × v × (σX × σX × v) † ≡ I_2 × v × (I_2 × v) †.
 Proof.
 intros.
-rewrite unit_X_p.
+rewrite unit_X'.
 reflexivity.
 Qed.
 
@@ -212,6 +209,7 @@ rewrite H1,H2.
 operate_reduce.
 Qed.
 
+
 Lemma unit_CX : CX × CX ≡ (I_2 ⊗ I_2).
 Proof.
 rewrite MatrixEquiv_spec.
@@ -228,7 +226,9 @@ Qed.
 
 
 (* Equation *)
+
 (* One qubit *)
+
 (* 160 *)
 Lemma Eq1' : forall v : Vector 2, /√2 .* (σX .+ σZ) × v ≡  H × v.
 Proof.
@@ -252,6 +252,7 @@ by_effect.
 by_def1.
 apply Eq1'.
 Qed.
+
 
 
 (* 162 *)
@@ -328,7 +329,9 @@ by_def1.
 apply Eq4'.
 Qed.
 
+
 (* Two qubits *)
+
 (* Definition SWAP :=  B0 ⊗ B0 .+ B1 ⊗ B2 .+ B2 ⊗ B1 .+ B3 ⊗ B3.
 Definition CA_1 {n} (A : Matrix n n) := B0 ⊗ I_2 .+ B3 ⊗ A.
 Definition AC_1 {n} (A : Matrix n n) := A ⊗ B3 .+ I_2 ⊗ B0. *)
@@ -664,6 +667,7 @@ Qed.
 
 (* 165 *)
 Definition CE (u: R) := B0 ⊗ I_2 .+ B3 ⊗ (Cexp u .* B0 .+ Cexp u .* B3).
+Hint Unfold  CE : Gn_db.
 Lemma Eq16' : forall (v : Vector 4) (u: R), CE u × v ≡ ((B0 .+ Cexp u .* B3) ⊗ I_2) × v.
 Proof.
 intros.
@@ -676,7 +680,6 @@ pose proof vq1 v2.
 destruct H0 as [c [d H2]].
 rewrite H1,H2.
 
-unfold CE.
 operate_reduce.
 Qed.
 
@@ -698,7 +701,6 @@ Qed.
 
 
 (* 169 *)
-Definition not_CX := B0 ⊗ σX .+ B3 ⊗ I_2.
 Lemma Eq17' : forall v : Vector 4, CX × v ≡ (σX ⊗ I_2) × not_CX × (σX ⊗ I_2) × v.
 Proof.
 intros.
@@ -711,7 +713,6 @@ pose proof vq1 v2.
 destruct H0 as [c [d H2]].
 rewrite H1,H2.
 
-unfold not_CX.
 operate_reduce.
 Qed.
 
@@ -730,9 +731,11 @@ Qed.
 
 
 (* Three qubits *)
+
 (* 170 *)
 Definition CXX := B0 ⊗ I_2 ⊗ I_2 .+ B3 ⊗ σX ⊗ σX.
 Definition CIX := B0 ⊗ I_2 ⊗ I_2 .+ B3 ⊗ I_2 ⊗ σX.
+Hint Unfold  CXX CIX : Gn_db.
 Lemma Eq18' : forall (v : Vector 8),
           CXX × v ≡ CIX × (CX ⊗ I_2) × v.
 Proof.
@@ -755,7 +758,6 @@ pose proof vq1 v4.
 destruct H0 as [g [h H4]].
 rewrite H1,H2,H3,H4.
 
-unfold CXX,CIX.
 operate_reduce.
 Qed.
 
@@ -773,7 +775,7 @@ apply Eq18'.
 Qed.
 
 
-Lemma vqn : forall (n : nat) (v :Vector (2*n)),exists  v1 v2 : Vector n, v ≡  ∣0⟩ ⊗ v1  .+  ∣1⟩ ⊗ v2 .
+Lemma vqn : forall (n : nat) (v :Vector (2*(N.of_nat n))),exists  v1 v2 : Vector (N.of_nat n), v ≡  ∣0⟩ ⊗ v1  .+  ∣1⟩ ⊗ v2 .
 Proof.
 intros.
 induction n.
@@ -885,4 +887,3 @@ Definition PT := B0 .+ (/√2 + /√2 * Ci) .* B3. *)
 
 (* Fredkin *)
 Definition FRE := B0 ⊗ I_2 ⊗ I_2 .+ B3 ⊗ SWAP.
-
