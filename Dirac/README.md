@@ -4,12 +4,12 @@
 ## Overview
 
 
-we propose a symbolic approach to reasoning about quantum circuits. 
+We propose a symbolic approach to reasoning about quantum circuits. 
 It is based on a small set of laws involving some basic manipulations on vectors and matrices. 
 This symbolic reasoning scales better than the explicit one and is well suited to be automated in Coq, as demonstrated with some typical examples.
 
 
-We describe it in detail in [this draft](https://arxiv.org/pdf/2005.11023)(The latest version is still waiting for be announced).
+We describe it in detail in [this draft](https://arxiv.org/pdf/2005.11023).
 
 
 ## Directory Contents
