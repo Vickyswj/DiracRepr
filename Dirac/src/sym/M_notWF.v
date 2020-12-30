@@ -1,7 +1,7 @@
 Require Import Psatz.
 Require Import String.
 Require Import Program.
-Require Export Complex.
+Require Export reComplex.
 Require Import List.
 Require Coq.Setoids.Setoid.
 Require Import Coq.Classes.Morphisms.
@@ -984,12 +984,6 @@ Qed.
 Lemma Minv_symm : forall (n : nat) (A B : Square n), Minv A B -> Minv B A.
 Proof. unfold Minv; intuition. Qed.
 
-
-Local Open Scope nat_scope.
-
-Axiom kron_assoc' : forall {m n p q r s : nat}
-  (A : Matrix m n) (B : Matrix p q) (C : Matrix r s),
-  (A ⊗ B ⊗ C) = A ⊗ (B ⊗ C).
 
 Lemma kron_assoc : forall {m n p q r s : nat}
   (A : Matrix m n) (B : Matrix p q) (C : Matrix r s),
