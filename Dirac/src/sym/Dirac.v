@@ -55,8 +55,8 @@ Fixpoint ket1_n (n : nat) : Matrix (2^(N.of_nat n))1 :=
   end.
 Definition ket1_n' (n : nat) := kron_n n ket1.
 
-Hint Unfold ket0 ket1 : U_db.
-Hint Unfold ketp ketn brap bran ket0_n ket1_n : S_db.
+Global Hint Unfold ket0 ket1 : U_db.
+Global Hint Unfold ketp ketn brap bran ket0_n ket1_n : S_db.
 
 
 
@@ -64,7 +64,9 @@ Ltac orthogonal_reduce :=
   autounfold with S_db;
   autounfold with U_db;
   prep_matrix_equality;
-  destruct_m_eq; autorewrite with C_db;auto;
+  simpl;
+  destruct_m_eq';
+  autorewrite with C_db;auto;
   bdestruct_all;
   try rewrite andb_false_r;
   try lca.
@@ -132,7 +134,7 @@ Definition B1 := ∣0⟩ × ⟨1∣.
 Definition B2 := ∣1⟩ × ⟨0∣.
 Definition B3 := ∣1⟩ × ⟨1∣.
 
-Hint Unfold B0 B1 B2 B3 : B_db.
+Global Hint Unfold B0 B1 B2 B3 : B_db.
 
 
 (*Pauli Operators*)
@@ -141,12 +143,14 @@ Definition σY := - Ci .* B1 .+ Ci .* B2.
 Definition σZ := B0 .+ (-1) .* B3.
 Definition I_2 := B0 .+ B3.
 
+
 Lemma I2_eq : I_2 = I 2 .
-Proof. 
+Proof.
   unfold I_2.
   autounfold with B_db.
   orthogonal_reduce.
 Qed.
+
 Lemma I4_eq : I_2 ⊗ I_2 = I 4 .
 Proof.
   rewrite I2_eq.
@@ -158,7 +162,7 @@ Qed.
 (*H Operators*)
 Definition H := /√2 .* B0 .+ /√2 .* B1  .+ /√2 .* B2 .+ (-/√2) .* B3.
 
-Fixpoint H_n (n : nat) : Matrix (2^(N.of_nat n)) (2^(N.of_nat n)):= 
+Fixpoint H_n (n : nat) : Matrix (2^(N.of_nat n)) (2^(N.of_nat n)):=
   match n with
   | 0 => I 1
   | S n' => H ⊗ H_n n'
@@ -198,7 +202,7 @@ Lemma PZn_eq : σZ = Pg (-PI) .
 Proof.
   unfold Pg,σZ.
   autorewrite * with Cexp_db.
-  replace (/ -1) with (Copp (RtoC 1)) by lca.
+  replace (/ -1) with (-(1)) by lca.
   rewrite Copp_1.
   auto.
 Qed.
@@ -250,8 +254,8 @@ Proof. unfold CT',CT,Cg_1. auto. Qed.
 Definition SWAP :=  B0 ⊗ B0 .+ B1 ⊗ B2 .+ B2 ⊗ B1 .+ B3 ⊗ B3.
 Definition TOF := B0 ⊗ I_2 ⊗ I_2 .+ B3 ⊗ CX.
 
-Hint Unfold  σX σY σZ I_2 H M0 M1 : G_db.
-Hint Unfold  CZ CX CS CT XC ZC PC TC SWAP not_CX TOF : Gn_db.
+Global Hint Unfold  σX σY σZ I_2 H M0 M1 : G_db.
+Global Hint Unfold  CZ CX CS CT XC ZC PC TC SWAP not_CX TOF : Gn_db.
 
 
 
@@ -678,7 +682,17 @@ Lemma Mmult_1B0 : ⟨1∣ × B0 ≡ Zero.
 Proof. base_reduce. Qed.
 
 Lemma Mmult_B0pos : B0 × ∣+⟩ ≡ / √ 2 .* ∣0⟩.
-Proof. base_reduce. Qed.
+Proof. 
+  autounfold with B_db.
+  distribute_plus.
+  (* isolate_scale; *)
+  assoc_right.
+  repeat mult_reduce.
+  reduce_scale.
+
+
+
+base_reduce. Qed.
 Lemma Mmult_posB0 : ⟨+∣ × B0 ≡ / √ 2 .* ⟨0∣.
 Proof. base_reduce. Qed.
 
@@ -933,7 +947,7 @@ Hint Rewrite Mmult_I0 Mmult_I1 Mmult_Ipos Mmult_Ineg
 
 
 (* Symbolic Reasoning Strategy of states in the vector form *)
-Ltac operate_reduce' :=
+(* Ltac operate_reduce' :=
   autounfold with Gn_db;
   distribute_plus;
   isolate_scale;
@@ -942,9 +956,10 @@ Ltac operate_reduce' :=
   repeat (autorewrite with G_db;
   isolate_scale);
   reduce_scale;
-  unified_base.
+  unified_base. *)
 
 
+(* Symbolic Reasoning Strategy of states in the vector form *)
 Ltac unfold_gate M :=
   match M with
   | ?A × ?B=>
@@ -962,38 +977,6 @@ Ltac unfold_operator :=
     | [ |- ?M ≡ ?N] => try unfold_gate M; try unfold_gate N
   end.
 
-(* Ltac unfold_operator :=
-match goal with 
- | [ |- ?M ≡ _] => unfold_gate M
- | [ |- _ ≡ ?M] => unfold_gate M
-end.
-
-Ltac inner_reduce :=
-unfold_operator;
-kron_plus_distr;
-assoc_right;
-try rewrite Mmult_plus_distr_l;
-try repeat rewrite Mmult_plus_distr_r;
-isolate_scale;
-repeat mult_kron;
-autorewrite with G_db;
-repeat cancel_0;
-isolate_scale.
-
-Ltac inner_reduce' :=
-unfold_operator;
-kron_plus_distr;
-isolate_scale;
-assoc_right;
-try repeat rewrite Mmult_plus_distr_l;
-try repeat rewrite Mmult_plus_distr_r;
-isolate_scale;
-repeat mult_kron;
-repeat (autorewrite with G_db;
-repeat cancel_0;
-isolate_scale);
-repeat rewrite <- Mmult_plus_distr_l. *)
-
 
 Ltac inner_reduce :=
   unfold_operator;
@@ -1002,7 +985,7 @@ Ltac inner_reduce :=
   assoc_right;
   try repeat rewrite Mmult_plus_distr_l;
   try repeat rewrite Mmult_plus_distr_r;
-  repeat rewrite <- Mscale_kron_dist_r;
+  repeat rewrite <- Mscale_kron_dist_r;  (* repeat rewrite <- Mscale_kron_dist_l;  *)
   repeat mult_kron;
   repeat rewrite Mscale_mult_dist_r;
   repeat (autorewrite with G_db;
@@ -1018,8 +1001,6 @@ Ltac operate_reduce :=
 
 
 (* Notation for kron of ∣0⟩ and ∣1⟩ *)
-(* Definition bra (x : nat) : Matrix 1 2 := if x =? 0 then ⟨0∣ else ⟨1∣.
-Definition ket (x : nat) : Matrix 2 1 := if x =? 0 then ∣0⟩ else ∣1⟩. *)
 Definition bra (x : N) : Matrix 1 2 := if (x =? 0)%N then ⟨0∣ else ⟨1∣.
 Definition ket (x : N) : Matrix 2 1 := if (x =? 0)%N then ∣0⟩ else ∣1⟩.
 Notation "'∣' x '⟩'" := (ket x).
@@ -1052,34 +1033,22 @@ Proof. operate_reduce. Qed.
 Lemma CXn1 : CX × (∣-⟩ ⊗ ∣1⟩) ≡ /√2 .* ∣0,1⟩ .+ - /√2 .* ∣1,0⟩.
 Proof. operate_reduce. Qed.
 
-Lemma CX0p : CX × (∣0⟩ ⊗ ∣+⟩) ≡ /√2 .* ∣0,0⟩ .+ /√2 .* ∣0,1⟩.
-(* Lemma CX0p : CX × (∣0⟩ ⊗ ∣+⟩) ≡ ∣0⟩ ⊗ ∣+⟩. *)
+Lemma CX0p : CX × (∣0⟩ ⊗ ∣+⟩) ≡ ∣0⟩ ⊗ ∣+⟩.
 Proof. operate_reduce. Qed.
 
-
-(* Lemma CX0n : CX × (∣0⟩ ⊗ ∣-⟩) ≡ /√2 .* (∣0⟩ ⊗ ∣0⟩) .+ - /√2 .* (∣0⟩ ⊗ ∣1⟩). *)
 Lemma CX0n : CX × (∣0⟩ ⊗ ∣-⟩) ≡ ∣0⟩ ⊗ ∣-⟩.
 Proof. operate_reduce. Qed.
 
-(* Lemma CX1p : CX × (∣1⟩ ⊗ ∣+⟩) ≡ /√2 .* (∣1⟩ ⊗ ∣0⟩) .+ /√2 .* (∣1⟩ ⊗ ∣1⟩). *)
 Lemma CX1p : CX × (∣1⟩ ⊗ ∣+⟩) ≡ ∣1⟩ ⊗ ∣+⟩.
 Proof. operate_reduce. Qed.
 
-(* Lemma CX1n : CX × (∣1⟩ ⊗ ∣-⟩) ≡ /√2 .* (∣1⟩ ⊗ ∣1⟩) .+ - /√2 .* (∣1⟩ ⊗ ∣0⟩). *)
 Lemma CX1n : CX × (∣1⟩ ⊗ ∣-⟩) ≡ - 1 .* ∣1⟩ ⊗ ∣-⟩ .
 Proof. operate_reduce. Qed.
 
-(* Lemma CXpp : CX × (∣+⟩ ⊗ ∣+⟩) ≡ /2 .* ∣0⟩ ⊗ ∣0⟩ .+ /2 .* ∣0⟩ ⊗ ∣1⟩ .+ /2 .* ∣1⟩ ⊗ ∣0⟩ .+ /2 .* ∣1⟩ ⊗ ∣1⟩. *)
-Lemma CXpp : CX × (∣+⟩ ⊗ ∣+⟩) ≡  / √ 2 .* ∣0⟩ ⊗ ∣+⟩ .+ / √ 2 .* ∣1⟩ ⊗ ∣+⟩.
+Lemma CXpp : CX × (∣+⟩ ⊗ ∣+⟩) ≡   (∣+⟩ ⊗ ∣+⟩).
 Proof. operate_reduce. Qed.
 
-Lemma CXpp' : CX × (∣+⟩ ⊗ ∣+⟩) ≡   (∣+⟩ ⊗ ∣+⟩).
-Proof. operate_reduce. Qed.
-
-Lemma CXpn : CX × (∣+⟩ ⊗ ∣-⟩) ≡ /√2 .* (∣0⟩ ⊗ ∣-⟩) .+ - /√2 .* (∣1⟩ ⊗ ∣-⟩).
-Proof. operate_reduce. Qed.
-
-Lemma CXpn' : CX × (∣+⟩ ⊗ ∣-⟩) ≡ (∣-⟩ ⊗ ∣-⟩).
+Lemma CXpn : CX × (∣+⟩ ⊗ ∣-⟩) ≡ (∣-⟩ ⊗ ∣-⟩).
 Proof. operate_reduce. Qed.
 
 Lemma CXnp : CX × (∣-⟩ ⊗ ∣+⟩) ≡ /√2 .* (∣0⟩ ⊗ ∣+⟩) .+ - /√2 .* (∣1⟩ ⊗ ∣+⟩).
@@ -1094,22 +1063,19 @@ Hint Rewrite CX00 CX01 CX10 CX11
                               CXp0 CXp1 CXn0 CXn1
                              CXpp CXpn CXnp CXnn : G2_db.
 
-Lemma GHZ_ket0_3' : (I_2 ⊗ CX) × (CX ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × ∣0,0,0⟩ ≡  /√2 .* ∣0,0,0⟩ .+ /√2 .* ∣1,1,1⟩.
-Proof.
-  Time operate_reduce'.
-Qed.
 
 Lemma GHZ_ket0_3 : (I_2 ⊗ CX) × (CX ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × ∣0,0,0⟩ ≡  /√2 .* ∣0,0,0⟩ .+ /√2 .* ∣1,1,1⟩.
 Proof.
   Time operate_reduce.
 Qed.
+(* Finished transaction in 15.83 secs (15.578u,0.031s) (successful) *)
 
 
 (* Symbolic Reasoning Strategy of states in the density matrix form *)
 Notation Density n := (Matrix n n) (only parsing).
 Definition density {n} (φ : Matrix n 1) : Density n := φ × φ†.
-Definition super {m n} (M : Matrix m n) : Density n -> Density m := fun ρ => 
-  M × ρ × M†.
+Definition super {m n} (U : Matrix m n) : Density n -> Density m := fun ρ => 
+  U × ρ × U†.
 
 Ltac super_reduce:=
   unfold super,density;                                                                   (* expand super and density *)
@@ -1137,13 +1103,15 @@ Ltac super_reduce:=
          assert (@Mmult n m o A B ≡ D) as Hs
         end
   end;
-    [try reflexivity; try operate_reduce |                                   (* use operate_reduce to proof vector form states *)
+    [try reflexivity; try operate_reduce |                                (* use operate_reduce to proof vector form states *)
       repeat rewrite Hs; reflexivity].                                            (*  rewrite it back in density matrix form*)
 
 
 
 
-Definition obs_equiv{m n : N} (A B : Matrix m n) : Prop := 
+
+(* global  phase *)
+Definition obs_equiv {m n : N} (A B : Matrix m n) : Prop := 
   exists c : C, Cmod c = R1 /\  c .* A ≡ B.
 
 Infix "≈" := obs_equiv(at level 70) : matrix_scope.
@@ -1205,17 +1173,191 @@ Proof.
       reflexivity.
 Qed.
 
-Lemma t4 :
-(I_2 ⊗ TOF)
-× (TOF ⊗ I_2)
-× (CX ⊗ I_2 ⊗ I_2)
-× (H ⊗ I_2 ⊗ I_2 ⊗ I_2)
-× ∣0,0,0,0⟩
-≡  / √ 2 .* ∣0,0,0,0⟩  .+ / √ 2 .* ∣1,1,1,1⟩.
-Proof.
-Time operate_reduce.
 
+
+
+(* Mixed state *)
+Definition Pure n  :=(R * (Density n))%type.   (* (prod R (Density n))%type. *)
+
+
+Definition Mix n :=  (list (R * (Density n)))%type.
+Definition Mix' n :=  (list (Pure n))%type.
+
+
+(* Definition DtoP {n} (ρ : Density n) : Pure n := (1,  ρ).
+Coercion DtoP  : Density >-> Pure.
+Example DtoP0 :  DtoP (density ∣0⟩) = (1, density ∣0⟩).
+Proof. reflexivity. Qed.
+
+
+Definition PtoM {n}  (p : Pure n) : Mix n := [p].
+Coercion PtoM : Pure >-> Mix.
+Example PtoM0 : PtoM (1, density ∣0⟩) = [(1, density ∣0⟩)].
+Proof. reflexivity. Qed.
+
+
+Definition DtoM {n} (ρ : Density n) : Mix n  := [(1 , ρ)].
+Coercion DtoM : Density >-> Mix.
+Example DtoM0 : DtoM (density ∣0⟩) = [(1, density ∣0⟩)].
+Proof. reflexivity. Qed. *)
+
+
+
+(*Equivalence of Mixde state*)
+Inductive eqLD {n} : list (Density n) -> list (Density n) -> Prop :=
+  | eqLD_nil : eqLD nil nil
+  | eqLD_cons : forall x x' l l',
+       x ≡ x' -> eqLD l l' -> eqLD (x::l) (x'::l').
+
+Infix ";=" := eqLD (at level 50).
+
+
+Lemma eqLD_refl : forall n (A : list (Density n)), eqLD A A.
+Proof. intros.
+induction A as [|a tail].
+apply eqLD_nil.
+apply eqLD_cons.
+reflexivity.
+apply IHtail.
 Qed.
-(* Finished transaction in 17.232 secs (16.625u,0.s) (successful)
-Finished transaction in 14.385 secs (14.109u,0.015s) (successful)
-Finished transaction in 42.027 secs (40.671u,0.062s) (successful) *)
+
+
+Lemma eqLD_symm : forall n (A B: list (Density n)), eqLD A B <-> eqLD B A .
+Proof. intros.
+split. intros.
+induction H0.
+- apply eqLD_nil.
+- apply eqLD_cons. rewrite H0. reflexivity. apply IHeqLD.
+- intros. induction H0.
+  + apply eqLD_nil.
+  + apply eqLD_cons. rewrite H0. reflexivity. apply IHeqLD.
+Qed.
+
+
+Lemma eqLD_trans : forall n (A B C : list (Density n)), 
+      eqLD A B -> eqLD B C -> eqLD A C.
+Proof. intros.
+generalize dependent A.
+induction H1.
+- intros. inversion H0. apply eqLD_nil.
+- intros. inversion H2. apply eqLD_cons.
+     + rewrite <- H0. apply H6.
+     + apply IHeqLD. apply H7.
+Qed.
+
+
+Instance eqLD_equiv  {n: N} : @Equivalence (list (Density n))(@eqLD n).
+Proof.
+  constructor.
+  hnf; intros.
+  apply eqLD_refl.
+  hnf; intros.
+  apply eqLD_symm; auto.
+  hnf; intros.
+  eapply eqLD_trans; eauto.
+Qed.
+
+
+Definition DtoL {n} (ρ : Density n) : list (Density n) := [ρ].
+
+Instance DtoL_proper {n:N}:
+    Proper (mat_equiv  ==> eqLD) (@DtoL n).
+Proof.
+  hnf;intros ρ1 ρ2 H1.
+  unfold DtoL.
+  apply eqLD_cons.
+  apply H1.
+  apply eqLD_nil.
+Qed.
+
+
+Definition DappL {n} (ρ : Density n)  (l : list (Density n)) : list (Density n) := ρ :: l.
+
+Instance DappL_proper {n:N}:
+    Proper (mat_equiv ==> eqLD  ==> eqLD) (@DappL n).
+Proof.
+  hnf;intros ρ1 ρ2 H1.
+  hnf;intros l1 l2 H2.
+  unfold DappL.
+  apply eqLD_cons.
+  apply H1. apply H2.
+Qed.
+
+
+Inductive eq_Mix {n} : Mix n ->Mix n -> Prop :=
+  | eq_Mix_nil : eq_Mix nil nil
+  | eq_Mix_cons : forall r ρ r' ρ' l l',
+       r = r' -> ρ ≡ ρ' -> eq_Mix l l' -> eq_Mix ((r,ρ)::l) ((r',ρ')::l').
+
+
+Definition eq_Mix' {n : N} (a b : Mix n) : Prop :=
+fst (List.split a) = fst (List.split b) /\ (snd (List.split a)) ;= (snd (List.split b)).
+
+Infix ".=" := eq_Mix (at level 70).
+Infix ".='" := eq_Mix' (at level 70).
+
+
+
+Definition Pro {n} (u : Pure n) :=  fst u.
+Definition Sta {n} (u : Pure n) :=  snd u.
+
+Definition Prolist {n} (a : Mix n) :=  fst (List.split a).
+Definition Stalist {n} (a : Mix n) :=  snd (List.split a).
+
+
+
+(* Unitary on mixed state *)
+
+(* Definition UnitPure {n} (A :  Density n) (u : Pure n): Pure n := (* If Definition Density n , Why not Density n *)
+match u with
+| (x , y) => (x , super A y)
+end.
+
+Fixpoint UnitMix {n} (A :  Density n) (l : Mix n): Mix n :=
+match l with
+| [] => []
+| a :: b => (UnitPure A a) :: (UnitMix  A b)
+end. *)
+
+Fixpoint UnitMix {n} (A :  Density n) (m : Mix n): Mix n :=
+match m with
+| [] => []
+| a :: b =>
+    (match a with
+      | (x , y) => (x , super A y)
+      end) :: (UnitMix  A b)
+end.
+
+
+(* Measurement on mixed state *)
+
+Definition Mea0 (n k : N) :=  (I (2^k) ⊗ B0 ⊗ I (2^(n-k))).
+Definition Mea1 (n k : N) :=  (I (2^k) ⊗ B3 ⊗ I (2^(n-k))).
+Definition Mea (n k : N) :=  (I (2^k) ⊗ (B0 .+ B3) ⊗ I (2^(n-k))).
+
+
+Definition MeaDen {n} (m k : N) (ρ : Density n) : Mix n :=
+[(fst (trace((Mea0 m k) × ρ)), Cinv (trace ((Mea0 m k)× ρ)) .* super (Mea0 m k) ρ) ; (fst (trace((Mea1 m k) × ρ)), Cinv (trace ((Mea1 m k)× ρ)) .* super (Mea1 m k) ρ)].
+
+(* Definition MeaPure {n} (m k : N) (u : Pure n) : Mix n :=
+match u with
+| (x, y) => [((x * fst (trace((Mea0 m k) × y)))%R, Cinv (trace ((Mea0 m k)× y)) .* super (Mea0 m k) y) ; ((x * fst (trace((Mea1 m k) × y)))%R, Cinv (trace ((Mea1 m k)× y)) .* super (Mea1 m k) y)]
+end.
+
+Fixpoint MeaMix {n} (m k : N) (l : Mix n) : Mix n :=
+match l with
+| [] => []
+| a :: b => (MeaPure m k a) ++ (MeaMix m k b)
+end. *)
+
+Fixpoint MeaMix {n} (m k : N) (l : Mix n) : Mix n :=
+match l with
+| [] => []
+| a :: b => match a with
+                    | (x , y) => [((x * fst (trace((Mea0 m k) × y)))%R, Cinv (trace ((Mea0 m k)× y)) .* super (Mea0 m k) y) ; ((x * fst (trace((Mea1 m k) × y)))%R, Cinv (trace ((Mea1 m k)× y)) .* super (Mea1 m k) y)]
+                    end ++ (MeaMix m k b)
+                    end.
+
+
+
+
