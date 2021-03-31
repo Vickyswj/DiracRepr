@@ -1,0 +1,16 @@
+-R . Top
+#-arg -profile-ltac
+
+Dirac/src/com/QWIRE/Prelim.v
+Dirac/src/com/QWIRE/RealAux.v
+Dirac/src/com/QWIRE/Complex.v
+Dirac/src/com/QWIRE/Matrix.v
+
+Dirac/src/com/reComplex.v
+Dirac/src/com/reMatrix.v
+Dirac/src/com/Quantum.v
+
+Dirac/src/sym/MN_notWF.v
+Dirac/src/sym/Dirac.v
+Dirac/src/sym/Equival.v
+

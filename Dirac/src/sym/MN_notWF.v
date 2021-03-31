@@ -162,8 +162,7 @@ Notation "A †" := (adjoint A) (at level 0) : matrix_scope.
 Notation "Σ^ n f" := (Csum f n) (at level 60) : matrix_scope.
 Notation "n ⨂ A" := (kron_n n A) (at level 30, no associativity) : matrix_scope.
 Notation "⨂ A" := (big_kron A) (at level 60): matrix_scope.
-Hint Unfold Zero I trace dot Mplus scale Mmult kron mat_equiv transpose 
-            adjoint : U_db.
+Global Hint Unfold Zero I trace dot Mplus scale Mmult kron mat_equiv transpose adjoint : U_db.
 
 
 Ltac destruct_m_1 :=
@@ -173,20 +172,57 @@ Ltac destruct_m_1 :=
                  | S _ => _
                  end] ] => is_var x; destruct x
   end.
-Ltac destruct_m_eq := repeat (destruct_m_1; simpl).
 
-Ltac bdestruct_all :=
-  repeat match goal with
-  | |- context[?a <? ?b] => bdestruct (a <? b)
-  | |- context[?a <=? ?b] => bdestruct (a <=? b)
-  | |- context[?a =? ?b] => bdestruct (a =? b)
-  end; try (exfalso; lia).
+Ltac destruct_m_eq := repeat (destruct_m_1; simpl).
 
 Ltac lma :=
   autounfold with U_db;
   prep_matrix_equality;
   destruct_m_eq; 
   lca.
+
+Lemma divmod_eq : forall x y n z, 
+  fst (Nat.divmod x y n z) = (n + fst (Nat.divmod x y 0 z))%nat.
+Proof.
+  induction x.
+  + intros. simpl. lia.
+  + intros. simpl. 
+    destruct z.
+    rewrite IHx.
+    rewrite IHx with (n:=1%nat).
+    lia.
+    rewrite IHx.
+    reflexivity.
+Qed.
+
+Lemma divmod_S : forall x y n z, 
+  fst (Nat.divmod x y (S n) z) = (S n + fst (Nat.divmod x y 0 z))%nat.
+Proof. intros. apply divmod_eq. Qed.
+
+Ltac destruct_m_1' :=
+  match goal with
+  | [ |- context[match ?x with 
+                 | 0   => _
+                 | S _ => _
+                 end] ] => is_var x; destruct x
+  | [ |- context[match fst (Nat.divmod ?x _ _ _) with 
+                 | 0   => _
+                 | S _ => _
+                 end] ] => is_var x; destruct x
+  end.
+
+Lemma divmod_0q0 : forall x q, fst (Nat.divmod x 0 q 0) = (x + q)%nat. 
+Proof.
+  induction x.
+  - intros. simpl. reflexivity.
+  - intros. simpl. rewrite IHx. lia.
+Qed.
+
+Lemma divmod_0 : forall x, fst (Nat.divmod x 0 0 0) = x. 
+Proof. intros. rewrite divmod_0q0. lia. Qed.
+
+Ltac destruct_m_eq' := repeat 
+  (progress (try destruct_m_1'; try rewrite divmod_0; try rewrite divmod_S; simpl)).
 
 (******************************)
 (** Proofs about finite sums **)
@@ -314,7 +350,6 @@ Lemma Csum_unique : forall k (f : nat -> C) n,
 Proof.
   intros k f n [x [L [Eq Unique]]].
   induction n; try lia.
-  Search Csum.
   rewrite <- Csum_extend_r.
   destruct (Nat.eq_dec x n).
   - subst. 
@@ -618,8 +653,6 @@ Proof.
     rewrite Eq1 in Eq2.
     symmetry in Eq2.
     rewrite Nat.div_small_iff in Eq2 by lia.
-    Check Nat.div_small_iff.
-    Check Nat.mod_small.
     rewrite Nat.div_small_iff in Eq1 by lia.
     rewrite 2 Nat.mod_small; trivial.
     lca.
@@ -864,6 +897,7 @@ Proof.
 Qed.
 
 
+
 Local Open Scope nat_scope.
 
 Instance Scale_proper(m n : N):
@@ -883,7 +917,6 @@ Proof.
   unfold mat_equiv,Mplus,get in *.
   intros. rewrite H1,H2. reflexivity.
 Qed. 
-
 
 Instance mult_proper(m n o : N):
     Proper (mat_equiv ==> mat_equiv ==> mat_equiv) (@Mmult m n o).
@@ -907,12 +940,10 @@ Proof.
   auto.
 Qed.
 
-
-
 Instance kron_proper(m n o p : N):
     Proper (mat_equiv ==> mat_equiv ==> mat_equiv) (@kron m n o p ).
 Proof.
-  hnf;intros A C H1.
+  hnf; intros A C H1.
   hnf;intros B D H2.
   unfold mat_equiv,kron,get in *.
   intros.
@@ -938,11 +969,31 @@ Qed.
 Instance adjoint_proper(m n : N) :
     Proper (mat_equiv ==> mat_equiv) (@adjoint m n).
 Proof.
-  hnf;intros A C H1.
+  hnf;intros A B H1.
   unfold mat_equiv,adjoint,get in *.
   intros. rewrite H1. reflexivity.
 Qed. 
 
+Instance trace_proper(n : N) :
+    Proper (mat_equiv ==> eq) (@trace n).
+Proof.
+  hnf;intros A B H1.
+  unfold mat_equiv,trace, get in *.
+  induction (N.to_nat n).
+  -  simpl. lca.
+  - simpl. rewrite IHn0.
+     +  f_equal.
+          assert (n0<S n0) by lia.
+          specialize (H1 (exist _ n0 H) (exist _ n0 H)).
+          simpl in H1. apply H1.
+     +  intros.
+        destruct x as [x Px], y as [y Py].
+        simpl.
+        apply Nat.lt_lt_succ_r in Px.
+        apply Nat.lt_lt_succ_r in Py.
+        specialize (H1 (exist _ x Px) (exist _ y Py)).
+        simpl in H1. apply H1.
+Qed.
 
 (* Inverses of square matrices *)
 Definition Minv {n : N} (A B : Square n) : Prop := A × B ≡ I n /\ B × A ≡ I n.
@@ -964,7 +1015,7 @@ Proof. unfold Minv; intuition. Qed.
 
 Lemma kron_assoc : forall {m n p q r s : N}
     (A : Matrix m n) (B : Matrix p q) (C : Matrix r s),
-    (A ⊗ B ⊗ C) ≡ (A ⊗ (B ⊗ C):  Matrix (m*p*r)(n*q*s)).
+    (A ⊗ B ⊗ C) ≡ (A ⊗ (B ⊗ C) :  Matrix (m*p*r)(n*q*s)).
 Proof.
   intros.
   intros [i Hi] [j Hj]. unfold get; simpl.

@@ -67,7 +67,7 @@ Lemma deutsch0 : (H ⊗ I_2) × (I_2 ⊗ I_2) × (H ⊗ H) × (∣0⟩ ⊗ ∣1�
 Proof. operate_reduce. Qed.
 
 Lemma Ddeutsch0 : (super ((H ⊗ I_2) × (I_2 ⊗ I_2) × (H ⊗ H)) (density (∣0⟩ ⊗ ∣1⟩)) ≡ density  (∣0⟩ ⊗ ∣-⟩)).
-Proof. super_reduce. Qed.
+Proof. Time super_reduce. Qed.
 
 Lemma deutsch0' : (H ⊗ I_2) × (I_2 ⊗ I_2) × (H ⊗ H) × (∣0⟩ ⊗ ∣1⟩) ≈ ∣0⟩ ⊗ ∣-⟩ .
 Proof.
@@ -150,7 +150,7 @@ Lemma deutsch1 : (H ⊗ I_2) × (I_2 ⊗ σX) × (H ⊗ H) × (∣0⟩ ⊗ ∣1�
 Proof. operate_reduce. Qed.
 
 Lemma Ddeutsch1 : super ((H ⊗ I_2) × (I_2 ⊗ σX) × (H ⊗ H)) (density (∣0⟩ ⊗ ∣1⟩))  ≡ density (-1 .* (∣0⟩ ⊗ ∣-⟩)).
-Proof. super_reduce. Qed.
+Proof. Time super_reduce. Qed.
 
 Lemma deutsch1' : (H ⊗ I_2) × (I_2 ⊗ σX) × (H ⊗ H) × (∣0⟩ ⊗ ∣1⟩) ≈ ∣0⟩ ⊗ ∣-⟩ .
 Proof. 
@@ -227,7 +227,7 @@ Lemma deutsch2 : (H ⊗ I_2) × CX × (H ⊗ H) × (∣0⟩ ⊗ ∣1⟩) ≡ ∣
 Proof. operate_reduce. Qed.
 
 Lemma Ddeutsch2 : super ((H ⊗ I_2) × CX × (H ⊗ H)) (density (∣0⟩ ⊗ ∣1⟩)) ≡ density (∣1⟩ ⊗ ∣-⟩).
-Proof. super_reduce. Qed.
+Proof. Time super_reduce. Qed.
 
 Lemma deutsch2' : (H ⊗ I_2) × CX × (H ⊗ H) × (∣0⟩ ⊗ ∣1⟩) ≈ ∣1⟩ ⊗ ∣-⟩ .
 Proof. 
@@ -310,7 +310,7 @@ Lemma deutsch3 : (H ⊗ I_2) × not_CX × (H ⊗ H) × (∣0⟩ ⊗ ∣1⟩) ≡
 Proof. operate_reduce. Qed.
 
 Lemma Ddeutsch3 : super ((H ⊗ I_2) × not_CX × (H ⊗ H)) (density(∣0⟩ ⊗ ∣1⟩)) ≡ density (-1 .* (∣1⟩ ⊗ ∣-⟩)).
-Proof. super_reduce. Qed.
+Proof. Time super_reduce. Qed.
 
 Lemma deutsch3' : (H ⊗ I_2) × not_CX × (H ⊗ H) × (∣0⟩ ⊗ ∣1⟩) ≈ ∣1⟩ ⊗ ∣-⟩ .
 Proof.
@@ -321,3 +321,9 @@ rewrite Mscale_adj.
 isolate_scale.
 reduce_scale.
 Qed.
+
+(*
+Finished transaction in 1.005 secs (1.015u,0.s) (successful)
+Finished transaction in 2.246 secs (2.25u,0.s) (successful)
+Finished transaction in 5.208 secs (5.203u,0.015s) (successful)
+Finished transaction in 5.39 secs (5.39u,0.s) (successful) *)

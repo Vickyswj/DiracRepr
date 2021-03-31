@@ -76,6 +76,16 @@ solve_matrix.
 Qed.
 
 
+Definition notc : Matrix (2*2) (2*2) :=
+  fun x y => match x, y with 
+          | 0, 1 => 1%C
+          | 1, 0 => 1%C
+          | 2, 2 => 1%C
+          | 3, 3 => 1%C
+          | _, _ => 0%C
+          end.
+
+
 (* f(0) = 1, f(1) = 0 *)
 Lemma deutsch3 : (hadamard ⊗ I 2) × notc × (hadamard ⊗ hadamard) × (∣0⟩ ⊗ ∣1⟩) = -1 .* ∣1⟩ ⊗ ∣-⟩ .
 Proof. solve_matrix. Qed.

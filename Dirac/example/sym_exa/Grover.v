@@ -10,7 +10,7 @@ Definition not_CX := B0 ⊗ σX .+ B3 ⊗ I_2 .
 Definition ORA0 := B0 ⊗ not_CX .+ B3 ⊗ I_2 ⊗ I_2.
 Definition MI := (B0 .+ B1 .+ B2 .+ B3)⊗ (B0 .+ B1 .+ B2 .+ B3).
 Definition CPS := (((/2 .* MI) .+ (-1) .* (I_2 ⊗ I_2)) ⊗ I_2).
-Hint Unfold  CPS MI ORA0 not_CX : Gn_db.
+Global Hint Unfold  CPS MI ORA0 not_CX : Gn_db.
 
 Definition φ00 := ∣0,0,1⟩.
 Definition φ01 := (H ⊗ H ⊗ H) × φ00.
@@ -87,7 +87,7 @@ Qed.
 
 (*Vector*)
 Definition ORA1 := B0 ⊗ CX .+ B3 ⊗ I_2 ⊗ I_2.
-Hint Unfold  ORA1 : Gn_db.
+Global Hint Unfold  ORA1 : Gn_db.
 
 Definition φ10 := ∣0,0,1⟩.
 Definition φ11 := (H ⊗ H ⊗ H) × φ10.
@@ -164,7 +164,7 @@ Qed.
 
 (*Vector*)
 Definition ORA2 := B0 ⊗ I_2 ⊗ I_2 .+ B3 ⊗ not_CX.
-Hint Unfold  ORA2 : Gn_db.
+Global Hint Unfold  ORA2 : Gn_db.
 
 Definition φ20 := ∣0,0,1⟩.
 Definition φ21 := (H ⊗ H ⊗ H) × φ20.
@@ -242,7 +242,7 @@ Qed.
 Definition ORA3 := B0 ⊗ I_2 ⊗ I_2 .+ B3 ⊗ CX.
 (* Definition TOF := B0 ⊗ I_2 ⊗ I_2 .+ B3 ⊗ CX. *)
 (* Definition ORA := (B0 ⊗ B0 ⊗ I_2) .+ (B1 ⊗ B1 ⊗ I_2) .+ (B2 ⊗ B2 ⊗ I_2) .+ (B3 ⊗ B3 ⊗ σX). *)
-Hint Unfold  ORA3 : Gn_db.
+Global Hint Unfold  ORA3 : Gn_db.
 
 Definition φ0 := ∣0,0,1⟩.
 Definition φ1 := (H ⊗ H ⊗ H) × φ0.
@@ -322,7 +322,7 @@ Qed.
 
 Lemma DGrover_2_0 : super ((I_2 ⊗ I_2 ⊗ H) × CPS × ORA0 × (H ⊗ H ⊗ H)) (density ∣0,0,1⟩) ≡ density ∣0,0,1⟩.
 Proof.
-super_reduce.
+Time super_reduce.
 Qed.
 
 Lemma Grover_2_0' : (I_2 ⊗ I_2 ⊗ H) × CPS × ORA0× (H ⊗ H ⊗ H) × ∣0,0,1⟩ ≈ ∣0,0,1⟩.
@@ -340,7 +340,7 @@ Qed.
 
 Lemma DGrover_2_1 : super ((I_2 ⊗ I_2 ⊗ H) × CPS × ORA1 × (H ⊗ H ⊗ H)) (density ∣0,0,1⟩) ≡ density ∣0,1,1⟩.
 Proof.
-super_reduce.
+Time super_reduce.
 Qed.
 
 Lemma Grover_2_1' : (I_2 ⊗ I_2 ⊗ H) × CPS × ORA1 × (H ⊗ H ⊗ H) × ∣0,0,1⟩ ≈ ∣0,1,1⟩.
@@ -358,7 +358,7 @@ Qed.
 
 Lemma DGrover_2_2 : super ((I_2 ⊗ I_2 ⊗ H) × CPS × ORA2 × (H ⊗ H ⊗ H)) (density ∣0,0,1⟩) ≡ density ∣1,0,1⟩.
 Proof.
-super_reduce.
+Time super_reduce.
 Qed.
 
 Lemma Grover_2_2' : (I_2 ⊗ I_2 ⊗ H) × CPS × ORA2 × (H ⊗ H ⊗ H) × ∣0,0,1⟩ ≈ ∣1,0,1⟩.
@@ -377,7 +377,7 @@ Qed.
 
 Lemma DGrover_2_3 : super ((I_2 ⊗ I_2 ⊗ H) × CPS × ORA3 × (H ⊗ H ⊗ H)) (density ∣0,0,1⟩) ≡ density ∣1,1,1⟩.
 Proof.
-super_reduce.
+Time super_reduce.
 Qed.
 
 Lemma Grover_2_3' : (I_2 ⊗ I_2 ⊗ H) × CPS × ORA3 × (H ⊗ H ⊗ H) × ∣0,0,1⟩ ≈ ∣1,1,1⟩.
@@ -386,3 +386,9 @@ by_den.
 state_reduce.
 rewrite Grover_2_3;reflexivity.
 Qed.
+
+(* 
+Finished transaction in 121.71 secs (120.781u,0.031s) (successful)
+Finished transaction in 122.279 secs (121.734u,0.031s) (successful)
+Finished transaction in 122.089 secs (121.375u,0.046s) (successful)
+Finished transaction in 121.582 secs (120.89u,0.093s) (successful) *)

@@ -81,7 +81,7 @@ Qed.
 Theorem QFT_ket0_n' :
 ketp_n n ≡ H_n n × ket0_n n.
 Proof.
- Opaque N.pow.
+Opaque N.pow.
 intros.
 induction n.
  -  simpl. rewrite Mmult_1_l. reflexivity.
@@ -140,18 +140,14 @@ Qed.
   | S n' =>    @Mmult _ _ (2 ^ ((N.of_nat n) + 1))  (I 2 ⊗ (Uf' n')) (CX ⊗ I (2^ (N.of_nat n')))
 end. *)
 
-Fixpoint Uf' (n:nat) : Matrix (2 * 2 ^ (N.of_nat n)) (2 * 2 ^ (N.of_nat n))  :=
-  match n with
-  | O => I 2
-  | S n' =>    @Mmult _ _ (2 * 2 ^ (N.of_nat n))  (I 2 ⊗ (Uf' n')) (CX ⊗ I (2^ (N.of_nat n')))
-end.
-
 Fixpoint Uf (n:nat) : Matrix (2 * 2 ^ (N.of_nat n)) (2 * 2 ^ (N.of_nat n))  :=
   match n with
   | O => I 2
-  | S n' =>    (@Mmult _ _ (2 * 2 ^ (N.of_nat n)) (CX ⊗ I (2^ (N.of_nat n'))) (@Mmult _ _ (2 * 2 ^ (N.of_nat n))  (I 2 ⊗ (Uf n')) (CX ⊗ I (2^ (N.of_nat n')))))
+  | S n' =>    @Mmult _ _ (2 * 2 ^ (N.of_nat n))  (I 2 ⊗ (Uf n')) (CX ⊗ I (2^ (N.of_nat n')))
 end.
 (*which argument*)
+
+
 
 Lemma p2 : forall (n0:nat) (n:N),
 n ^ (Npos (Pos.succ (Pos.of_succ_nat n0))) = n * (n * n ^ N.of_nat n0).
@@ -194,204 +190,21 @@ Lemma p9 : forall (n0:nat) (n:N),
 n ^ N.of_nat n0 * n * n = n * (n * n ^ N.of_nat n0).
 Proof. lia. Qed.
 
-Lemma p10 : forall (n0:nat) (n:N),
-n * n ^ N.of_nat n0 * n = n * n * n ^ N.of_nat n0.
+(* Lemma pre_lemma10 : forall (n0:nat) (n:N),
+n ^ N.of_nat n0 * n = n * n ^ N.of_nat n0.
 Proof. lia. Qed.
 
-Lemma p11 : forall (n0:nat) (n:N),
-n * (n * (n * n ^ N.of_nat n0)) = n * n ^ N.of_nat n0 * n * n .
+Lemma pre_lemma11 : forall (n0:nat) (n:N),
+n * (n * n ^ N.of_nat n0) = n * n * n ^ N.of_nat n0.
 Proof. lia. Qed.
 
-Lemma p12 : forall (n0:nat) (n:N),
-n * n ^ N.of_nat n0 * n * n = n * n ^ N.of_nat n0 * (n * n) .
-Proof. lia. Qed.
-
-Lemma p13 : forall (n0:nat) (n:N),
-n * n ^ N.of_nat n0 * (n * n)  = n * (n * n ^ N.of_nat n0 * n) .
-Proof. lia. Qed.
-
-Lemma p14 : forall (n0:nat) (n:N),
-n * (n * n ^ N.of_nat n0)  = n * n ^ N.of_nat n0 * n .
-Proof. lia. Qed.
-
-Lemma p15 : forall (n0:nat) (n:N),
-n ^ N.of_nat n0 * (n * n)  = n * n ^ N.of_nat n0 * n .
-Proof. lia. Qed.
-
-Lemma p16 : forall (n0:nat) (n:N),
-n * n ^ N.of_nat n0 * n = n ^ N.of_nat n0 * n * n.
-Proof. lia. Qed.
-
-Lemma p17 : forall (n0:nat) (n:N),
-n * (n * (n * n ^ N.of_nat n0)) = (n * n) * (n * n ^ N.of_nat n0).
-Proof. lia. Qed.
-
-Lemma p18 : forall (n0:nat) (n:N),
-(n * n) * (n * n ^ N.of_nat n0) = n * n * n ^ N.of_nat n0 * n.
-Proof. lia. Qed.
-
-Lemma p19 : forall (n0:nat) (n:N),
-n * n * n ^ N.of_nat n0 * n = n * n * (n * n ^ N.of_nat n0).
-Proof. lia. Qed.
-
-Lemma p21 : forall (n0:nat) (n:N),
-n * n * (n * n ^ N.of_nat n0) = n * (n * n * n ^ N.of_nat n0).
-Proof. lia. Qed.
-
-Lemma p22 : forall (n0:nat) (n:N),
-n * n * n ^ N.of_nat n0 = n * n ^ N.of_nat n0 * n.
-Proof. lia. Qed.
-
-Lemma p23 : forall (n0:nat) (n:N),
-n * (n * n ^ N.of_nat n0 * n) = n * n * (n ^ N.of_nat n0 * n).
-Proof. lia. Qed.
-
-Lemma p24 : forall (n0:nat) (n:N),
-n * n ^ N.of_nat n0 * n = n * (n ^ N.of_nat n0 * n).
-Proof. lia. Qed.
-
-
-
+Lemma pre_lemma12 : forall (n0:nat) (n:N),
+n * (n ^ N.of_nat n0 * n) = n * n ^ N.of_nat n0 * n.
+Proof. lia. Qed. *)
 
 Lemma DJ_1 :
 (n > 0)%nat ->
-@Mmult _ _ (1 ^ (N.of_nat n) * 1)  (Uf n) ((kron_n n ∣+⟩) ⊗ ∣-⟩) ≡ ((kron_n n  ∣+⟩) ⊗ ∣-⟩).
-Proof.
-Opaque N.mul.
-intros. destruct n; try lia.
-simpl.
-induction n0.
-- simpl.
-   repeat rewrite kron_1_r.
-   rewrite id_kron.
-   rewrite Mmult_1_l.
-   operate_reduce.
-- simpl.
-   repeat rewrite p1 in *.
-   repeat rewrite p2 in *.
-   rewrite <- p3.
-   repeat rewrite p17 in *.
-   rewrite Mmult_assoc.
-   rewrite Mmult_assoc.
-   rewrite (N.mul_assoc 1 1 (1^ N.of_nat n0)) in *.
-   rewrite (N.mul_assoc 2 2 (2^ N.of_nat n0)) in *.
-   repeat rewrite p18 in *.
-   rewrite <- (kron_assoc ∣+⟩ ∣+⟩ (kron_n n0 ∣+⟩)).
-   rewrite (kron_assoc _ (kron_n n0 ∣+⟩) ∣-⟩).
-   rewrite (N.mul_comm (2^ N.of_nat n0) 2) in *.
-   rewrite (N.mul_comm (1^ N.of_nat n0) 1) in *.
-   repeat rewrite p19 in *.
-   rewrite kron_mixed_product.
-   rewrite Mmult_1_l.
-   rewrite CXpp.
-   rewrite kron_assoc.
-   rewrite (N.mul_assoc 1 1 (1^ N.of_nat n0)) in *.
-    rewrite (N.mul_assoc 2 2 (2^ N.of_nat n0)) in *.
-   repeat rewrite p21 in *.
-   rewrite kron_mixed_product.
-   rewrite (N.mul_comm 2 (2^ N.of_nat n0)) in *.
-   rewrite (N.mul_comm 1 (1^ N.of_nat n0)) in *.
-   repeat rewrite <- p10 in *.
-   rewrite <- (kron_assoc ∣+⟩ (kron_n n0∣+⟩) ∣-⟩).
-   rewrite (N.mul_comm (2^ N.of_nat n0) 2) in *.
-   rewrite (N.mul_comm (1^ N.of_nat n0) ) in *.
-   rewrite IHn0.
-   rewrite <- I2_eq.
-   rewrite Mmult_Ipos.
-   rewrite kron_assoc.
-   repeat rewrite p23.
-   repeat rewrite p24.
-   rewrite <- (kron_assoc ∣+⟩ ∣+⟩ _).
-   rewrite (N.mul_comm 2 (2^ N.of_nat n0)).
-   rewrite kron_mixed_product.
-   rewrite Mmult_1_l.
-   rewrite CXpp.
-   reflexivity. lia.
-Qed.
-
-
-Lemma DJ_2 :
-((kron_n n H) ⊗ H) × ((kron_n n ∣+⟩) ⊗ ∣-⟩) ≡ ((kron_n n ∣0⟩) ⊗ ∣1⟩).
-Proof.
-  rewrite kron_mixed_product.
-  rewrite <- QFT_ketp_n.
-  operate_reduce.
-Qed.
-
-
-
-Lemma DJ_1' :
-(n > 0)%nat ->
- @Mmult _ _ (1 ^ (N.of_nat n) * 1) ((kron_n (n-1) I_2) ⊗ σZ ⊗ I_2) (@Mmult _ _ (1 ^ (N.of_nat n) * 1)  (Uf' n) ((kron_n n ∣+⟩) ⊗ ∣-⟩)) ≡ ((kron_n n ∣+⟩) ⊗ ∣-⟩).
- 
-Proof.
-Opaque N.mul.
-intros. destruct n; try lia.
-simpl. rewrite Nat.sub_0_r.
-induction n0.
-- simpl.
-   repeat rewrite kron_1_r.
-   rewrite id_kron.
-   rewrite Mmult_1_l.
-   rewrite (kron_1_l _ _ σZ).
-   operate_reduce.
-- simpl.
-   repeat rewrite p1 in *.
-   repeat rewrite p2 in *.
-   rewrite Mmult_assoc.
-   repeat rewrite p3 in *.
-   rewrite (N.mul_assoc 1 1 (1^ N.of_nat n0)) in *.
-   rewrite (N.mul_assoc 2 2 (2^ N.of_nat n0)) in *.
-   repeat rewrite (p10 _ 2) in *.
-   rewrite <- kron_assoc.
-   rewrite (N.mul_comm 2 (2^ N.of_nat n0)) in *.
-   rewrite (N.mul_comm 1 (1^ N.of_nat n0)) in *.
-    rewrite kron_assoc.
-   repeat rewrite p4 in *.
-   rewrite (N.mul_comm 2 (2^ N.of_nat n0)) in *.
-   rewrite (N.mul_comm 1 (1^ N.of_nat n0)) in *.
-   rewrite kron_mixed_product.
-   rewrite Mmult_1_l.
-   rewrite CXpp.
-   rewrite kron_assoc.
-   rewrite (N.mul_assoc 1 (1^ N.of_nat n0) 1) in *.
-   rewrite (N.mul_assoc 2 (2^ N.of_nat n0) 2) in *.
-   repeat rewrite p5 in *.
-   rewrite <- (kron_assoc ∣+⟩ (kron_n n0 ∣+⟩) ∣-⟩).
-   repeat rewrite p8 in *.
-   rewrite <- (N.mul_assoc 2 2 (2^ N.of_nat n0)) in *.
-(*    repeat rewrite <- pre_lemma11 in *. *)
-   rewrite kron_mixed_product.
-   repeat rewrite p11 in *.
-   rewrite <- p8 in *.
-   rewrite (N.mul_comm (2^ N.of_nat n0) 2) in *.
-(* rewrite (N.mul_comm (1^ N.of_nat n0) 1) in *. *)
-   rewrite kron_assoc.
-   repeat  rewrite p12 in *.
-   rewrite kron_assoc.
-   rewrite (p13 _ 2) in *.
-   rewrite (p13 _ 1) in *.
-   rewrite p14 in *.
-   repeat rewrite p15 in *.
-   rewrite kron_mixed_product.
-   repeat rewrite p16 in *.
-   rewrite <- kron_assoc.
-   assert ((N.mul (N.mul (N.mul (N.pow (Npos xH) (N.of_nat n0)) (Npos xH)) (Npos xH)) (Npos xH)) = (N.mul (N.mul (N.pow (Npos xH) (N.of_nat n0)) (Npos xH)) (Npos xH))). lia. rewrite H0 in IHn0.
-   rewrite IHn0 by lia.
-   rewrite <- (p16 _ 2).
-   rewrite <- (p16 _ 1).
-   rewrite  <- I2_eq.
-    rewrite Mmult_Ipos.
-    rewrite Mmult_Ipos.
-         reflexivity.
-Qed.
-
-
-
-
-Lemma DJ_1'' :
-(n > 0)%nat ->
-@Mmult _ _ (1 ^ (N.of_nat n) * 1)  (Uf' n) ((kron_n n ∣+⟩) ⊗ ∣-⟩) ≡ ((kron_n (n-1)  ∣+⟩) ⊗ ∣-⟩ ⊗ ∣-⟩).
+@Mmult _ _ (1 ^ (N.of_nat n) * 1)  (Uf n) ((kron_n n ∣+⟩) ⊗ ∣-⟩) ≡ ((kron_n (n-1)  ∣+⟩) ⊗ ∣-⟩ ⊗ ∣-⟩).
 Proof.
 Opaque N.mul.
 intros. destruct n; try lia.
@@ -410,7 +223,7 @@ induction n0.
    repeat rewrite p3 in *.
    rewrite (N.mul_assoc 1 1 (1^ N.of_nat n0)) in *.
    rewrite (N.mul_assoc 2 2 (2^ N.of_nat n0)) in *.
-(*    repeat rewrite pre_lemma11 in *.  *)
+(*    repeat rewrite pre_lemma11 in *. *)
    rewrite <- kron_assoc.
    rewrite kron_assoc.
    repeat rewrite p4 in *.
@@ -461,7 +274,7 @@ Proof.
 operate_reduce.
 Qed.
 
-Lemma DJ_2' :
+Lemma DJ_3 :
 (n > 0)%nat ->
 ((kron_n (n-1) H) ⊗ H ⊗ H) × ((kron_n (n-1)  ∣+⟩) ⊗ ∣-⟩ ⊗ ∣-⟩) ≡ (kron_n (n-1)  ∣0⟩) ⊗ ∣1⟩ ⊗ ∣1⟩.
 Proof.
@@ -475,5 +288,6 @@ Proof.
   rewrite yy. rewrite <- QFT_ketp_n.
   reflexivity.
 Qed.
+
 
 

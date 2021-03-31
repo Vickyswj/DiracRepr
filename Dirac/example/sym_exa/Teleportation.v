@@ -323,7 +323,7 @@ super ((M0 ⊗ M0 ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × (CX ⊗ I_2)) (density ((φ
 Proof.
 intros.
 unfold φ,bell00.
-super_reduce.
+Time super_reduce.
 Qed.
 
 Lemma tele0' :  forall (a b : C),
@@ -349,7 +349,7 @@ super ((I_2 ⊗ I_2 ⊗ σX) × (M0 ⊗ M1 ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × (C
 Proof.
 intros.
 unfold φ,bell00.
-super_reduce.
+Time super_reduce.
 Qed.
 
 Lemma tele1' :  forall (a b : C),
@@ -375,7 +375,7 @@ super ((I_2 ⊗ I_2 ⊗ σZ) × (M1 ⊗ M0 ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × (C
 Proof.
 intros.
 unfold φ,bell00.
-super_reduce.
+Time super_reduce.
 Qed.
 
 Lemma tele2' :  forall (a b : C),
@@ -400,7 +400,7 @@ super ((I_2 ⊗ I_2 ⊗ σZ) × (I_2 ⊗ I_2 ⊗ σX) × (M1 ⊗ M1 ⊗ I_2) × 
 Proof.
 intros.
 unfold φ,bell00.
-super_reduce.
+Time super_reduce.
 Qed.
 
 Lemma tele3' :  forall (a b : C),
@@ -410,3 +410,9 @@ intros.
 by_den.
 rewrite tele3; reflexivity.
 Qed.
+
+(* 
+Finished transaction in 26.648 secs (26.437u,0.s) (successful)
+Finished transaction in 34.254 secs (34.078u,0.s) (successful)
+Finished transaction in 34.372 secs (34.234u,0.s) (successful)
+Finished transaction in 41.97 secs (41.812u,0.s) (successful) *)

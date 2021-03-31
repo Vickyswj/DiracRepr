@@ -167,7 +167,7 @@ Qed.
 
 Lemma DQFT_ket0_3 : super ((H ⊗ I_2 ⊗ I_2) × (CS ⊗ I_2) × (I_2 ⊗ H ⊗ I_2) × CIT ×  (I_2 ⊗ CS) × (I_2 ⊗ I_2 ⊗ H)) (density ∣0,0,0⟩) ≡ density (∣+⟩ ⊗ ∣+⟩ ⊗ ∣+⟩).
 Proof.
-super_reduce.
+Time super_reduce.
 Qed.
 
 Lemma QFT_ket0_3' : (H ⊗ I_2 ⊗ I_2) × (CS ⊗ I_2) × (I_2 ⊗ H ⊗ I_2) × CIT ×  (I_2 ⊗ CS) × (I_2 ⊗ I_2 ⊗ H) × ∣0,0,0⟩ ≈ ∣+⟩ ⊗ ∣+⟩ ⊗ ∣+⟩.
@@ -192,3 +192,5 @@ by_den.
 rewrite QFT_ket0_2.
 reflexivity.
 Qed.
+
+(* Finished transaction in 14.91 secs (14.89u,0.s) (successful) *)

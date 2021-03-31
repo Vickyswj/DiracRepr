@@ -682,17 +682,7 @@ Lemma Mmult_1B0 : ⟨1∣ × B0 ≡ Zero.
 Proof. base_reduce. Qed.
 
 Lemma Mmult_B0pos : B0 × ∣+⟩ ≡ / √ 2 .* ∣0⟩.
-Proof. 
-  autounfold with B_db.
-  distribute_plus.
-  (* isolate_scale; *)
-  assoc_right.
-  repeat mult_reduce.
-  reduce_scale.
-
-
-
-base_reduce. Qed.
+Proof. base_reduce. Qed.
 Lemma Mmult_posB0 : ⟨+∣ × B0 ≡ / √ 2 .* ⟨0∣.
 Proof. base_reduce. Qed.
 
@@ -806,6 +796,7 @@ Proof. gate_reduce. Qed.
 Lemma Mmult_negI : ⟨-∣ × I_2 ≡ ⟨-∣.
 Proof. gate_reduce.  Qed.
 
+
 Lemma Mmult_σX0 : σX × ∣0⟩ ≡ ∣1⟩.
 Proof. gate_reduce. Qed.
 Lemma Mmult_0σX : ⟨0∣ × σX ≡ ⟨1∣.
@@ -826,6 +817,7 @@ Proof. gate_reduce. Qed.
 Lemma Mmult_negσX : ⟨-∣ × σX ≡ -1 .* ⟨-∣.
 Proof. gate_reduce. Qed.
 
+
 Lemma Mmult_σZ0 : σZ × ∣0⟩ ≡ ∣0⟩.
 Proof. gate_reduce. Qed.
 Lemma Mmult_0σZ : ⟨0∣ × σZ ≡ ⟨0∣.
@@ -845,6 +837,7 @@ Lemma Mmult_σZneg : σZ × ∣-⟩ ≡ ∣+⟩.
 Proof. gate_reduce. Qed.
 Lemma Mmult_negσZ : ⟨-∣ × σZ ≡ ⟨+∣.
 Proof. gate_reduce.  Qed.
+
 
 Lemma Mmult_σY0 : σY × ∣0⟩ ≡ Ci .* ∣1⟩.
 Proof. gate_reduce. Qed.
@@ -887,6 +880,8 @@ Lemma Mmult_Hneg : H × ∣-⟩ ≡ ∣1⟩.
 Proof. gate_reduce. Qed.
 Lemma Mmult_negH : ⟨-∣ × H ≡ ⟨1∣.
 Proof. gate_reduce. Qed.
+
+
 
 Lemma Mmult_M00 : M0 × ∣0⟩ ≡ ∣0⟩.
 Proof. gate_reduce. Qed.

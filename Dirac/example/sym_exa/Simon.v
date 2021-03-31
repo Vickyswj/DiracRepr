@@ -83,7 +83,7 @@ Qed. *)
 
 (*Vector*)
 Definition CIX := B0 ⊗ I_2 ⊗ I_2 .+ B3 ⊗ I_2 ⊗ σX.
-Hint Unfold  CIX : Gn_db.
+Global Hint Unfold  CIX : Gn_db.
 
 Definition φ30 := ∣0,0,0,0⟩.
 Definition φ31 := (H ⊗ H ⊗ I_2 ⊗ I_2) × φ30.
@@ -159,7 +159,7 @@ Lemma simon3 : (H ⊗ H ⊗ I_2 ⊗ I_2) × (I_2 ⊗ CX ⊗ I_2) × (CIX ⊗ σX
 Proof. operate_reduce. Qed.
 Lemma Dsimon3 : super ((H ⊗ H ⊗ I_2 ⊗ I_2) × (I_2 ⊗ CX ⊗ I_2) × (CIX ⊗ σX) × (H ⊗ H ⊗ I_2 ⊗ I_2)) (density ∣0,0,0,0⟩) ≡ density (/2 .* ∣0,0,0,1⟩ .+ /2 .* ∣1,1,0,1⟩ .+ /2 .* ∣0,0,1,1⟩ .+ - /2 .* ∣1,1,1,1⟩).
 Proof.
-super_reduce.
+Time super_reduce.
 Qed.
 
 
@@ -169,3 +169,5 @@ by_den.
 rewrite simon3.
 reflexivity.
 Qed.
+
+(* Finished transaction in 48.84 secs (48.578u,0.062s) (successful)*)

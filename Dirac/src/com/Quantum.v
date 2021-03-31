@@ -44,14 +44,14 @@ Notation "'⟨' x '∣'" := (bra x). (* This gives the Coq parser headaches *)
 
 Notation "∣ x , y , .. , z ⟩" := (kron .. (kron ∣x⟩ ∣y⟩) .. ∣z⟩) (at level 0).
 (* Alternative: |0⟩|1⟩. *)
-				
+                                                                       
 Transparent bra.
 Transparent ket.
 Transparent qubit0.
 Transparent qubit1.
 
 Definition bool_to_ket (b : bool) : Matrix 2 1 := if b then ∣1⟩ else ∣0⟩.
-			
+                                                                     
 Definition bool_to_matrix (b : bool) : Matrix 2 2 := if b then ∣1⟩⟨1∣ else ∣0⟩⟨0∣.
 
 Definition bool_to_matrix' (b : bool) : Matrix 2 2 := fun x y =>
@@ -162,7 +162,6 @@ Definition control {n : nat} (A : Matrix n n) : Matrix (2*n) (2*n) :=
 (* Direct definition makes our lives easier *)
 (* Dimensions are given their current form for convenient
    kron_mixed_product applications *)
-
 Definition cnot : Matrix (2*2) (2*2) :=
   fun x y => match x, y with 
           | 0, 0 => C1
@@ -170,7 +169,7 @@ Definition cnot : Matrix (2*2) (2*2) :=
           | 2, 3 => C1
           | 3, 2 => C1
           | _, _ => C0
-          end.
+          end.          
 
 Lemma cnot_eq : cnot = control σx.
 Proof.
@@ -185,7 +184,7 @@ Definition notc : Matrix (2*2) (2*2) :=
           | 0, 0 => 1%C
           | 2, 2 => 1%C
           | _, _ => 0%C
-          end.
+          end.          
 
 (* Swap Matrices *)
 
@@ -201,7 +200,7 @@ Definition swap : Matrix (2*2) (2*2) :=
 Hint Unfold qubit0 qubit1 hadamard σx σy σz control cnot swap bra ket : U_db.
 
 (** ** Rotation Matrices *)
-
+                              
 (* Standard(?) definition, but it makes equivalence-checking a little annoying 
    because of a global phase.
 
@@ -214,7 +213,6 @@ Definition rotation (θ ϕ λ : R) : Matrix 2 2 :=
              | _, _ => C0
              end.
 *)
-
 Definition rotation (θ ϕ λ : R) : Matrix 2 2 :=
   fun x y => match x, y with
              | 0, 0 => (cos (θ/2))
@@ -281,17 +279,14 @@ Proof.
   reflexivity. 
 Qed.
 
-
 Lemma y_rotation_pi : y_rotation PI = -Ci .* σy.
 Proof.
   unfold σy, y_rotation, scale. 
   prep_matrix_equality.
   destruct_m_eq; 
   autorewrite with trig_db C_db;
-  try reflexivity.
+  try reflexivity. 
 Qed.
-
-
 
 Lemma hadamard_rotation : rotation (PI/2) 0 PI = hadamard.
 Proof.
@@ -416,7 +411,7 @@ Lemma MmultZZ : σz × σz = I 2. Proof. solve_matrix. Qed.
 Lemma MmultHH : hadamard × hadamard = I 2. Proof. solve_matrix. Qed.
 Lemma Mplus01 : ∣0⟩⟨0∣ .+ ∣1⟩⟨1∣ = I 2. Proof. solve_matrix. Qed.
 Lemma Mplus10 : ∣1⟩⟨1∣ .+ ∣0⟩⟨0∣ = I 2. Proof. solve_matrix. Qed.
-
+                            
 Lemma σx_on_right0 : forall (q : Vector 2), (q × ⟨0∣) × σx = q × ⟨1∣.
 Proof. intros. rewrite Mmult_assoc, Mmult0X. reflexivity. Qed.
 
@@ -436,7 +431,7 @@ Proof.
   intros. 
   rewrite Mmult_assoc. 
   rewrite <- (Mmult_assoc ⟨0∣).
-  rewrite Mmult00.
+  rewrite Mmult00.             
   Msimpl; reflexivity.
 Qed.
 
@@ -446,7 +441,7 @@ Proof.
   intros. 
   rewrite Mmult_assoc. 
   rewrite <- (Mmult_assoc ⟨0∣).
-  rewrite Mmult01.
+  rewrite Mmult01.             
   Msimpl_light; reflexivity.
 Qed.
 
@@ -456,7 +451,7 @@ Proof.
   intros. 
   rewrite Mmult_assoc. 
   rewrite <- (Mmult_assoc ⟨1∣).
-  rewrite Mmult10.
+  rewrite Mmult10.             
   Msimpl_light; reflexivity.
 Qed.
 
@@ -467,7 +462,7 @@ Proof.
   intros. 
   rewrite Mmult_assoc. 
   rewrite <- (Mmult_assoc ⟨1∣).
-  rewrite Mmult11.
+  rewrite Mmult11.             
   Msimpl; reflexivity.
 Qed.
 
@@ -1099,16 +1094,15 @@ Hint Rewrite hadamard_sa σx_sa σy_sa σz_sa cnot_sa swap_sa braqubit1_sa braqu
 Hint Rewrite control_sa using (autorewrite with M_db; reflexivity) : M_db. *)
 
 Lemma cnot_decomposition : ∣1⟩⟨1∣ ⊗ σx .+ ∣0⟩⟨0∣ ⊗ I 2 = cnot.
-Proof. solve_matrix. Qed.
+Proof. solve_matrix. Qed.                                               
 
-(* Lemma notc_decomposition : σx ⊗ ∣1⟩⟨1∣ .+ I 2 ⊗ ∣0⟩⟨0∣ = notc.
-Proof. solve_matrix. Qed. *)
+Lemma notc_decomposition : σx ⊗ ∣1⟩⟨1∣ .+ I 2 ⊗ ∣0⟩⟨0∣ = notc.
+Proof. solve_matrix. Qed.                                               
 
 (*********************)
 (** ** Phase Lemmas **)
 (*********************)
 
-(*
 Lemma phase_0 : phase_shift 0 = I 2.
 Proof. 
   unfold phase_shift, I. 
@@ -1166,7 +1160,6 @@ Qed.
 
 Hint Rewrite phase_0 phase_2pi phase_pi phase_neg_pi : Q_db.
 
-*)
 
 (*****************************)
 (* Positive Semidefiniteness *)
@@ -1238,7 +1231,7 @@ Hint Resolve WF_Pure : wf_db.
 Lemma WF_Mixed : forall {n} (ρ : Density n), Mixed_State ρ -> WF_Matrix ρ.
 Proof. induction 1; auto with wf_db. Qed.
 Hint Resolve WF_Mixed : wf_db.
-(*
+
 Lemma pure0 : Pure_State ∣0⟩⟨0∣. 
 Proof. exists ∣0⟩. intuition. split. auto with wf_db. solve_matrix. Qed.
 
@@ -1247,14 +1240,14 @@ Proof. exists ∣1⟩. intuition. split. auto with wf_db. solve_matrix. Qed.
 
 Lemma pure_id1 : Pure_State (I  1).
 Proof. exists (I  1). split. split. auto with wf_db. solve_matrix. solve_matrix. Qed.
-*)
+
 Lemma pure_dim1 : forall (ρ : Square 1), Pure_State ρ -> ρ = I  1.
 Proof.
   intros ρ [φ [[WFφ IP1] Eρ]]. 
   apply Minv_flip in IP1.
   rewrite Eρ; easy.
-Qed.
-
+Qed.    
+                              
 Lemma pure_state_kron : forall m n (ρ : Square m) (φ : Square n),
   Pure_State ρ -> Pure_State φ -> Pure_State (ρ ⊗ φ).
 Proof.
@@ -1315,7 +1308,7 @@ Qed.
 
 (* The following two lemmas say that for any mixed states, the elements along the 
    diagonal are real numbers in the [0,1] interval. *)
-(*
+
 Lemma mixed_state_diag_in01 : forall {n} (ρ : Density n) i , Mixed_State ρ -> 
                                                         0 <= fst (ρ i i) <= 1.
 Proof.
@@ -1371,7 +1364,7 @@ Proof.
       apply Rmult_le_compat_l; lra.
     lra.
 Qed.
-*)
+
 Lemma mixed_state_diag_real : forall {n} (ρ : Density n) i , Mixed_State ρ -> 
                                                         snd (ρ i i) = 0.
 Proof.
@@ -1396,7 +1389,7 @@ Proof.
   + rewrite IHMixed_State1, IHMixed_State2.
     prep_matrix_equality.
     lca.
-Qed.
+Qed.  
 
 (* Useful to be able to normalize vectors *)
 
@@ -1545,7 +1538,7 @@ Proof.
     rewrite (Mmult_adjoint U φ).
     repeat rewrite Mmult_assoc.
     reflexivity.
-Qed.
+Qed.    
 
 Lemma mixed_unitary : forall {n} (U ρ : Matrix n n), 
   WF_Unitary U -> Mixed_State ρ -> Mixed_State (super U ρ).
@@ -1586,8 +1579,8 @@ Proof.
   reflexivity.
 Qed.
 
-(*
-(* This is compose_super_correct  *)
+
+(* This is compose_super_correct 
 Lemma WF_Superoperator_compose : forall m n p (s : Superoperator n p) (s' : Superoperator m n),
     WF_Superoperator s ->
     WF_Superoperator s' ->
@@ -1612,7 +1605,7 @@ Ltac Qsimpl := try restore_dims; autorewrite with M_db_light M_db Q_db.
 (****************************************)
 (* Tests and Lemmas about swap matrices *)
 (****************************************)
-(*
+
 Lemma swap_spec : forall (q q' : Vector 2), WF_Matrix q -> 
                                        WF_Matrix q' ->
                                        swap × (q ⊗ q') = q' ⊗ q.
@@ -1635,7 +1628,8 @@ Proof.
     rewrite WF by lia. 
     rewrite (WF' 1%nat (S y)) by lia.
     lca.
-Qed.
+Qed.  
+
 Hint Rewrite swap_spec using (auto 100 with wf_db) : Q_db.
 
 Example swap_to_0_test_24 : forall (q0 q1 q2 q3 : Vector 2), 
@@ -1647,17 +1641,17 @@ Proof.
   simpl.
   rewrite Mmult_assoc.
   repeat rewrite Mmult_assoc.
-  rewrite (kron_assoc q0 q1). Qsimpl.
+  rewrite (kron_assoc q0 q1) by auto with wf_db. Qsimpl.
   replace 4%nat with (2*2)%nat by reflexivity.
-  repeat rewrite kron_assoc.
+  repeat rewrite kron_assoc by auto with wf_db.
   restore_dims.
-  rewrite <- (kron_assoc q0 q2). Qsimpl.
-  rewrite (kron_assoc q2). Qsimpl.
-  rewrite <- kron_assoc. Qsimpl.
-  repeat rewrite <- kron_assoc.
+  rewrite <- (kron_assoc q0 q2) by auto with wf_db. Qsimpl.
+  rewrite (kron_assoc q2) by auto with wf_db. Qsimpl.
+  rewrite <- kron_assoc by auto with wf_db. Qsimpl.
+  repeat rewrite <- kron_assoc by auto with wf_db.
   reflexivity.
 Qed.
-*)
+
 Lemma swap_two_base : swap_two 2 1 0 = swap.
 Proof. unfold swap_two. simpl. apply kron_1_r. Qed.
 
@@ -1693,7 +1687,7 @@ Proposition swap_two_spec : forall (q q0 : Matrix 2 1) (n0 n1 n2 n k : nat) (l0 
      (swap_two n n0 (n0+n1+1)) (⨂ (l0 ++ [q0] ++ l1 ++ [q] ++ l2)) = 
      ⨂ (l0 ++ [q] ++ l1 ++ [q0] ++ l2).
 *)
-(*
+
 Example move_to_0_test_24 : forall (q0 q1 q2 q3 : Vector 2), 
   WF_Matrix q0 -> WF_Matrix q1 -> WF_Matrix q2 -> WF_Matrix q3 ->
   move_to_0 4 2 × (q0 ⊗ q1 ⊗ q2 ⊗ q3) = (q2 ⊗ q0 ⊗ q1 ⊗ q3). 
@@ -1701,17 +1695,18 @@ Proof.
   intros q0 q1 q2 q3 WF0 WF1 WF2 WF3.
   unfold move_to_0, move_to_0_aux.
   repeat rewrite Mmult_assoc.
-  rewrite (kron_assoc q0 q1).
+  rewrite (kron_assoc q0 q1) by auto with wf_db.
   simpl.
   restore_dims.
   replace 4%nat with (2*2)%nat by reflexivity.
   Qsimpl.
-  rewrite <- kron_assoc.
+  rewrite <- kron_assoc by auto with wf_db.
   restore_dims.
-  repeat rewrite (kron_assoc _ q1). 
+  repeat rewrite (kron_assoc _ q1) by auto with wf_db. 
   Qsimpl.
   reflexivity.
 Qed.
-*)
+
 (* *)
+
 

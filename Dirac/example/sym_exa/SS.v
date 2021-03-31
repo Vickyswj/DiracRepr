@@ -19,7 +19,7 @@ super ((M0 ⊗ M0 ⊗ M0 ⊗ I_2) × (I_2 ⊗ H ⊗ H ⊗ I_2) × (XC ⊗ I_2 �
 Proof.
 intros.
 unfold φ,GHZ.
-super_reduce.
+Time super_reduce.
 Qed.
 
 Lemma ss0' :  forall (a b : C),
@@ -40,12 +40,12 @@ unfold φ,GHZ.
 operate_reduce.
 Qed.
 
-Lemma Dss1' :  forall (a b : C),
+Lemma Dss1 :  forall (a b : C),
 super ((I_2 ⊗ I_2 ⊗ I_2 ⊗ σZ) × (M0 ⊗ M0 ⊗ M1 ⊗ I_2) × (I_2 ⊗ H ⊗ H ⊗ I_2) × (XC ⊗ I_2 ⊗ I_2)) (density (φ a b ⊗ GHZ)) ≡ density (/ √ 2 * / 2  .* ∣0⟩ ⊗ ∣0⟩  ⊗ ∣1⟩ ⊗ φ a b).
 Proof.
 intros.
 unfold φ,GHZ.
-super_reduce.
+Time super_reduce.
 Qed.
 
 Lemma ss1' :  forall (a b : C),
@@ -71,7 +71,7 @@ super ((I_2 ⊗ I_2 ⊗ I_2 ⊗ σZ) × (M0 ⊗ M1 ⊗ M0 ⊗ I_2) × (I_2 ⊗ H
 Proof.
 intros.
 unfold φ,GHZ.
-super_reduce.
+Time super_reduce.
 Qed.
 
 Lemma ss2' :  forall (a b : C),
@@ -97,7 +97,7 @@ super ((I_2 ⊗ I_2 ⊗ I_2 ⊗ σZ) × (I_2 ⊗ I_2 ⊗ I_2 ⊗ σZ) × (M0 ⊗
 Proof.
 intros.
 unfold φ,GHZ.
-super_reduce.
+Time super_reduce.
 Qed.
 
 Lemma ss3' :  forall (a b : C),
@@ -123,7 +123,7 @@ super ((I_2 ⊗ I_2 ⊗ I_2 ⊗ σX) × (M1 ⊗ M0 ⊗ M0 ⊗ I_2) × (I_2 ⊗ H
 Proof.
 intros.
 unfold φ,GHZ.
-super_reduce.
+Time super_reduce.
 Qed.
 
 Lemma ss4' :  forall (a b : C),
@@ -149,7 +149,7 @@ super ((I_2 ⊗ I_2 ⊗ I_2 ⊗ σX) × (I_2 ⊗ I_2 ⊗ I_2 ⊗ σZ) × (M1 ⊗
 Proof.
 intros.
 unfold φ,GHZ.
-super_reduce.
+Time super_reduce.
 Qed.
 
 Lemma ss5' :  forall (a b : C),
@@ -175,7 +175,7 @@ super ((I_2 ⊗ I_2 ⊗ I_2 ⊗ σX) × (I_2 ⊗ I_2 ⊗ I_2 ⊗ σZ) × (M1 ⊗
 Proof.
 intros.
 unfold φ,GHZ.
-super_reduce.
+Time super_reduce.
 Qed.
 
 Lemma ss6' :  forall (a b : C),
@@ -201,7 +201,7 @@ super ((I_2 ⊗ I_2 ⊗ I_2 ⊗ σX) × (I_2 ⊗ I_2 ⊗ I_2 ⊗ σZ) × (I_2 �
 Proof.
 intros.
 unfold φ,GHZ.
-super_reduce.
+Time super_reduce.
 Qed.
 
 Lemma ss7' :  forall (a b : C),
@@ -211,3 +211,13 @@ intros.
 by_den.
 rewrite ss7; reflexivity.
 Qed.
+
+(* 
+Finished transaction in 37.559 secs (37.375u,0.046s) (successful)
+Finished transaction in 48.964 secs (48.671u,0.015s) (successful)
+Finished transaction in 49.244 secs (49.015u,0.015s) (successful)
+Finished transaction in 60.381 secs (60.046u,0.062s) (successful)
+Finished transaction in 48.188 secs (48.078u,0.s) (successful)
+Finished transaction in 57.792 secs (57.484u,0.078s) (successful)
+Finished transaction in 59.737 secs (59.484u,0.015s) (successful)
+Finished transaction in 70.623 secs (70.234u,0.031s) (successful) *)
