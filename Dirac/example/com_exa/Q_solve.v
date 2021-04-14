@@ -36,15 +36,18 @@ unfold CIT.
 solve_matrix.
 Qed.
 
-Lemma DQFT_ket0_3 : super (hadamard ⊗ I 2 ⊗ I 2) (super (CS ⊗ I 2) (super (I 2 ⊗ hadamard ⊗ I 2) (super CIT (super (I 2 ⊗ CS) (super (I 2 ⊗ I 2 ⊗ hadamard) ((∣0⟩ ⊗ ∣0⟩ ⊗ ∣0⟩) × (∣0⟩ ⊗ ∣0⟩ ⊗ ∣0⟩)†)))))) = (∣+⟩ ⊗ ∣+⟩ ⊗ ∣+⟩) × (∣+⟩ ⊗ ∣+⟩ ⊗ ∣+⟩)†.
+
+Lemma DQFT_ket0_3 : super ((hadamard ⊗ I 2 ⊗ I 2) × (CS ⊗ I 2) × (I 2 ⊗ hadamard ⊗ I 2) × CIT ×  (I 2 ⊗ CS) × (I 2 ⊗ I 2 ⊗ hadamard)) ((∣0⟩ ⊗ ∣0⟩ ⊗ ∣0⟩) × (∣0⟩ ⊗ ∣0⟩ ⊗ ∣0⟩)†) = (∣+⟩ ⊗ ∣+⟩ ⊗ ∣+⟩) × (∣+⟩ ⊗ ∣+⟩ ⊗ ∣+⟩)†.
 Proof.
 unfold CIT,super.
-solve_matrix.
+Time solve_matrix.
 Qed.
 
-(* Lemma DQFT_ket0_3' : super ((hadamard ⊗ I 2 ⊗ I 2) × (CS ⊗ I 2) × (I 2 ⊗ hadamard ⊗ I 2) × CIT ×  (I 2 ⊗ CS) × (I 2 ⊗ I 2 ⊗ hadamard)) ρ0 = (∣+⟩ ⊗ ∣+⟩ ⊗ ∣+⟩) × (∣+⟩ ⊗ ∣+⟩ ⊗ ∣+⟩)†.
+
+(* Lemma DQFT_ket0_3‘ : super (hadamard ⊗ I 2 ⊗ I 2) (super (CS ⊗ I 2) (super (I 2 ⊗ hadamard ⊗ I 2) (super CIT (super (I 2 ⊗ CS) (super (I 2 ⊗ I 2 ⊗ hadamard) ((∣0⟩ ⊗ ∣0⟩ ⊗ ∣0⟩) × (∣0⟩ ⊗ ∣0⟩ ⊗ ∣0⟩)†)))))) = (∣+⟩ ⊗ ∣+⟩ ⊗ ∣+⟩) × (∣+⟩ ⊗ ∣+⟩ ⊗ ∣+⟩)†.
 Proof.
-unfold ρ0,φ0,CIT,CS,PS,PT,phase_shift,control,super.
-unfold ketp,ketn.
+unfold CIT,CS,super.
 solve_matrix.
 Qed. *)
+
+(* Finished transaction in 110.017 secs (106.14u,0.375s) (successful) *)

@@ -229,7 +229,7 @@ Qed.
 
 (* One qubit *)
 
-(* 160 *)
+(* 174 *)
 Lemma Eq1' : forall v : Vector 2, /√2 .* (σX .+ σZ) × v ≡  H × v.
 Proof.
 intros.
@@ -255,7 +255,7 @@ Qed.
 
 
 
-(* 162 *)
+(* 177 *)
 Lemma Eq2' : forall v : Vector 2, (H × σX × H) × v ≡ σZ × v.
 Proof.
 intros.
@@ -330,13 +330,14 @@ apply Eq4'.
 Qed.
 
 
+
 (* Two qubits *)
 
 (* Definition SWAP :=  B0 ⊗ B0 .+ B1 ⊗ B2 .+ B2 ⊗ B1 .+ B3 ⊗ B3.
 Definition CA_1 {n} (A : Matrix n n) := B0 ⊗ I_2 .+ B3 ⊗ A.
 Definition AC_1 {n} (A : Matrix n n) := A ⊗ B3 .+ I_2 ⊗ B0. *)
-(* 22 *)
-Lemma Eq5' : forall v : Vector 4, SWAP × v ≡  (CX × XC × CX) × v.
+(* 179 *)
+Lemma Eq5' : forall v : Vector 4, CZ × v ≡ (I_2 ⊗ H) × CX × (I_2 ⊗ H) × v.
 Proof.
 intros.
 pose proof vq2 v.
@@ -351,13 +352,13 @@ rewrite H1,H2.
 operate_reduce.
 Qed.
 
-Lemma Eq5 : SWAP ≡ CX × XC × CX.
+Lemma Eq5 : CZ ≡ (I_2 ⊗ H) × CX × (I_2 ⊗ H).
 Proof.
 rewrite MatrixEquiv_spec.
 apply Eq5'.
 Qed.
 
-Lemma Eq5_o : SWAP ≈ CX × XC × CX.
+Lemma Eq5_o : CZ ≈ (I_2 ⊗ H) × CX × (I_2 ⊗ H).
 Proof.
 by_effect.
 by_def1.
@@ -365,8 +366,9 @@ apply Eq5'.
 Qed.
 
 
-(* 164 *)
-Lemma Eq6' : forall v : Vector 4, CZ × v ≡ ZC × v.
+
+(* 185 *)
+Lemma Eq6' : forall v : Vector 4, CX × (σX ⊗ I_2) × CX × v ≡  (σX ⊗ σX) × v.
 Proof.
 intros.
 pose proof vq2 v.
@@ -381,13 +383,13 @@ rewrite H1,H2.
 operate_reduce.
 Qed.
 
-Lemma Eq6 : CZ ≡ ZC.
+Lemma Eq6 : CX × (σX ⊗ I_2) × CX ≡ (σX ⊗ σX).
 Proof.
 rewrite MatrixEquiv_spec.
 apply Eq6'.
 Qed.
 
-Lemma Eq6_o : CZ ≈ ZC.
+Lemma Eq6_o : CX × (σX ⊗ I_2) × CX ≈ (σX ⊗ σX).
 Proof.
 by_effect.
 by_def1.
@@ -395,8 +397,8 @@ apply Eq6'.
 Qed.
 
 
-(* 164 *)
-Lemma Eq7' : forall v : Vector 4, CZ × v ≡ (I_2 ⊗ H) × CX × (I_2 ⊗ H) × v.
+
+Lemma Eq7' : forall v : Vector 4, CX × (σY ⊗ I_2) × CX × v ≡  (σY ⊗ σX) × v.
 Proof.
 intros.
 pose proof vq2 v.
@@ -411,13 +413,13 @@ rewrite H1,H2.
 operate_reduce.
 Qed.
 
-Lemma Eq7 : CZ ≡ (I_2 ⊗ H) × CX × (I_2 ⊗ H).
+Lemma Eq7 : CX × (σY ⊗ I_2) × CX ≡ (σY ⊗ σX).
 Proof.
 rewrite MatrixEquiv_spec.
 apply Eq7'.
 Qed.
 
-Lemma Eq7_o : CZ ≈ (I_2 ⊗ H) × CX × (I_2 ⊗ H).
+Lemma Eq7_o : CX × (σY ⊗ I_2) × CX ≈ (σY ⊗ σX).
 Proof.
 by_effect.
 by_def1.
@@ -425,8 +427,8 @@ apply Eq7'.
 Qed.
 
 
-(* 171 *)
-Lemma Eq8' : forall v : Vector 4, CX × (σX ⊗ I_2) × CX × v ≡  (σX ⊗ σX) × v.
+
+Lemma Eq8' : forall v : Vector 4, CX × (σZ ⊗ I_2) × CX × v ≡  (σZ ⊗ I_2) × v.
 Proof.
 intros.
 pose proof vq2 v.
@@ -441,13 +443,13 @@ rewrite H1,H2.
 operate_reduce.
 Qed.
 
-Lemma Eq8 : CX × (σX ⊗ I_2) × CX ≡ (σX ⊗ σX).
+Lemma Eq8 : CX × (σZ ⊗ I_2) × CX ≡ (σZ ⊗ I_2).
 Proof.
 rewrite MatrixEquiv_spec.
 apply Eq8'.
 Qed.
 
-Lemma Eq8_o : CX × (σX ⊗ I_2) × CX ≈ (σX ⊗ σX).
+Lemma Eq8_o : CX × (σZ ⊗ I_2) × CX ≈ (σZ ⊗ I_2).
 Proof.
 by_effect.
 by_def1.
@@ -456,7 +458,7 @@ Qed.
 
 
 
-Lemma Eq9' : forall v : Vector 4, CX × (σY ⊗ I_2) × CX × v ≡  (σY ⊗ σX) × v.
+Lemma Eq9' : forall v : Vector 4, CX × (I_2 ⊗ σX) × CX × v ≡  (I_2 ⊗ σX) × v.
 Proof.
 intros.
 pose proof vq2 v.
@@ -471,13 +473,13 @@ rewrite H1,H2.
 operate_reduce.
 Qed.
 
-Lemma Eq9 : CX × (σY ⊗ I_2) × CX ≡ (σY ⊗ σX).
+Lemma Eq9 : CX × (I_2 ⊗ σX) × CX ≡ (I_2 ⊗ σX).
 Proof.
 rewrite MatrixEquiv_spec.
 apply Eq9'.
 Qed.
 
-Lemma Eq9_o : CX × (σY ⊗ I_2) × CX ≈ (σY ⊗ σX).
+Lemma Eq9_o : CX × (I_2 ⊗ σX) × CX ≈ (I_2 ⊗ σX).
 Proof.
 by_effect.
 by_def1.
@@ -486,7 +488,7 @@ Qed.
 
 
 
-Lemma Eq10' : forall v : Vector 4, CX × (σZ ⊗ I_2) × CX × v ≡  (σZ ⊗ I_2) × v.
+Lemma Eq10' : forall v : Vector 4, CX × (I_2 ⊗ σY) × CX × v ≡  (σZ ⊗ σY) × v.
 Proof.
 intros.
 pose proof vq2 v.
@@ -501,13 +503,13 @@ rewrite H1,H2.
 operate_reduce.
 Qed.
 
-Lemma Eq10 : CX × (σZ ⊗ I_2) × CX ≡ (σZ ⊗ I_2).
+Lemma Eq10 : CX × (I_2 ⊗ σY) × CX ≡ (σZ ⊗ σY).
 Proof.
 rewrite MatrixEquiv_spec.
 apply Eq10'.
 Qed.
 
-Lemma Eq10_o : CX × (σZ ⊗ I_2) × CX ≈ (σZ ⊗ I_2).
+Lemma Eq10_o : CX × (I_2 ⊗ σY) × CX ≈ (σZ ⊗ σY).
 Proof.
 by_effect.
 by_def1.
@@ -516,7 +518,7 @@ Qed.
 
 
 
-Lemma Eq11' : forall v : Vector 4, CX × (I_2 ⊗ σX) × CX × v ≡  (I_2 ⊗ σX) × v.
+Lemma Eq11' : forall v : Vector 4, CX × (I_2 ⊗ σZ) × CX × v ≡  (σZ ⊗ σZ) × v.
 Proof.
 intros.
 pose proof vq2 v.
@@ -531,13 +533,13 @@ rewrite H1,H2.
 operate_reduce.
 Qed.
 
-Lemma Eq11 : CX × (I_2 ⊗ σX) × CX ≡ (I_2 ⊗ σX).
+Lemma Eq11 : CX × (I_2 ⊗ σZ) × CX ≡ (σZ ⊗ σZ).
 Proof.
 rewrite MatrixEquiv_spec.
 apply Eq11'.
 Qed.
 
-Lemma Eq11_o : CX × (I_2 ⊗ σX) × CX ≈ (I_2 ⊗ σX).
+Lemma Eq11_o : CX × (I_2 ⊗ σZ) × CX ≈ (σZ ⊗ σZ).
 Proof.
 by_effect.
 by_def1.
@@ -546,7 +548,7 @@ Qed.
 
 
 
-Lemma Eq12' : forall v : Vector 4, CX × (I_2 ⊗ σY) × CX × v ≡  (σZ ⊗ σY) × v.
+Lemma Eq12' : forall v : Vector 4, XC × v ≡ (H ⊗ H) × CX × (H ⊗ H) × v.
 Proof.
 intros.
 pose proof vq2 v.
@@ -561,13 +563,13 @@ rewrite H1,H2.
 operate_reduce.
 Qed.
 
-Lemma Eq12 : CX × (I_2 ⊗ σY) × CX ≡ (σZ ⊗ σY).
+Lemma Eq12 : XC ≡ (H ⊗ H) × CX × (H ⊗ H).
 Proof.
 rewrite MatrixEquiv_spec.
 apply Eq12'.
 Qed.
 
-Lemma Eq12_o : CX × (I_2 ⊗ σY) × CX ≈ (σZ ⊗ σY).
+Lemma Eq12_o : XC ≈ (H ⊗ H) × CX × (H ⊗ H).
 Proof.
 by_effect.
 by_def1.
@@ -576,7 +578,8 @@ Qed.
 
 
 
-Lemma Eq13' : forall v : Vector 4, CX × (I_2 ⊗ σZ) × CX × v ≡  (σZ ⊗ σZ) × v.
+(* 179 *)
+Lemma Eq13' : forall v : Vector 4, CZ × v ≡ ZC × v.
 Proof.
 intros.
 pose proof vq2 v.
@@ -591,13 +594,13 @@ rewrite H1,H2.
 operate_reduce.
 Qed.
 
-Lemma Eq13 : CX × (I_2 ⊗ σZ) × CX ≡ (σZ ⊗ σZ).
+Lemma Eq13 : CZ ≡ ZC.
 Proof.
 rewrite MatrixEquiv_spec.
 apply Eq13'.
 Qed.
 
-Lemma Eq13_o : CX × (I_2 ⊗ σZ) × CX ≈ (σZ ⊗ σZ).
+Lemma Eq13_o : CZ ≈ ZC.
 Proof.
 by_effect.
 by_def1.
@@ -606,7 +609,7 @@ Qed.
 
 
 
-Lemma Eq14' : forall v : Vector 4, CZ × v ≡ (I_2 ⊗ H) × CX × (I_2 ⊗ H) × v.
+Lemma Eq14' : forall v : Vector 4, XC × v ≡ (H ⊗ H) × CX × (H ⊗ H) × v.
 Proof.
 intros.
 pose proof vq2 v.
@@ -621,13 +624,13 @@ rewrite H1,H2.
 operate_reduce.
 Qed.
 
-Lemma Eq14 : CZ ≡ (I_2 ⊗ H) × CX × (I_2 ⊗ H).
+Lemma Eq14 : XC ≡ (H ⊗ H) × CX × (H ⊗ H).
 Proof.
 rewrite MatrixEquiv_spec.
 apply Eq14'.
 Qed.
 
-Lemma Eq14_o : CZ ≈ (I_2 ⊗ H) × CX × (I_2 ⊗ H).
+Lemma Eq14_o : XC ≈ (H ⊗ H) × CX × (H ⊗ H).
 Proof.
 by_effect.
 by_def1.
@@ -636,7 +639,8 @@ Qed.
 
 
 
-Lemma Eq15' : forall v : Vector 4, XC × v ≡ (H ⊗ H) × CX × (H ⊗ H) × v.
+(* 23 *)
+Lemma Eq15' : forall v : Vector 4, SWAP × v ≡  (CX × XC × CX) × v.
 Proof.
 intros.
 pose proof vq2 v.
@@ -651,13 +655,13 @@ rewrite H1,H2.
 operate_reduce.
 Qed.
 
-Lemma Eq15 : XC ≡ (H ⊗ H) × CX × (H ⊗ H).
+Lemma Eq15 : SWAP ≡ CX × XC × CX.
 Proof.
 rewrite MatrixEquiv_spec.
 apply Eq15'.
 Qed.
 
-Lemma Eq15_o : XC ≈ (H ⊗ H) × CX × (H ⊗ H).
+Lemma Eq15_o : SWAP ≈ CX × XC × CX.
 Proof.
 by_effect.
 by_def1.
@@ -665,10 +669,42 @@ apply Eq15'.
 Qed.
 
 
-(* 165 *)
+
+(* 185 *)
+Lemma Eq16' : forall v : Vector 4, not_CX × v ≡ (σX ⊗ I_2) × CX × (σX ⊗ I_2) × v.
+Proof.
+intros.
+pose proof vq2 v.
+destruct H as [v1 [v2 H]].
+rewrite H.
+pose proof vq1 v1.
+destruct H0 as [a [b H1]].
+pose proof vq1 v2.
+destruct H0 as [c [d H2]].
+rewrite H1,H2.
+
+operate_reduce.
+Qed.
+
+Lemma Eq16 : not_CX ≡ (σX ⊗ I_2) × CX × (σX ⊗ I_2).
+Proof.
+rewrite MatrixEquiv_spec.
+apply Eq16'.
+Qed.
+
+Lemma Eq16_o : not_CX ≈ (σX ⊗ I_2) × CX × (σX ⊗ I_2).
+Proof.
+by_effect.
+by_def1.
+apply Eq16'.
+Qed.
+
+
+
+(* 180 *)
 Definition CE (u: R) := B0 ⊗ I_2 .+ B3 ⊗ (Cexp u .* B0 .+ Cexp u .* B3).
-Hint Unfold  CE : Gn_db.
-Lemma Eq16' : forall (v : Vector 4) (u: R), CE u × v ≡ ((B0 .+ Cexp u .* B3) ⊗ I_2) × v.
+Global Hint Unfold  CE : Gn_db.
+Lemma Eq17' : forall (v : Vector 4) (u: R), CE u × v ≡ ((B0 .+ Cexp u .* B3) ⊗ I_2) × v.
 Proof.
 intros.
 pose proof vq2 v.
@@ -683,59 +719,30 @@ rewrite H1,H2.
 operate_reduce.
 Qed.
 
-Lemma Eq16 : forall (u:R), CE u ≡ ((B0 .+ Cexp u .* B3) ⊗ I_2).
+Lemma Eq17 : forall (u:R), CE u ≡ ((B0 .+ Cexp u .* B3) ⊗ I_2).
 Proof.
 intros.
 rewrite MatrixEquiv_spec.
 intros.
-apply Eq16'.
+apply Eq17'.
 Qed.
 
-Lemma Eq16_o : forall (u:R), CE u ≈ ((B0 .+ Cexp u .* B3) ⊗ I_2).
+Lemma Eq17_o : forall (u:R), CE u ≈ ((B0 .+ Cexp u .* B3) ⊗ I_2).
 Proof.
 intros.
 by_effect.
 by_def1.
-apply Eq16'.
-Qed.
-
-
-(* 169 *)
-Lemma Eq17' : forall v : Vector 4, CX × v ≡ (σX ⊗ I_2) × not_CX × (σX ⊗ I_2) × v.
-Proof.
-intros.
-pose proof vq2 v.
-destruct H as [v1 [v2 H]].
-rewrite H.
-pose proof vq1 v1.
-destruct H0 as [a [b H1]].
-pose proof vq1 v2.
-destruct H0 as [c [d H2]].
-rewrite H1,H2.
-
-operate_reduce.
-Qed.
-
-Lemma Eq17 : CX ≡ (σX ⊗ I_2) × not_CX × (σX ⊗ I_2).
-Proof.
-rewrite MatrixEquiv_spec.
 apply Eq17'.
 Qed.
 
-Lemma Eq17_o : CX ≈ (σX ⊗ I_2) × not_CX × (σX ⊗ I_2).
-Proof.
-by_effect.
-by_def1.
-apply Eq17'.
-Qed.
 
 
 (* Three qubits *)
 
-(* 170 *)
+(* 186 *)
 Definition CXX := B0 ⊗ I_2 ⊗ I_2 .+ B3 ⊗ σX ⊗ σX.
 Definition CIX := B0 ⊗ I_2 ⊗ I_2 .+ B3 ⊗ I_2 ⊗ σX.
-Hint Unfold  CXX CIX : Gn_db.
+Global Hint Unfold  CXX CIX : Gn_db.
 Lemma Eq18' : forall (v : Vector 8),
           CXX × v ≡ CIX × (CX ⊗ I_2) × v.
 Proof.
@@ -784,70 +791,72 @@ induction n.
 Admitted.
 
 
+
 (* Bell Preparation *)
 (* 24*)
-Definition bell00 := /√2 .* (∣0,0⟩) .+ /√2 .* (∣1,1⟩).
-Definition bell01 := /√2 .* (∣0,1⟩) .+ /√2 .* (∣1,0⟩).
-Definition bell10 := /√2 .* (∣0,0⟩) .+ (-/√2) .* (∣1,1⟩).
-Definition bell11 := /√2 .* (∣0,1⟩) .+ (-/√2) .* (∣1,0⟩).
+Definition bl00 := /√2 .* (∣0,0⟩) .+ /√2 .* (∣1,1⟩).
+Definition bl01 := /√2 .* (∣0,1⟩) .+ /√2 .* (∣1,0⟩).
+Definition bl10 := /√2 .* (∣0,0⟩) .+ (-/√2) .* (∣1,1⟩).
+Definition bl11 := /√2 .* (∣0,1⟩) .+ (-/√2) .* (∣1,0⟩).
 
 
-Lemma pre_bell00' : bell00 ≡  CX × (H ⊗ I_2) × (∣0,0⟩).
+Lemma pb00' : bl00 ≡  CX × (H ⊗ I_2) × (∣0,0⟩).
 Proof.
-unfold bell00.
+unfold bl00.
 operate_reduce.
 Qed.
 
-Lemma pre_bell00'' : bell00 ≈  CX × (H ⊗ I_2) × (∣0,0⟩).
+Lemma pb00'' : bl00 ≈  CX × (H ⊗ I_2) × (∣0,0⟩).
 Proof.
 by_def1.
-apply pre_bell00'.
+apply pb00'.
 Qed.
 
-Lemma pre_bell00 :  super (CX × (H ⊗ I_2)) (density (∣0,0⟩)) ≡ density bell00.
+Lemma pb00 :  super (CX × (H ⊗ I_2)) (density (∣0,0⟩)) ≡ density bl00.
 Proof.
-unfold bell00.
+unfold bl00.
 super_reduce.
 Qed.
 
-Lemma pre_bell01'' : bell01 ≈ CX × (H ⊗ I_2) × (∣0,1⟩).
+Lemma pb01'' : bl01 ≈ CX × (H ⊗ I_2) × (∣0,1⟩).
 Proof.
 by_def1.
-unfold bell01.
+unfold bl01.
 operate_reduce.
 Qed.
 
-Lemma pre_bell01 :  super (CX × (H ⊗ I_2)) (density (∣0,1⟩)) ≡ density bell01.
+Lemma pb01 :  super (CX × (H ⊗ I_2)) (density (∣0,1⟩)) ≡ density bl01.
 Proof.
-unfold bell01.
+unfold bl01.
 super_reduce.
 Qed.
 
-Lemma pre_bell10'' : bell10 ≈ CX × (H ⊗ I_2) × (∣1,0⟩).
+Lemma pb10'' : bl10 ≈ CX × (H ⊗ I_2) × (∣1,0⟩).
 Proof.
 by_def1.
-unfold bell10.
+unfold bl10.
 operate_reduce.
 Qed.
 
-Lemma pre_bell10 :  super (CX × (H ⊗ I_2)) (density (∣1,0⟩)) ≡ density bell10.
+Lemma pb10 :  super (CX × (H ⊗ I_2)) (density (∣1,0⟩)) ≡ density bl10.
 Proof.
-unfold bell10.
+unfold bl10.
 super_reduce.
 Qed.
 
-Lemma pre_bell11'' : bell11 ≈ CX × (H ⊗ I_2) × (∣1,1⟩).
+Lemma pb11'' : bl11 ≈ CX × (H ⊗ I_2) × (∣1,1⟩).
 Proof.
 by_def1.
-unfold bell11.
+unfold bl11.
 operate_reduce.
 Qed.
 
-Lemma pre_bell11 :  super (CX × (H ⊗ I_2)) (density (∣1,1⟩)) ≡ density bell11.
+Lemma pb11 :  super (CX × (H ⊗ I_2)) (density (∣1,1⟩)) ≡ density bl11.
 Proof.
-unfold bell11.
+unfold bl11.
 super_reduce.
 Qed.
+
 
 
 (* GHZ Preparation *)
@@ -856,6 +865,8 @@ Proof.
 by_def1.
 operate_reduce.
 Qed.
+(* Finished transaction in 15.83 secs (15.578u,0.031s) (successful) *)
+
 
 
 (* rotation *)
@@ -876,6 +887,7 @@ unfold rZ,PT.
 operate_reduce.
 replace (PI / 4 / 2)%R with (PI / 8)%R by lra.
 Admitted.
+
 
 
 (* Toffoli *)

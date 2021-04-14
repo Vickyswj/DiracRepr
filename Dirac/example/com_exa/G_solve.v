@@ -166,10 +166,10 @@ Hint Rewrite Cmult_plus_distr_l Cmult_plus_distr_r Copp_plus_distr Copp_mult_dis
               Copp_involutive : C_db.
 
 
-Lemma DGrover_2_0 :super ((I 2 ⊗ I 2 ⊗ hadamard) × (CPS × (ORA0 × (hadamard ⊗ hadamard ⊗ hadamard)))) ((∣0,0,1⟩) × (∣0,0,1⟩)†)  = ((∣0,0,1⟩) × (∣0,0,1⟩)†).
+Lemma DGrover_2_0 :super ((I 2 ⊗ I 2 ⊗ hadamard) × CPS × ORA0 × (hadamard ⊗ hadamard ⊗ hadamard)) ((∣0,0,1⟩) × (∣0,0,1⟩)†)  = ((∣0,0,1⟩) × (∣0,0,1⟩)†).
 Proof.
 unfold super.
-solve_matrix.
+Time solve_matrix.
 Qed.
 
 (* Lemma DGrover_2_0'' :super ((I 2 ⊗ I 2 ⊗ hadamard) × (CPS' × (ORA0 × (hadamard ⊗ hadamard ⊗ hadamard)))) ((∣0,0,1⟩) × (∣0,0,1⟩)†)  = ((∣0,0,1⟩) × (∣0,0,1⟩)†).
@@ -179,29 +179,29 @@ solve_matrix.
 Qed. *)
 
 
-Lemma DGrover_2_0' :super (I 2 ⊗ I 2 ⊗ hadamard) (super CPS (super ORA0 (super (hadamard ⊗ hadamard ⊗ hadamard) ((∣0,0,1⟩) × (∣0,0,1⟩)†))))  = ((∣0,0,1⟩) × (∣0,0,1⟩)†).
+(* Lemma DGrover_2_0' :super (I 2 ⊗ I 2 ⊗ hadamard) (super CPS (super ORA0 (super (hadamard ⊗ hadamard ⊗ hadamard) ((∣0,0,1⟩) × (∣0,0,1⟩)†))))  = ((∣0,0,1⟩) × (∣0,0,1⟩)†).
 Proof.
 unfold super.
 solve_matrix.
-Qed.
+Qed. *)
 
-Lemma DGrover_2_1 :super ((I 2 ⊗ I 2 ⊗ hadamard) × (CPS × (ORA1 × (hadamard ⊗ hadamard ⊗ hadamard)))) ((∣0,0,1⟩) × (∣0,0,1⟩)†)  = ((∣0,1,1⟩) × (∣0,1,1⟩)†).
+Lemma DGrover_2_1 :super ((I 2 ⊗ I 2 ⊗ hadamard) × CPS × ORA1 × (hadamard ⊗ hadamard ⊗ hadamard)) ((∣0,0,1⟩) × (∣0,0,1⟩)†)  = ((∣0,1,1⟩) × (∣0,1,1⟩)†).
 Proof.
 unfold super.
-solve_matrix.
+Time solve_matrix.
 Qed.
 
-Lemma DGrover_2_2 :super ((I 2 ⊗ I 2 ⊗ hadamard) × (CPS × (ORA2 × (hadamard ⊗ hadamard ⊗ hadamard)))) ((∣0,0,1⟩) × (∣0,0,1⟩)†)  = ((∣1,0,1⟩) × (∣1,0,1⟩)†).
+Lemma DGrover_2_2 :super ((I 2 ⊗ I 2 ⊗ hadamard) × CPS × ORA2 × (hadamard ⊗ hadamard ⊗ hadamard)) ((∣0,0,1⟩) × (∣0,0,1⟩)†)  = ((∣1,0,1⟩) × (∣1,0,1⟩)†).
 Proof.
 unfold super.
-solve_matrix.
+Time solve_matrix.
 Qed.
 
-Lemma DGrover_2_3 :super ((I 2 ⊗ I 2 ⊗ hadamard) × (CPS × (ORA3 × (hadamard ⊗ hadamard ⊗ hadamard)))) ((∣0,0,1⟩) × (∣0,0,1⟩)†)  = ((∣1,1,1⟩) × (∣1,1,1⟩)†).
+Lemma DGrover_2_3 :super ((I 2 ⊗ I 2 ⊗ hadamard) × CPS × ORA3 × (hadamard ⊗ hadamard ⊗ hadamard)) ((∣0,0,1⟩) × (∣0,0,1⟩)†)  = ((∣1,1,1⟩) × (∣1,1,1⟩)†).
 Proof.
 unfold super.
-solve_matrix.
+Time solve_matrix.
 Qed.
 
-
+(* Finished transaction in 1491.123 secs (1330.265u,65.781s) (successful) *)
 

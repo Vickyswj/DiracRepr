@@ -208,7 +208,7 @@ unfold Mea1,B3,density,bell00,bell01.
   repeat rewrite (Cmult_comm α (α ^*)).
   repeat rewrite (Cmult_comm β (β ^*)).
   repeat rewrite <- Cmod_sqr.
-  rewrite Cplus_comm in Normalise.
+  rewrite Cplus_comm.
   rewrite Normalise.
    apply injective_projections; simpl; field.
 Qed.
@@ -236,7 +236,7 @@ apply injective_projections; simpl; field.
   repeat rewrite (Cmult_comm α (α ^*)).
   repeat rewrite (Cmult_comm β (β ^*)).
   repeat rewrite <- Cmod_sqr.
-  rewrite Cplus_comm in Normalise.
+  rewrite Cplus_comm.
   rewrite Normalise.
    apply injective_projections; simpl; field.
 Qed.
@@ -306,7 +306,7 @@ unfold Mea1,B3,density,bell00,bell01.
   repeat rewrite (Cmult_comm α (α ^*)).
   repeat rewrite (Cmult_comm β (β ^*)).
   repeat rewrite <- Cmod_sqr.
-  rewrite Cplus_comm in Normalise.
+  rewrite Cplus_comm.
   rewrite Normalise.
    apply injective_projections; simpl; field.
 Qed.
@@ -334,7 +334,7 @@ apply injective_projections; simpl; field.
   repeat rewrite (Cmult_comm α (α ^*)).
   repeat rewrite (Cmult_comm β (β ^*)).
   repeat rewrite <- Cmod_sqr.
-  rewrite Cplus_comm in Normalise.
+  rewrite Cplus_comm.
   rewrite Normalise.
    apply injective_projections; simpl; field.
 Qed.

@@ -1059,18 +1059,12 @@ Hint Rewrite CX00 CX01 CX10 CX11
                              CXpp CXpn CXnp CXnn : G2_db.
 
 
-Lemma GHZ_ket0_3 : (I_2 ⊗ CX) × (CX ⊗ I_2) × (H ⊗ I_2 ⊗ I_2) × ∣0,0,0⟩ ≡  /√2 .* ∣0,0,0⟩ .+ /√2 .* ∣1,1,1⟩.
-Proof.
-  Time operate_reduce.
-Qed.
-(* Finished transaction in 15.83 secs (15.578u,0.031s) (successful) *)
-
 
 (* Symbolic Reasoning Strategy of states in the density matrix form *)
 Notation Density n := (Matrix n n) (only parsing).
-Definition density {n} (φ : Matrix n 1) : Density n := φ × φ†.
-Definition super {m n} (U : Matrix m n) : Density n -> Density m := fun ρ => 
-  U × ρ × U†.
+Definition density {n} (ϕ : Matrix n 1) : Density n := ϕ × ϕ†.
+Definition super {m n} (M : Matrix m n) : Density n -> Density m := fun ρ => 
+  M × ρ × M†.
 
 Ltac super_reduce:=
   unfold super,density;                                                                   (* expand super and density *)
@@ -1175,8 +1169,8 @@ Qed.
 Definition Pure n  :=(R * (Density n))%type.   (* (prod R (Density n))%type. *)
 
 
-Definition Mix n :=  (list (R * (Density n)))%type.
-Definition Mix' n :=  (list (Pure n))%type.
+Definition Mix' n :=  (list (R * (Density n)))%type.
+Definition Mix n :=  (list (Pure n))%type.
 
 
 (* Definition DtoP {n} (ρ : Density n) : Pure n := (1,  ρ).
@@ -1329,6 +1323,7 @@ end.
 Definition Mea0 (n k : N) :=  (I (2^k) ⊗ B0 ⊗ I (2^(n-k))).
 Definition Mea1 (n k : N) :=  (I (2^k) ⊗ B3 ⊗ I (2^(n-k))).
 Definition Mea (n k : N) :=  (I (2^k) ⊗ (B0 .+ B3) ⊗ I (2^(n-k))).
+Definition Mea' (n k : N) :=  Mea0 n k .+ Mea1 n k.
 
 
 Definition MeaDen {n} (m k : N) (ρ : Density n) : Mix n :=

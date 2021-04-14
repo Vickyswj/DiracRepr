@@ -199,7 +199,7 @@ Qed.
 (* Observational equivalence *)
 
 Lemma sta_equiv_by_Mmult: forall m n (A B: Matrix m n),
-  (forall v : Matrix n 1, Mmult A v ≈ Mmult B v) ->
+  (forall v : Vector n, Mmult A v ≈ Mmult B v) ->
   A ≈ B.
 Proof.
   intros m n A B HAB.
@@ -468,7 +468,7 @@ Qed.
 
 Lemma ObsEquiv_operator: forall {n} (A B: Matrix n n),
    A ≈ B <->
-  (forall φ: Matrix n 1, A × φ ≈  B × φ).
+  (forall ψ: Matrix n 1, A × ψ ≈  B × ψ).
 
 Proof.
   intros.
@@ -479,8 +479,8 @@ Proof.
     auto.
 Qed.
 
- Lemma ObsEquiv_state: forall {n} (φ ρ: Matrix n 1),
-   φ ≈ ρ <-> φ × (φ †) ≡ ρ × (ρ †) .
+ Lemma ObsEquiv_state: forall {n} (ψ ϕ: Matrix n 1),
+   ψ ≈ ϕ <-> ψ × (ψ †) ≡ ϕ × (ϕ †) .
 Proof.
   intros; split; intros.
   + unfold obs_equiv in H.
@@ -494,12 +494,12 @@ Proof.
     rewrite Mscale_1_l.
     reflexivity.
   + unfold obs_equiv.
-    revert φ ρ H.
+    revert ψ ϕ H.
 (*     set (m := (Nat.pow (S (S O)) n)).
     clearbody m; clear n. *)
     intros.
     unfold obs_equiv.
-    assert (forall i, (i < (N.to_nat n))%nat -> exists c, Cmod c = R1 /\ c * (φ i O) = ρ i O).
+    assert (forall i, (i < (N.to_nat n))%nat -> exists c, Cmod c = R1 /\ c * (ψ i O) = ϕ i O).
     {
       intros i Hi.
       specialize (H ltac:(exists i; auto) ltac:(exists i; auto)).
@@ -509,16 +509,16 @@ Proof.
       ring_simplify in H.
       rewrite Cmult_comm, <- Cmod_Cconj in H.
       rewrite Cmult_comm, <- Cmod_Cconj in H.
-      assert (Cmod (φ i 0%nat) = Cmod (ρ i 0%nat)).
+      assert (Cmod (ψ i 0%nat) = Cmod (ϕ i 0%nat)).
       {
         inversion H.
         ring_simplify in H1.
-        pose proof Cmod_ge_0 (φ i O).
-        pose proof Cmod_ge_0 (ρ i O).
+        pose proof Cmod_ge_0 (ψ i O).
+        pose proof Cmod_ge_0 (ϕ i O).
         nra.
       }
       clear H.
-      destruct (Classical_Prop.classic (φ i O = 0)).
+      destruct (Classical_Prop.classic (ψ i O = 0)).
       {
         exists 1.
         split; [autorewrite with C_db;auto | ].
@@ -529,7 +529,7 @@ Proof.
         rewrite H0, H.
         ring.
       }
-      exists ((ρ i O)/(φ i O)).
+      exists ((ϕ i O)/(ψ i O)).
       split.
       + rewrite Cmod_div by auto.
         rewrite <- H0.
@@ -539,14 +539,14 @@ Proof.
       + field.
         auto.
     }
-    destruct (Classical_Prop.classic (exists i, (i < (N.to_nat n))%nat /\ φ i O <> 0)).
+    destruct (Classical_Prop.classic (exists i, (i < (N.to_nat n))%nat /\ ψ i O <> 0)).
     2: {
       exists 1.
       split; [autorewrite with C_db;auto | ].
       intros [i Hi] [j Hj]; unfold get; simpl.
       destruct j; [clear Hj | lia].
       unfold scale.
-      assert (φ i O = 0).
+      assert (ψ i O = 0).
       { apply Classical_Prop.NNPP; intro; apply H1; exists i; auto. }
       specialize (H0 i Hi).
       destruct H0 as [c [_ ?]].
@@ -566,13 +566,13 @@ Proof.
     ring_simplify in H.
     rewrite <- H1, <- H2, Cconj_mult_distr in H.
     rewrite <- H2.
-    destruct (Classical_Prop.classic (φ i' O = 0)) as [| Hs1i'].
+    destruct (Classical_Prop.classic (ψ i' O = 0)) as [| Hs1i'].
     { rewrite H3; ring. }
     assert (c * c' ^* = 1).
     {
       transitivity
-         (c * φ i 0%nat * (c' ^* * (φ i' 0%nat) ^*) /
-         (φ i 0%nat * (φ i' 0%nat) ^*)).
+         (c * ψ i 0%nat * (c' ^* * (ψ i' 0%nat) ^*) /
+         (ψ i 0%nat * (ψ i' 0%nat) ^*)).
       { field. split; auto. intro. apply Cconj_eq_0 in H3; tauto. }
       rewrite <- H.
       field. split; auto. intro. apply Cconj_eq_0 in H3; tauto.
