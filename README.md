@@ -20,15 +20,15 @@ We describe it in detail in [this draft](https://arxiv.org/pdf/2005.11023).
 Symbolic reasoning strategy design
 
 
-- src/Complex.v : Complex number library, modified from Coquelicot
+- src/com/QWIRE/Complex.v : Complex number library, modified from Coquelicot
 
-- src/sym/M_notWF.v : Matrix library without WF assumptions and redefined matrix equivalence.
-- src/sym/MN_notWF.v : Matrix library with BinNat parameters.
+- src/sym/MN_notWF.v : Matrix library without WF assumptions and redefined matrix equivalence and with BinNat parameters.
 - src/sym/Dirac.v : Symbolic reasoning strategy library with Dirac notation.
 - src/sym/Equival.v : Equivalences of circuits.
-
-- src/com/Matrix.v : Matrix library, copid form Qwire(https://github.com/inQWIRE/QWIRE), for experimental comparison.
-- src/com/Quantum.v : Define unitary matrices and quantum operations library, copid form Qwire(https://github.com/inQWIRE/QWIRE), for experimental comparison.
+- src/sym/MMix.v : Mixed state definition and operation.
+- 
+- src/com/QWIRE/Matrix.v : Matrix library, copid form Qwire(https://github.com/inQWIRE/QWIRE), for experimental comparison.
+- src/com/QWIRE/Quantum.v : Define unitary matrices and quantum operations library, copid form Qwire(https://github.com/inQWIRE/QWIRE), for experimental comparison.
 
 
 ### example
@@ -43,9 +43,10 @@ Examples of verifying correctness properties of quantum circuits using two appro
 - example/sym_exa/SS.v : quantum secret sharing protocol with symbolic approaches.
 - example/sym_exa/Teleportation.v : quantum teleportation with symbolic approaches.
 - example/sym_exa/Grover.v : Grover’s search algorithm with two qubits with symbolic approaches.
+- example/sym_exa/DJnew.v : Deutsch-Jozsa algorithm with symbolic approaches.
+- example/sym_exa/Tele_Mix.v : quantum teleportation on mixed state with symbolic approaches.
 - example/sym_exa/Simple.v : Equivalences of circuits.
-- example/sym_exa/Big_example.v : Preparation of an entangled states.
-
+- example/sym_exa/Entangled_TOF.v : Preparation of an entangled states.
 
 - example/com_exa/D_solve.v : Deutsch's algorithm with computational approaches.
 - example/com_exa/Q_solve.v : quantum Fourier transform (QFT) with three qubits with computational approaches.
