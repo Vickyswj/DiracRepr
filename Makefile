@@ -12,8 +12,9 @@ KNOWNFILES := Makefile _CoqProject
 .DEFAULT_GOAL := invoke-coqmakefile
 
 CoqMakefile: Makefile _CoqProject
-#	git submodule init
-#	git submodule update
+#	git submodule add https://github.com/inQWIRE/QWIRE.git Dirac/src/com/QWIRE
+	git submodule init
+	git submodule update
 	$(COQBIN)coq_makefile -f _CoqProject -o CoqMakefile
 
 invoke-coqmakefile: CoqMakefile
